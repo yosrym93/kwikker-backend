@@ -1,8 +1,8 @@
 from flask_restplus import Namespace, Resource
 from .kweeks import kweeks_api
 
-trends_api = Namespace('trends')
-search_api = Namespace('search')
+trends_api = Namespace(name='Trends', path='/trends')
+search_api = Namespace(name='Search', path='/search')
 
 '''
     Use @kweeks_api, @search_api and @trends_api instead of api

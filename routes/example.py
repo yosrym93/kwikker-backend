@@ -2,7 +2,7 @@ from flask_restplus import Namespace, Resource, fields
 from models import User, Kweek
 from app import create_model
 
-example_api = Namespace('example')
+example_api = Namespace(name='Example', path='/example')
 
 
 @example_api.route('/secondary')
