@@ -1,4 +1,6 @@
 from flask_restplus import Namespace, Resource
+from models import DirectMessage,Conversation,Notification
+from app import create_model
 
 messages_api = Namespace(name='Direct Messages', path='/direct_message')
 notifications_api = Namespace(name='Notifications', path='/notifications')
@@ -9,7 +11,22 @@ notifications_api = Namespace(name='Notifications', path='/notifications')
 '''
 
 
-# TODO: Write the documented endpoints
 @messages_api.route('/')
-class Example(Resource):
-    pass
+class DirectMessages(Resource):
+    def get(self):
+        pass
+
+    def post(self):
+        pass
+
+
+@messages_api.route('/conversations')
+class Conversations(Resource):
+    def get(self):
+        pass
+
+
+@notifications_api.route('/')
+class Notifications(Resource):
+    def get(self):
+        pass
