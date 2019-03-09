@@ -11,14 +11,14 @@ class DirectMessages(Resource):
     @messages_api.response(code=200, description='Messages Returned Successfully.', model=[DirectMessage.api_model])
     @messages_api.response(code=401, description='Unauthorized access.')
     @messages_api.response(code=404, description='User does not exist.')
-    @messages_api.param(name='username', type="str", description='Username for Messages to display', required=True)
+    @messages_api.param(name='username', type="str", description='Username for Messages to display.', required=True)
     @messages_api.param(name='last_retrieved_message_id. ', type="str", description='Nullable.Normally the request '
                                                                                     'returns the first 20 messages when'
                                                                                     ' null.To retrieve more send the id'
                                                                                     ' of the last message retrieved.',
                         nullable=True)
     def get(self):
-        ''' Retrieves a list of Direct Messages '''
+        """ Retrieves a list of Direct Messages. """
         pass
 
     @messages_api.response(code=201, description='Message Created Successfully.')
