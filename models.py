@@ -74,79 +74,125 @@ class UserProfile:
 
 
 class Hashtag:
-    # TODO: Add a description for each parameter
     api_model = create_model('Hashtag', {
-        'id': fields.String,
-        'indices': fields.List(fields.Integer)
+        'id': fields.String(description='The unique id of the trend.'),
+        'indices': fields.List(fields.Integer,
+                               description='The indices of the beginning and ending of the hashtag in the kweek.')
     })
 
     def __init__(self, json):
-        # TODO: implement
-        pass
+        self.id = json['id']
+        self.indices = (json['indices'][0], json['indices'][1])
 
     def to_json(self):
-        # TODO: implement
-        pass
+        return {
+            'id': self.id,
+            'indices': [self.indices[0], self.indices[1]]
+        }
 
 
 class Mention:
-    # TODO: Add a description for each parameter
     api_model = create_model('Mention', {
-        'username': fields.String,
-        'indices': fields.List(fields.Integer)
+        'username': fields.String(description='The username of the mentioned user.'),
+        'indices': fields.List(fields.Integer,
+                               description='The indices of the beginning and ending of the mention in the kweek.')
     })
 
     def __init__(self, json):
-        # TODO: implement
-        pass
+        self.username = json['username']
+        self.indices = (json['indices'][0], json['indices'][1])
 
     def to_json(self):
-        # TODO: implement
-        pass
+        return {
+            'username': self.username,
+            'indices': [self.indices[0], self.indices[1]]
+        }
 
 
 class RekweekInfo:
-    # TODO: Add a description for each parameter
     api_model = create_model('Rekweek Info', {
-        'rekweeker_name': fields.String,
-        'rekweeker_username': fields.String
+        'rekweeker_name': fields.String(description='The screen name of the user who rekweeked the kweek.'),
+        'rekweeker_username': fields.String(description='The username of the user who rekweeked the kweek.')
     })
 
     def __init__(self, json):
-        # TODO: implement
-        pass
+        self.rekweeker_name = json['rekweeker_name']
+        self.rekweeker_username = json['rekweeker_username']
 
     def to_json(self):
-        # TODO: implement
-        pass
+        return {
+            'rekweeker_name': self.rekweeker_name,
+            'rekweeker_username': self.rekweeker_username
+        }
 
 
 class Kweek:
     # TODO: Add a description for each parameter
     api_model = create_model('Kweek', {
-        'id': fields.String,
-        'created_at': fields.DateTime,
-        'text': fields.String,
-        'imageUrl': fields.String,  # Nullable
-        'user': fields.Nested(User.api_model),
-        'hashtags': fields.List(fields.Nested(Hashtag.api_model)),
-        'mentions': fields.List(fields.Nested(Mention.api_model)),
-        'number_of_likes': fields.Integer,
-        'number_of_rekweeks': fields.Integer,
-        'number_of_replies': fields.Integer,
-        'reply_to': fields.String,   # Nullable, kweek id
-        'rekweek_info': fields.Nested(RekweekInfo.api_model)  # Nullable
+        'id': fields.String(description='The id of the kweek.'),
+        'created_at': fields.DateTime(description='The date and time when the kweek was created.'),
+        'text': fields.String(description='The text of the kweek.'),
+        'media_url': fields.String(description='Nullable. The url of the image attached with the kweek,'
+                                               ' if any.'),
+        'user': fields.Nested(User.api_model, description='The user who wrote the kweek.'),
+        'mentions': fields.List(fields.Nested(Mention.api_model), description='The mentions in the kweek.'),
+        'hashtags': fields.List(fields.Nested(Hashtag.api_model), description='The hashtags in the kweek.'),
+        'number_of_likes': fields.Integer(description='The number of likes of the kweek.'),
+        'number_of_rekweeks': fields.Integer(description='The number of rekweeks of the kweek.'),
+        'number_of_replies': fields.Integer(description='The number of replies of the kweek.'),
+        'reply_to': fields.String(description='Nullable. The id of the kweek that this kweek is a reply to,'
+                                              ' if any.'),
+        'rekweek_info': fields.Nested(RekweekInfo.api_model,
+                                      description= 'Nullable. The information of who rekweeked this kweek,'
+                                                   'if returned as a rekweek.'),
+        'liked_by_user': fields.Boolean(description='Whether or not the user liked this kweek.'),
+        'rekweeked_by_user': fields.Boolean(description='Whether or not the user rekweeked this kweek.')
     })
 
     def __init__(self, json):
-        # TODO: implement
-        # Use the nested objects constructors to build them
+        self.id = json['id']
+        self.created_at = json['created_at']
+        self.text = json['text']
+        self.media_url = json['media_url']
+        self.user = User(json['user'])
+
+        self.hashtags = []
+        for hashtag in json['hashtags']:
+            self.hashtags.append(hashtag)
+
+        self.mentions = []
+        for mention in json['mentions']:
+            self.mentions.append(mention)
+
+        self.number_of_likes = json['number_of_likes']
+        self.number_of_rekweeks = json['number_of_rekweeks']
+        self.number_of_replies = json['number_of_replies']
+        self.reply_to = json['reply_to']
+        self.rekweek_info = RekweekInfo(json['rekweek_info'])
         pass
 
     def to_json(self):
-        # TODO: implement
-        # Use the nested objects to_json function to convert them
-        pass
+        json = {}
+        json['id'] = self.id
+        json['created_at'] = self.created_at
+        json['text'] = self.text
+        json['media_url'] = self.media_url
+        json['user'] = self.user.to_json()
+
+        json['hashtags'] = []
+        for hashtag in self.hashtags:
+            json['hashtags'].append(hashtag.to_json())
+
+        json['mentions'] = []
+        for mention in self.mentions:
+            json['mentions'].append(mention.to_json())
+
+        json['number_of_likes'] = self.number_of_likes
+        json['number_of_rekweeks'] = self.number_of_rekweeks
+        json['number_of_replies'] = self.number_of_replies
+        json['reply_to'] = self.reply_to
+        json['rekweek_info'] = self.rekweek_info.to_json()
+        return json
 
 
 class Notification:
@@ -212,4 +258,24 @@ class Conversation:
         return {
             'user': self.user,
             'last_message': self.last_message
+        }
+
+
+class Trend:
+    api_model = create_model('Trend', {
+        'id': fields.String(description='The id of the trend.'),
+        'text': fields.String(description='The text of the trend.'),
+        'number_of_kweeks': fields.Integer(description='The number of kweeks in the trend.')
+    })
+
+    def __init__(self, json):
+        self.id = json['id'],
+        self.text = json['text'],
+        self.number_of_kweeks = json['number_of_kweeks']
+
+    def to_json(self):
+        return {
+            'id': self.id,
+            'text': self.text,
+            'number_of_kweeks': self.number_of_kweeks
         }
