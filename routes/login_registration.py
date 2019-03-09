@@ -1,6 +1,6 @@
 from flask_restplus import Namespace, Resource
 
-account_api = Namespace('account')
+account_api = Namespace(name='Account', path='/account')
 
 '''
     Use @account_api  instead of api

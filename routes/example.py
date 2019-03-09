@@ -1,7 +1,8 @@
-from flask_restplus import Namespace, Resource
+from flask_restplus import Namespace, Resource, fields
 from models import User, Kweek
+from app import create_model
 
-example_api = Namespace('example')
+example_api = Namespace(name='Example', path='/example')
 
 
 @example_api.route('/secondary')
@@ -13,6 +14,15 @@ class ExampleResource(Resource):
     def get(self):
         pass
 
-    @example_api.expect(Kweek.api_model)
+    @example_api.response(code=200, description='Logged in successfully')
+    @example_api.response(code=404, description='User does not exist')
+    @example_api.expect(create_model('Login Form', model={
+        'username': fields.String,
+        'password': fields.String
+    }))
     def post(self):
+        pass
+
+    @example_api.expect(Kweek.api_model)
+    def put(self):
         pass

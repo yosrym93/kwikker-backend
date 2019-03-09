@@ -1,4 +1,4 @@
-from app import api
+from app import api, create_model
 from flask_restplus import fields
 
 
@@ -13,7 +13,7 @@ from flask_restplus import fields
 
 class User:
     # TODO: Add a description for each parameter
-    api_model = api.model('User', {
+    api_model = create_model('User', {
         'username': fields.String,
         'screen_name': fields.String,
         'profile_image_url': fields.String,
@@ -47,7 +47,7 @@ class User:
 
 class UserProfile:
     # TODO: Add a description for each parameter
-    api_model = api.model('User Profile', {
+    api_model = create_model('User Profile', {
         'username': fields.String(),
         'screen_name': fields.String,
         'bio': fields.String,
@@ -75,7 +75,7 @@ class UserProfile:
 
 class Hashtag:
     # TODO: Add a description for each parameter
-    api_model = api.model('Hashtag', {
+    api_model = create_model('Hashtag', {
         'id': fields.String,
         'indices': fields.List(fields.Integer)
     })
@@ -91,7 +91,7 @@ class Hashtag:
 
 class Mention:
     # TODO: Add a description for each parameter
-    api_model = api.model('Mention', {
+    api_model = create_model('Mention', {
         'username': fields.String,
         'indices': fields.List(fields.Integer)
     })
@@ -107,7 +107,7 @@ class Mention:
 
 class RekweekInfo:
     # TODO: Add a description for each parameter
-    api_model = api.model('Rekweek Info', {
+    api_model = create_model('Rekweek Info', {
         'rekweeker_name': fields.String,
         'rekweeker_username': fields.String
     })
@@ -123,7 +123,7 @@ class RekweekInfo:
 
 class Kweek:
     # TODO: Add a description for each parameter
-    api_model = api.model('Kweek', {
+    api_model = create_model('Kweek', {
         'id': fields.String,
         'created_at': fields.DateTime,
         'text': fields.String,
@@ -150,7 +150,7 @@ class Kweek:
 
 
 class Notification:
-    api_model = api.model('Notification', {
+    api_model = create_model('Notification', {
         'id': fields.String(description='a unique string representing the notification'),
         'created_at': fields.DateTime(description='the utc datetime of the notification when created'),
         'type': fields.String(description='type of the notification [possible values:follow,rekweek,like,reply]'),
@@ -179,7 +179,7 @@ class Notification:
 
 
 class DirectMessage:
-    api_model = api.model('Direct Message', {
+    api_model = create_model('Direct Message', {
         'created_at': fields.DateTime(description='the utc datetime of the message when created'),
         'text': fields.String(description='the content of the message'),
         'media_url': fields.String(description='the url pointing directly to the message', required=False)  # Nullable
@@ -199,7 +199,7 @@ class DirectMessage:
 
 
 class Conversation:
-    api_model = api.model('Conversation', {
+    api_model = create_model('Conversation', {
         'user': fields.Nested(User.api_model, description='the user information a.k.a mini-user information'),
         'last_message': fields.Nested(DirectMessage.api_model, description='last message information')
     })
