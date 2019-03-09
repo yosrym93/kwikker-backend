@@ -150,53 +150,66 @@ class Kweek:
 
 
 class Notification:
-    # TODO: Add a description for each parameter
     api_model = api.model('Notification', {
-        'id': fields.String,
-        'created_at': fields.DateTime,
-        'type': fields.String,  # Possible values: 'follow', 'rekweek', 'like', 'reply' # TODO: search for another type
-        'username': fields.String,
-        'screen_name': fields.String,
-        'kweek_id': fields.String   # Nullable
+        'id': fields.String(description='a unique string representing the notification'),
+        'created_at': fields.DateTime(description='the utc datetime of the notification when created'),
+        'type': fields.String(description='type of the notification [possible values:follow,rekweek,like,reply]'),
+        'username': fields.String(description='username of the notification'),
+        'screen_name': fields.String(description='handle that the user identifies themselves with'),
+        'kweek_id': fields.String(description='a unique string representing the kweek id ', required=False)  # Nullable
     })
 
     def __init__(self, json):
-        # TODO: implement
-        pass
+        self.id = json['id']
+        self.created_at = json['created_at']
+        self.type = json['type']
+        self.username = json['username']
+        self.screen_names = json['screen_name']
+        self.kweek_id = json['kweek_id']
 
     def to_json(self):
-        # TODO: implement
-        pass
+        return {
+            'id': self.id,
+            'created_at': self.created_at,
+            'type': self.type,
+            'username': self.username,
+            'screen_name': self.screen_names,
+            'kweek_id': self.kweek_id
+        }
 
 
 class DirectMessage:
-    # TODO: Add a description for each parameter
     api_model = api.model('Direct Message', {
-        'created_at': fields.DateTime,
-        'text': fields.String,
-        'media_url': fields.String  # Nullable
+        'created_at': fields.DateTime(description='the utc datetime of the message when created'),
+        'text': fields.String(description='the content of the message'),
+        'media_url': fields.String(description='the url pointing directly to the message', required=False)  # Nullable
     })
 
     def __init__(self, json):
-        # TODO: implement
-        pass
+        self.created_at = json['created_at']
+        self.text = json['text']
+        self.media_url = json['media_url']
 
     def to_json(self):
-        # TODO: implement
-        pass
+        return{
+            'created_at': self.created_at,
+            'text': self.text,
+            'media_url': self.media_url
+        }
 
 
 class Conversation:
-    # TODO: Add a description for each parameter
     api_model = api.model('Conversation', {
-        'user': fields.Nested(User.api_model),
-        'last_message': fields.Nested(DirectMessage.api_model)
+        'user': fields.Nested(User.api_model, description='the user information a.k.a mini-user information'),
+        'last_message': fields.Nested(DirectMessage.api_model, description='last message information')
     })
 
     def __init__(self, json):
-        # TODO: implement
-        pass
+        self.user = json['user'],
+        self.last_message = json['last_message']
 
     def to_json(self):
-        # TODO: implement
-        pass
+        return {
+            'user': self.user,
+            'last_message': self.last_message
+        }
