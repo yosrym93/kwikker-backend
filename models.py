@@ -151,12 +151,12 @@ class Kweek:
 
 class Notification:
     api_model = create_model('Notification', {
-        'id': fields.String(description='a unique string representing the notification'),
+        'id': fields.String(description='a unique string representing the notification', discriminator=True),
         'created_at': fields.DateTime(description='the utc datetime of the notification when created'),
         'type': fields.String(description='type of the notification [possible values:follow,rekweek,like,reply]'),
-        'username': fields.String(description='username of the notification'),
-        'screen_name': fields.String(description='handle that the user identifies themselves with'),
-        'kweek_id': fields.String(description='a unique string representing the kweek id ', required=False)  # Nullable
+        'username': fields.String(description='username of the notification', discriminator=True),
+        'screen_name': fields.String(description='handle that the user identifies themselves with', discriminator=True),
+        'kweek_id': fields.String(description='a unique string representing the kweek id ', nullable=True)  # Nullable
     })
 
     def __init__(self, json):
@@ -182,7 +182,7 @@ class DirectMessage:
     api_model = create_model('Direct Message', {
         'created_at': fields.DateTime(description='the utc datetime of the message when created'),
         'text': fields.String(description='the content of the message'),
-        'media_url': fields.String(description='the url pointing directly to the message', required=False)  # Nullable
+        'media_url': fields.String(description='the url pointing directly to the message', nullable=True)  # Nullable
     })
 
     def __init__(self, json):
@@ -200,7 +200,8 @@ class DirectMessage:
 
 class Conversation:
     api_model = create_model('Conversation', {
-        'user': fields.Nested(User.api_model, description='the user information a.k.a mini-user information'),
+        'user': fields.Nested(User.api_model, description='the user information a.k.a mini-user information',
+                              required=True),
         'last_message': fields.Nested(DirectMessage.api_model, description='last message information')
     })
 
