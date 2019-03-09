@@ -6,17 +6,12 @@ trends_api = Namespace(name='Trends', path='/trends')
 search_api = Namespace(name='Search', path='/search')
 timelines_api = Namespace(name='Timelines', path='/kweeks/timelines')
 
-'''
-    Use @kweeks_api, @search_api and @trends_api instead of api
-    Replace the following class with your resources
-'''
-
 
 @timelines_api.route('/home')
 class HomeTimeline(Resource):
     @timelines_api.param(name='last_retrieved_kweek_id', type='str',
-                         description="Nullable. The id of the last retrieved kweek, "
-                                     "used when requesting more kweeks. Null on the first request.")
+                         description="Nullable. Normally the request returns the first 20 kweeks when null."
+                                     "To retrieve more send the id of the last kweek retrieved.")
     @timelines_api.response(code=200, description='Kweeks returned successfully.', model=[Kweek.api_model])
     @timelines_api.response(code=401, description='Unauthorized.')
     def get(self):
@@ -26,11 +21,11 @@ class HomeTimeline(Resource):
 
 @timelines_api.route('/profile')
 class ProfileTimeline(Resource):
-    @timelines_api.param(name='username', type='str',
+    @timelines_api.param(name='username', type='str', required=True,
                          description="The username of the user whose profile kweeks are requested.")
     @timelines_api.param(name='last_retrieved_kweek_id', type='str',
-                         description="Nullable. The id of the last retrieved kweek, "
-                                     "used when requesting more kweeks. Null on the first request.")
+                         description="Nullable. Normally the request returns the first 20 kweeks when null."
+                                     "To retrieve more send the id of the last kweek retrieved.")
     @timelines_api.response(code=200, description='Kweeks returned successfully.', model=[Kweek.api_model])
     @timelines_api.response(code=401, description='Unauthorized.')
     @timelines_api.response(code=404, description='User does not exist.')
@@ -42,8 +37,8 @@ class ProfileTimeline(Resource):
 @timelines_api.route('/mentions')
 class MentionsTimeline(Resource):
     @timelines_api.param(name='last_retrieved_kweek_id', type='str',
-                         description="Nullable. The id of the last retrieved kweek, "
-                                     "used when requesting more kweeks. Null on the first request.")
+                         description="Nullable. Normally the request returns the first 20 kweeks when null."
+                                     "To retrieve more send the id of the last kweek retrieved.")
     @timelines_api.response(code=200, description='Kweeks returned successfully.', model=[Kweek.api_model])
     @timelines_api.response(code=401, description='Unauthorized.')
     def get(self):
@@ -54,10 +49,10 @@ class MentionsTimeline(Resource):
 @kweeks_api.route('/user/liked')
 class UserLikedTweets(Resource):
     @kweeks_api.param(name='last_retrieved_kweek_id', type='str',
-                         description="Nullable. The id of the last retrieved kweek, "
-                                     "used when requesting more kweeks. Null on the first request.")
-    @kweeks_api.param(name='username', type='str',
-                         description="The username of the user whose liked kweeks are requested.")
+                      description="Nullable. Normally the request returns the first 20 kweeks when null."
+                                  "To retrieve more send the id of the last kweek retrieved.")
+    @kweeks_api.param(name='username', type='str', required=True,
+                      description="The username of the user whose liked kweeks are requested.")
     @kweeks_api.response(code=200, description='Kweeks returned successfully.', model=[Kweek.api_model])
     @kweeks_api.response(code=401, description='Unauthorized.')
     @kweeks_api.response(code=404, description='User does not exist.')
@@ -68,11 +63,11 @@ class UserLikedTweets(Resource):
 
 @search_api.route('/kweeks')
 class KweeksSearch(Resource):
-    @search_api.param(name='seatch_text', type='str',
-                      description='The text entered by the user in the search bar.')
+    @search_api.param(name='search_text', type='str',
+                      description='The text entered by the user in the search bar.', required=True)
     @search_api.param(name='last_retrieved_kweek_id', type='str',
-                      description="Nullable. The id of the last retrieved kweek, "
-                                  "used when requesting more kweeks. Null on the first request.")
+                      description="Nullable. Normally the request returns the first 20 kweeks when null."
+                                  "To retrieve more send the id of the last kweek retrieved.")
     @search_api.response(code=200, description='Kweeks returned successfully.', model=[Kweek.api_model])
     @search_api.response(code=401, description='Unauthorized.')
     def get(self):
@@ -86,8 +81,8 @@ class KweeksSearch(Resource):
 @trends_api.route('/')
 class Trends(Resource):
     @search_api.param(name='last_retrieved_trend_id', type='str',
-                      description="Nullable. The id of the last retrieved trend, "
-                                  "used when requesting more trends. Null on the first request.")
+                      description="Nullable. Normally the request returns the first 20 trends when null."
+                                  "To retrieve more send the id of the last trend retrieved.")
     @trends_api.response(code=200, description='Trends returned successfully.', model=[Trend.api_model])
     @trends_api.response(code=401, description='Unauthorized.')
     def get(self):
@@ -98,10 +93,10 @@ class Trends(Resource):
 @trends_api.route('/kweeks')
 class Trends(Resource):
     @search_api.param(name='trend_id', type='str',
-                      description='The id of the trend.')
+                      description='The id of the trend.', required=True)
     @search_api.param(name='last_retrieved_kweek_id', type='str',
-                      description="Nullable. The id of the last retrieved kweek, "
-                                  "used when requesting more kweeks. Null on the first request.")
+                      description="Nullable. Normally the request returns the first 20 kweeks when null."
+                                  "To retrieve more send the id of the last kweek retrieved.")
     @trends_api.response(code=200, description='Kweeks returned successfully.', model=[Kweek.api_model])
     @trends_api.response(code=401, description='Unauthorized.')
     @trends_api.response(code=404, description='Trend does not exist.')
