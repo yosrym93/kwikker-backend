@@ -196,12 +196,12 @@ class Kweek:
 
 class Notification:
     api_model = create_model('Notification', {
-        'id': fields.String(description='A unique string representing the notification'),
-        'created_at': fields.DateTime(description='The utc datetime of the notification when created'),
-        'type': fields.String(description='Type of the notification [possible values:follow,rekweek,like,reply]'),
-        'username': fields.String(description='Username of the notification'),
-        'screen_name': fields.String(description='Handle that the user identifies themselves with'),
-        'kweek_id': fields.String(description='Nullable,a unique string representing the kweek id '
+        'id': fields.String(description='A unique string representing the notification.'),
+        'created_at': fields.DateTime(description='The utc datetime of the notification when created.'),
+        'type': fields.String(description='Type of the notification [possible values:follow,rekweek,like,reply].'),
+        'username': fields.String(description='Username of the notification.'),
+        'screen_name': fields.String(description='Handle that the user identifies themselves with.'),
+        'kweek_id': fields.String(description='Nullable,a unique string representing the kweek id.'
                                   , nullable=True)  # Nullable
     })
 
@@ -226,9 +226,9 @@ class Notification:
 
 class DirectMessage:
     api_model = create_model('Direct Message', {
-        'created_at': fields.DateTime(description='The utc datetime of the message when created'),
-        'text': fields.String(description='The content of the message'),
-        'media_url': fields.String(description='Nullable, The url pointing directly to the message'
+        'created_at': fields.DateTime(description='The utc datetime of the message when created.'),
+        'text': fields.String(description='The content of the message.'),
+        'media_url': fields.String(description='Nullable, The url pointing directly to the message.'
                                    , nullable=True)  # Nullable
     })
 
@@ -247,8 +247,8 @@ class DirectMessage:
 
 class Conversation:
     api_model = create_model('Conversation', {
-        'user': fields.Nested(User.api_model, description='The user information a.k.a mini-user information'),
-        'last_message': fields.Nested(DirectMessage.api_model, description='Last message information')
+        'user': fields.Nested(User.api_model, description='The user information a.k.a mini-user information.'),
+        'last_message': fields.Nested(DirectMessage.api_model, description='Last message information.')
     })
 
     def __init__(self, json):
