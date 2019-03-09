@@ -13,7 +13,7 @@ class HomeTimeline(Resource):
                          description="Nullable. Normally the request returns the first 20 kweeks when null."
                                      "To retrieve more send the id of the last kweek retrieved.")
     @timelines_api.response(code=200, description='Kweeks returned successfully.', model=[Kweek.api_model])
-    @timelines_api.response(code=401, description='Unauthorized[User does not have enough privilege].')
+    @timelines_api.response(code=401, description='Unauthorized access.')
     def get(self):
         """ Retrieves a list of kweeks in the home page of the authorized user. """
         pass
@@ -27,7 +27,7 @@ class ProfileTimeline(Resource):
                          description="Nullable. Normally the request returns the first 20 kweeks when null."
                                      "To retrieve more send the id of the last kweek retrieved.")
     @timelines_api.response(code=200, description='Kweeks returned successfully.', model=[Kweek.api_model])
-    @timelines_api.response(code=401, description='Unauthorized[User does not have enough privilege].')
+    @timelines_api.response(code=401, description='Unauthorized access.')
     @timelines_api.response(code=404, description='User does not exist.')
     def get(self):
         """ Retrieves a list of kweeks in the profile of a user. """
@@ -40,7 +40,7 @@ class MentionsTimeline(Resource):
                          description="Nullable. Normally the request returns the first 20 kweeks when null."
                                      "To retrieve more send the id of the last kweek retrieved.")
     @timelines_api.response(code=200, description='Kweeks returned successfully.', model=[Kweek.api_model])
-    @timelines_api.response(code=401, description='Unauthorized[User does not have enough privilege].')
+    @timelines_api.response(code=401, description='Unauthorized access.')
     def get(self):
         """ Retrieves a list of kweeks where the authorized user is mentioned. """
         pass
@@ -69,7 +69,7 @@ class KweeksSearch(Resource):
                       description="Nullable. Normally the request returns the first 20 kweeks when null."
                                   "To retrieve more send the id of the last kweek retrieved.")
     @search_api.response(code=200, description='Kweeks returned successfully.', model=[Kweek.api_model])
-    @search_api.response(code=401, description='Unauthorized.')
+    @search_api.response(code=401, description='Unauthorized access.')
     def get(self):
         """
             Retrieves a list of kweeks that matches (either fully or partially) the sent string.
@@ -84,7 +84,7 @@ class Trends(Resource):
                       description="Nullable. Normally the request returns the first 20 trends when null."
                                   "To retrieve more send the id of the last trend retrieved.")
     @trends_api.response(code=200, description='Trends returned successfully.', model=[Trend.api_model])
-    @trends_api.response(code=401, description='Unauthorized[User does not have enough privilege].')
+    @trends_api.response(code=401, description='Unauthorized access.')
     def get(self):
         """ Retrieves a list of available trends. """
         pass
@@ -98,7 +98,7 @@ class Trends(Resource):
                       description="Nullable. Normally the request returns the first 20 kweeks when null."
                                   "To retrieve more send the id of the last kweek retrieved.")
     @trends_api.response(code=200, description='Kweeks returned successfully.', model=[Kweek.api_model])
-    @trends_api.response(code=401, description='Unauthorized.')
+    @trends_api.response(code=401, description='Unauthorized access.')
     @trends_api.response(code=404, description='Trend does not exist.')
     def get(self):
         """ Retrieves a list of kweeks in a given trend. """
