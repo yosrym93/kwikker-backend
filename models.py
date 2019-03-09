@@ -12,26 +12,25 @@ from flask_restplus import fields
 
 
 class User:
-    # TODO: Add a description for each parameter
-    api_model = create_model('User', {
-        'username': fields.String,
-        'screen_name': fields.String,
-        'profile_image_url': fields.String,
-        'following': fields.Boolean,
-        'follows_you': fields.Boolean,
-        'blocked': fields.Boolean,
-        'muted': fields.Boolean
+    api_model = api.model('User', {
+        'username': fields.String(description='the user name.'),
+        'screen_name': fields.String(description='the name shown on profile screen.'),
+        'profile_image_url': fields.String(description='url for profile image.'),
+        'following': fields.Boolean(description='Boolean to tell me if i follows this user.'),
+        'follows_you': fields.Boolean(description='Boolean to tell me if this user follows me.'),
+        'blocked': fields.Boolean(description='Boolean to tell me if i blocked by this user.'),
+        'muted': fields.Boolean(description=' Boolean for muted feature which allow you to remove an account Tweets '
+                                            'from your timeline without unfollowing or blocking that account.')
     })
 
     def __init__(self, json):
-        # TODO: replace None with the values from the dictionary
-        self.username = None
-        self.screen_name = None
-        self.profile_image_url = None
-        self.following = None
-        self.follows_you = None
-        self.blocked = None
-        self.muted = None
+        self.username = json["username"]
+        self.screen_name = json["screen_name"]
+        self.profile_image_url = json["profile_image_url"]
+        self.following = json["following"]
+        self.follows_you = json["follows_you"]
+        self.blocked = json["blocked"]
+        self.muted = json["muted"]
 
     def to_json(self):
         return {
@@ -46,31 +45,57 @@ class User:
 
 
 class UserProfile:
-    # TODO: Add a description for each parameter
-    api_model = create_model('User Profile', {
-        'username': fields.String(),
-        'screen_name': fields.String,
-        'bio': fields.String,
-        'created_at': fields.DateTime,
-        'followers_count': fields.Integer,
-        'following_count': fields.Integer,
-        'kweeks_count': fields.Integer,
-        'likes_count': fields.Integer,
-        'profile_banner_url': fields.String,
-        'profile_image_url': fields.String,
-        'following': fields.Boolean,
-        'follows_you': fields.Boolean,
-        'blocked': fields.Boolean,
-        'muted': fields.Boolean
+    api_model = api.model('User Profile', {
+        'username': fields.String(description='the user name.'),
+        'screen_name': fields.String(description='the name shown on profile screen.'),
+        'bio': fields.String(description=' the biography of the user'),
+        'created_at': fields.DateTime(description='time created at'),
+        'followers_count': fields.Integer(description='integer indicates number of people follow you.'),
+        'following_count': fields.Integer(description='integer indicates number of people you follow.'),
+        'kweeks_count': fields.Integer(description='integer indicates number of tweets which called kweeks.'),
+        'likes_count': fields.Integer(description='integer indicates number of likes.'),
+        'profile_banner_url': fields.String(description='url for profile banner which is cover photo.'),
+        'profile_image_url': fields.String(description='url for profile image.'),
+        'following': fields.Boolean(description='Boolean to tell me if i follows this user.'),
+        'follows_you': fields.Boolean(description='Boolean to tell me if this user follows me.'),
+        'blocked': fields.Boolean(description='Boolean to tell me if i blocked by this user.'),
+        'muted': fields.Boolean(description=' Boolean for muted feature which allow you to remove an account Tweets '
+                                            'from your timeline without unfollowing or blocking that account.')
     })
 
     def __init__(self, json):
-        # TODO: implement
-        pass
+        self.username = json["username"]
+        self.screen_name = json["screen_name"]
+        self.bio = json["bio"]
+        self.created_at = json["created_at"]
+        self.followers_count = json["followers_count"]
+        self.following_count = json["following_count"]
+        self.kweeks_count = json["kweeks_count"]
+        self.likes_count = json["likes_count"]
+        self.profile_banner_url = json["profile_banner_url"]
+        self.profile_image_url = json["profile_image_url"]
+        self.following = json["following"]
+        self.follows_you = json["follows_you"]
+        self.blocked = json["blocked"]
+        self.muted = json["muted"]
 
     def to_json(self):
-        # TODO: implement
-        pass
+        return {
+            'username': self.username,
+            'screen_name': self.screen_name,
+            'bio': self.bio,
+            'created_at': self.created_at,
+            'followers_count': self.followers_count,
+            'following_count': self.following_count,
+            'kweeks_count': self.kweeks_count,
+            'likes_count': self.likes_count,
+            'profile_banner_url':self.profile_banner_url,
+            'profile_image_url': self.profile_image_url,
+            'following': self.following,
+            'follows_you': self.follows_you,
+            'blocked': self.blocked,
+            'muted': self.muted
+        }
 
 
 class Hashtag:
