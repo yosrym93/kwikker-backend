@@ -114,7 +114,7 @@ class ChangePassword(Resource):
     def put(self):
         """ Update password of the authorized user. """
         pass
-
+ 
 
 @interactions_api.route('/followers')
 class Followers(Resource):
