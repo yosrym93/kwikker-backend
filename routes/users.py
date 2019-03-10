@@ -1,62 +1,56 @@
 from flask_restplus import Namespace, Resource, fields
-from models import User,UserProfile
+from .timelines import search_api
+from models import User, UserProfile
 from app import create_model
-user_api = Namespace(name='User', path='/user',description='change account setting,banner,profile picture '
-                                                           'and search for users')
+
+user_api = Namespace(name='User', path='/user', description='Account settings and user profiles.')
 interactions_api = Namespace(name='Interactions', path='/interactions',
                              description='Following, muting, and blocking')
 
 
-@user_api.route('/search')
-class GetUsers(Resource):
-    @user_api.response(code=200, description='User returned successfully.', model=[User.api_model])
-    @user_api.response(code=404, description='user not found.')
-    @user_api.response(code=400, description='Parameters type does not match.')
-    @user_api.param(name='username', type='str', description='The username or part of it.')
+@search_api.route('/users')
+class UsersSearch(Resource):
+    @search_api.response(code=200, description='Users returned successfully.', model=[User.api_model])
+    @search_api.response(code=400, description='Parameters type does not match.')
+    @search_api.response(code=401, description='Unauthorized access.')
+    @search_api.param(name='search_text', type='str', description='The text entered by the user in the search bar.')
     def get(self):
-        """ Search for matching users using their usernames or part of it. """
-        pass
-
-
-@user_api.route('/')
-class GetUserProfile(Resource):
-    @user_api.response(code=200, description='User Profile returned successfully.', model=UserProfile.api_model)
-    @user_api.response(code=404, description='User not found.')
-    @user_api.response(code=400, description='Parameters type does not match.')
-    @user_api.param(name='username', type='str', description='The username.')
-    def get(self):
-        """ Search for specific users using their usernames. """
+        """ Search for matching users using their username or screen name (or part of them). """
         pass
 
 
 @user_api.route('/profile_banner')
 class ProfileBanner(Resource):
-    @user_api.response(code=204, description='Profile_banner deleted.')
+    @user_api.response(code=401, description='Unauthorized access.')
+    @user_api.response(code=200, description='Profile banner deleted.')
     @user_api.response(code=404, description='Delete failed.')
     def delete(self,):
-        """ Delete a profile banner. """
+        """ Delete a profile banner (restores the default one). """
         pass
 
-    @user_api.response(code=204, description='Profile_banner updated.')
+    @user_api.response(code=200, description='Profile banner updated.')
     @user_api.response(code=404, description='Update failed.')
     @user_api.response(code=400, description='Parameters type does not match.')
+    @user_api.response(code=401, description='Unauthorized access.')
     @user_api.param(name='image_file', description='The new profile banner.', type='file')
     def put(self):
-        """ Update a profile banner given the new banner. """
+        """ Update a profile banner given the new banner image. """
         pass
 
 
 @user_api.route('/profile_picture')
 class ProfilePicture(Resource):
-    @user_api.response(code=204, description='Profile_picture deleted.')
+    @user_api.response(code=200, description='Profile picture deleted.')
     @user_api.response(code=404, description='Delete failed.')
+    @user_api.response(code=401, description='Unauthorized access.')
     def delete(self,):
-        """ Delete a profile picture. """
+        """ Delete a profile picture (restores the default one). """
         pass
 
-    @user_api.response(code=204, description='Profile_picture updated.')
+    @user_api.response(code=200, description='Profile picture updated.')
     @user_api.response(code=404, description='Update failed.')
     @user_api.response(code=400, description='Parameters type does not match.')
+    @user_api.response(code=401, description='Unauthorized access.')
     @user_api.param(name='image_file', description='The new profile picture.', type='file')
     def put(self):
         """ Update a profile picture given the new picture. """
@@ -64,15 +58,25 @@ class ProfilePicture(Resource):
 
 
 @user_api.route('/profile')
-class ProfileSettings(Resource):
+class UserProfile(Resource):
     @user_api.response(code=200, description='Profile updated.')
     @user_api.response(code=404, description='Update failed.')
+    @user_api.response(code=401, description='Unauthorized access.')
     @user_api.expect(create_model('Profile', model={
-        'bio': fields.String(description='The biography of the user.', nullable=True),
-        'screen_name': fields.String(description='The name shown on profile screen.', nullable=True)
+        'bio': fields.String(description='Nullable if unchanged. The biography of the user.'),
+        'screen_name': fields.String(description='Nullable if unchanged. The name shown on profile screen.')
     }))
     def patch(self):
-        """Update bio or screen name in user profile."""
+        """ Update the biography or screen name in user profile."""
+        pass
+
+    @user_api.response(code=200, description='User profile returned successfully.', model=UserProfile.api_model)
+    @user_api.response(code=404, description='User does not exist.')
+    @user_api.response(code=401, description='Unauthorized access.')
+    @user_api.response(code=400, description='Parameters type does not match.')
+    @user_api.param(name='username', type='str', description='The username.')
+    def get(self):
+        """ Retrieve the profile of a specific user. """
         pass
 
 
@@ -80,119 +84,122 @@ class ProfileSettings(Resource):
 class ChangeEmail(Resource):
     @user_api.response(code=200, description='Email updated.')
     @user_api.response(code=404, description='Update failed.')
-    @user_api.expect(create_model('NewEmail', model={
-     'email': fields.String(description="User new email.")}))
+    @user_api.response(code=401, description='Unauthorized access.')
+    @user_api.expect(create_model('New Email', model={
+     'email': fields.String(description="User's new email.")}))
     def put(self):
-        """ Update email of a user. """
+        """ Update email of the authorized user. """
         pass
 
 
 @user_api.route('/username')
-class ChangeUserName(Resource):
-    @user_api.response(code=200, description='username updated')
-    @user_api.response(code=404, description='update failed')
-    @user_api.expect(create_model('NewUsername', model={
-        'username': fields.String(description="user new username")}))
+class ChangeUsername(Resource):
+    @user_api.response(code=200, description='Username updated.')
+    @user_api.response(code=404, description='Update failed')
+    @user_api.response(code=401, description='Unauthorized access.')
+    @user_api.expect(create_model('New Username', model={
+        'username': fields.String(description="User's new username")}))
     def put(self):
-        """ Update username of a user. """
+        """ Update username of the authorized user. """
         pass
 
 
 @user_api.route('/password')
 class ChangePassword(Resource):
     @user_api.response(code=200, description='Password updated.')
-    @user_api.response(code=404, description='update failed.')
-    @user_api.expect(create_model('NewPassword', model={
-        'password': fields.String(description="user new Password.")}))
+    @user_api.response(code=404, description='Update failed.')
+    @user_api.response(code=401, description='Unauthorized access.')
+    @user_api.expect(create_model('New Password', model={
+        'password': fields.String(description="User's new password.")}))
     def put(self):
-        """ Update password of a user. """
+        """ Update password of the authorized user. """
         pass
 
 
 @interactions_api.route('/followers')
-class GetFollowers(Resource):
-    @user_api.response(code=200, description='List returned successfully.', model=[User.api_model])
-    @user_api.response(code=404, description='List is not exist.')
+class Followers(Resource):
+    @user_api.response(code=200, description='Followers returned successfully.',
+                       model=[User.api_model])
+    @user_api.response(code=401, description='Unauthorized access.')
     def get(self):
-        """ Get a list of users that follow me. """
+        """ Retrieve a list of users that follow the authorized user. """
 
 
 @interactions_api.route('/following')
-class GetFollowing(Resource):
-    @user_api.response(code=200, description='List returned successfully.', model=[User.api_model])
-    @user_api.response(code=404, description='List is not exist.')
+class Following(Resource):
+    @user_api.response(code=200, description='Followed users returned successfully.',
+                       model=[User.api_model])
+    @user_api.response(code=401, description='Unauthorized access.')
     def get(self):
-        """get a list of users that i am follow"""
+        """ Retrieve a list of users that are followed by the authorized user. """
 
 
 @interactions_api.route('/follow')
-class FollowUnfollow(Resource):
-    @user_api.response(code=201, description='Successful request user added to following list.')
-    @user_api.response(code=404, description='Failed request.')
+class Follow(Resource):
+    @user_api.response(code=201, description='User followed successfully.')
+    @user_api.response(code=404, description='User does not exist.')
     @user_api.response(code=400, description='Parameters type does not match.')
+    @user_api.response(code=401, description='Unauthorized access.')
     @user_api.expect(create_model('Username', model={
-        'username': fields.String(description="The user that i want to follow.")}))
+        'username': fields.String(description="The username of the user to be followed.")}))
     def post(self):
-        """ Follow a certain user using his username. """
+        """ Follow a certain user using their username. """
         pass
 
-    @user_api.response(code=201, description='Successful request user removed from following list.')
-    @user_api.response(code=404, description='Failed request.')
+    @user_api.response(code=200, description='User unfollowed successfully.')
+    @user_api.response(code=404, description='User does not exist.')
     @user_api.response(code=400, description='Parameters type does not match.')
-    @user_api.expect(create_model('Username', model={
-        'username': fields.String(description="The user that i want to unfollow.")}))
+    @user_api.response(code=401, description='Unauthorized access.')
+    @user_api.param(name='username', type='str', description='The username of the user to be unfollowed.')
     def delete(self):
-        """ Unfollow a certain user using his username. """
+        """ Unfollow a certain user using their username. """
 
 
 @interactions_api.route('/blocks')
-class BlockUnblock(Resource):
-
-    @user_api.response(code=200, description='List returned successfully.', model=[User.api_model])
-    @user_api.response(code=404, description='List is not exist.')
+class Block(Resource):
+    @user_api.response(code=200, description='Blocked users returned successfully.', model=[User.api_model])
     def get(self):
-        """ Get a list of blocked users. """
+        """ Retrieve a list of blocked users. """
 
-    @user_api.response(code=201, description='Successful request user added to blocked list.')
-    @user_api.response(code=404, description='Failed request.')
+    @user_api.response(code=201, description='User blocked successfully.')
+    @user_api.response(code=404, description='User does not exist.')
     @user_api.response(code=400, description='Parameters type does not match.')
+    @user_api.response(code=401, description='Unauthorized access.')
     @user_api.expect(create_model('Username', model={
-        'username': fields.String(description="The user that i want to block.")}))
+        'username': fields.String(description="The username of the user to be blocked.")}))
     def post(self):
         """ Block a certain user using his username. """
         pass
 
-    @user_api.response(code=201, description='Successful request user removed from blocked list.')
-    @user_api.response(code=404, description='Failed request.')
+    @user_api.response(code=200, description='User unblocked successfully.')
+    @user_api.response(code=404, description='User does not exist.')
     @user_api.response(code=400, description='Parameters type does not match.')
-    @user_api.expect(create_model('Username', model={
-        'username': fields.String(description="The user that i want to unblock.")}))
+    @user_api.response(code=401, description='Unauthorized access.')
+    @user_api.param(name='username', type='str', description='The username of the user to be unblocked.')
     def delete(self):
         """ Unblock a certain user using his username. """
 
 
 @interactions_api.route('/mutes')
-class BlockUnblock(Resource):
-
-    @user_api.response(code=200, description='List returned successfully.', model=[User.api_model])
-    @user_api.response(code=404, description='List is not exist.')
+class Mute(Resource):
+    @user_api.response(code=200, description='Muted users returned successfully.', model=[User.api_model])
     def get(self):
         """ Get a list of muted users """
 
-    @user_api.response(code=201, description='Successful request user added to muted list.')
-    @user_api.response(code=404, description='Failed request.')
+    @user_api.response(code=201, description='User muted successfully.')
+    @user_api.response(code=404, description='User does not exist.')
     @user_api.response(code=400, description='Parameters type does not match.')
+    @user_api.response(code=401, description='Unauthorized access.')
     @user_api.expect(create_model('Username', model={
-        'username': fields.String(description="The user that i want to mute.")}))
+        'username': fields.String(description="The username of the user to be muted.")}))
     def post(self):
         """ Mute a certain user using his username. """
         pass
 
-    @user_api.response(code=201, description='Successful request user removed from muted list')
-    @user_api.response(code=404, description='Failed request ')
+    @user_api.response(code=201, description='User unmuted successfully.')
+    @user_api.response(code=404, description='User does not exist.')
     @user_api.response(code=400, description='Parameters type does not match')
-    @user_api.expect(create_model('Username', model={
-        'username': fields.String(description="The user that i want to mute")}))
+    @user_api.response(code=401, description='Unauthorized access.')
+    @user_api.param(name='username', type='str', description='The username of the user to be unmuted.')
     def delete(self):
         """ Unmute a certain user using his username. """
-

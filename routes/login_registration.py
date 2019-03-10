@@ -1,59 +1,64 @@
 from flask_restplus import Namespace, Resource, fields
 from app import create_model
-account_api = Namespace(name='Account', path='/account')
+account_api = Namespace(name='Account', path='/account', description='Login, logout and registration.')
 
 
 @account_api.route('/login')
 class Login(Resource):
-    @account_api.param(name='username', type='str', required=True,
-                       description="The username of the user who is going to login.")
-    @account_api.param(name='password', type='str', required=True,
-                       description="The password of the user who is going to login.")
     @account_api.response(code=200, description='Logged in successfully.', model=create_model('Token', model={
-        'Token': fields.String(description='Value which represents the token.')
+        'Token': fields.String(description='Access token.')
     }))
     @account_api.response(code=404,
-                          description='The account requested is invalid,such as a username or password does not exist.')
+                          description='A user with matching credentials does not exist.')
+    @account_api.expect(create_model('User Credentials', {
+                            'username': fields.String(description='The username of the user logging in.'),
+                            'password': fields.String(description='The password of the user logging in.')
+                        }))
     def post(self):
-        """ Confirm username and password, Assign a token to the user in order to use Kwikker. """
+        """ Authenticates user and provide an access token for Kwikker. """
         pass
 
 
 @account_api.route('/registration')
 class Registration(Resource):
-    @account_api.param(name='username', type='str', required=True,
-                       description="The username of the user who is going to login.")
-    @account_api.param(name='password', type='str', required=True,
-                       description="The password of the user who is going to login.")
-    @account_api.param(name='email', type='str', required=True,
-                       description="The email of the user who is going to login.")
-    @account_api.response(code=201, description='Registered in successfully, user has been '
-                                                'created successfully to the system only confirmation missing.')
+    @account_api.response(code=201, description='User registered successfully, email confirmation pending.')
+    @account_api.response(code=403, description='Username or email already exists.',
+                          model=create_model('Registration Failure', {
+                            'username_already_exists': fields.Boolean,
+                            'email_already_exists': fields.Boolean
+                          }))
+    @account_api.expect(create_model('User Credentials', {
+        'username': fields.String(description='The username of the new user.'),
+        'password': fields.String(description='The password of the new user.'),
+        'email': fields.String(description='The email of the user new user.')
+    }))
     def post(self):
-        """ Adding new user to Kwikker, Confirmation is needed. """
+        """ Register a new user. The user then is required to confirm their email address. """
         pass
 
 
 @account_api.route('/registration/confirmation')
 class RegistrationConfirmation(Resource):
-    @account_api.param(name='code', type='str', required=True,
-                       description='The code of the user.')
-    @account_api.response(code=201, description='Registration is confirmed.', model=create_model('Token', model={
-        'Token': fields.String(description='Value which represents the token.')
+    @account_api.expect(create_model('Confirmation Code', {
+                                        'confirmation_code': fields.String('The confirmation code of the user.')
+                                    }))
+    @account_api.response(code=200, description='User confirmed.', model=create_model('Token', model={
+        'Token': fields.String(description='Access token.')
     }))
     @account_api.response(code=404,
-                          description='The account requested is invalid,such as a username or password does not exist')
+                          description='An unconfirmed user with the given confirmation code does not exist.')
     def post(self):
-        """ User has been confirmed,return a token. """
+        """ Confirm a user's registration and provide an access token. """
         pass
 
 
 @account_api.route('/registration/resend_email')
 class RegistrationResendEmail(Resource):
-    @account_api.param(name='email', type='str', required=True,
-                       description="The email of the user who is going to confirm his registration.")
-    @account_api.response(code=200, description='Resend successfully.')
-    @account_api.response(code=404, description='The email not found.')
+    @account_api.expect(create_model('Email - Resend Confirmation Email', {
+                            'email': fields.String('The email of the user pending email confirmation.')
+                        }))
+    @account_api.response(code=200, description='Email resent successfully.')
+    @account_api.response(code=404, description='The user does not exist or is already confirmed.')
     def post(self):
         """ Resends an email to confirm the user registration. """
         pass
@@ -63,17 +68,18 @@ class RegistrationResendEmail(Resource):
 class Logout(Resource):
     @account_api.response(code=200, description='Logged out successfully.')
     def post(self):
-        """ Logging out the user, delete token. """
+        """ Logging a user out and expiring their access token """
         pass
 
 
 @account_api.route('/forget_password')
 class ForgetPassword(Resource):
-    @account_api.param(name='email', type='str', required=True,
-                       description='Email of the user, in order to change his password.')
-    @account_api.response(code=200, description='A new password sent successfully.')
+    @account_api.expect(create_model('Email - Forget Password', {
+        'email': fields.String('The email of the user requesting a password reset.')
+    }))
+    @account_api.response(code=200, description='A new password was sent successfully.')
     @account_api.response(code=404,
-                          description='Email not found, the email is not on the system.')
+                          description='A user with the provided email does not exist.')
     def post(self):
-        """ Sending an email containing the new password. """
+        """ Resets the user's password and sends a new password by email. """
         pass

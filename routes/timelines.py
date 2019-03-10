@@ -2,16 +2,17 @@ from flask_restplus import Namespace, Resource
 from .kweeks import kweeks_api
 from models import Kweek, Trend
 
-trends_api = Namespace(name='Trends', path='/trends')
-search_api = Namespace(name='Search', path='/search')
-timelines_api = Namespace(name='Timelines', path='/kweeks/timelines')
+trends_api = Namespace(name='Trends', path='/trends', description='Trends and related kweeks.')
+search_api = Namespace(name='Search', path='/search', description='Search for kweeks or users.')
+timelines_api = Namespace(name='Timelines', path='/kweeks/timelines',
+                          description='Kweeks timelines.')
 
 
 @timelines_api.route('/home')
 class HomeTimeline(Resource):
     @timelines_api.param(name='last_retrieved_kweek_id', type='str',
                          description="Nullable. Normally the request returns the first 20 kweeks when null."
-                                     "To retrieve more send the id of the last kweek retrieved.")
+                                     " To retrieve more send the id of the last kweek retrieved.")
     @timelines_api.response(code=200, description='Kweeks returned successfully.', model=[Kweek.api_model])
     @timelines_api.response(code=401, description='Unauthorized access.')
     def get(self):
@@ -54,7 +55,7 @@ class UserLikedTweets(Resource):
     @kweeks_api.param(name='username', type='str', required=True,
                       description="The username of the user whose liked kweeks are requested.")
     @kweeks_api.response(code=200, description='Kweeks returned successfully.', model=[Kweek.api_model])
-    @kweeks_api.response(code=401, description='Unauthorized[User does not have enough privilege].')
+    @kweeks_api.response(code=401, description='Unauthorized access.')
     @kweeks_api.response(code=404, description='User does not exist.')
     def get(self):
         """ Retrieves a list of kweeks liked by a user. """
