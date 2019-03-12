@@ -1,4 +1,4 @@
-from app import api, create_model
+from app import create_model
 from flask_restplus import fields
 
 
@@ -12,7 +12,7 @@ from flask_restplus import fields
 
 
 class User:
-    api_model = api.model('User', {
+    api_model = create_model('User', {
         'username': fields.String(description='the user name.'),
         'screen_name': fields.String(description='the name shown on profile screen.'),
         'profile_image_url': fields.String(description='url for profile image.'),
@@ -45,7 +45,7 @@ class User:
 
 
 class UserProfile:
-    api_model = api.model('User Profile', {
+    api_model = create_model('User Profile', {
         'username': fields.String(description='The user name.'),
         'screen_name': fields.String(description='The name shown on profile screen.'),
         'bio': fields.String(description='The biography of the user'),
