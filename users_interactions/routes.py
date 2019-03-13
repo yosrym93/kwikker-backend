@@ -1,9 +1,9 @@
 from flask_restplus import Resource, fields
 from models import User
 from app import create_model
-from api_namespaces import APINamespaces
+import api_namespaces
 
-interactions_api = APINamespaces.interactions_api
+interactions_api = api_namespaces.interactions_api
 
 
 @interactions_api.route('/followers')

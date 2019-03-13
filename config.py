@@ -3,6 +3,9 @@ class BaseConfig:
     SWAGGER_UI_DOC_EXPANSION = 'list'
     DEBUG = True
     SECRET_KEY = ''
+    DATABASE_NAME = ''
+    DATABASE_USERNAME = ''
+    DATABASE_PASSWORD = ''
 
 
 class DevelopmentConfig(BaseConfig):

@@ -1,8 +1,8 @@
 from flask_restplus import Resource, fields
 from app import create_model
-from api_namespaces import APINamespaces
+import api_namespaces
 
-media_api = APINamespaces.media_api
+media_api = api_namespaces.media_api
 
 
 @media_api.route('/')

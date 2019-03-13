@@ -1,8 +1,8 @@
 from flask_restplus import Resource, fields
 from app import create_model
-from api_namespaces import APINamespaces
+import api_namespaces
 
-account_api = APINamespaces.account_api
+account_api = api_namespaces.account_api
 
 
 @account_api.route('/login')
