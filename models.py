@@ -49,6 +49,7 @@ class UserProfile:
         'username': fields.String(description='The user name.'),
         'screen_name': fields.String(description='The name shown on profile screen.'),
         'bio': fields.String(description='The biography of the user'),
+        'birth_date': fields.Date(description='The birth date of the user'),
         'created_at': fields.DateTime(description='Time created at'),
         'followers_count': fields.Integer(description='Integer indicates number of people follow you.'),
         'following_count': fields.Integer(description='Integer indicates number of people you follow.'),
@@ -67,6 +68,7 @@ class UserProfile:
         self.username = json["username"]
         self.screen_name = json["screen_name"]
         self.bio = json["bio"]
+        self.birth_date = json["birth_date"]
         self.created_at = json["created_at"]
         self.followers_count = json["followers_count"]
         self.following_count = json["following_count"]
@@ -84,6 +86,7 @@ class UserProfile:
             'username': self.username,
             'screen_name': self.screen_name,
             'bio': self.bio,
+            'birth_date': self.birth_date,
             'created_at': self.created_at,
             'followers_count': self.followers_count,
             'following_count': self.following_count,

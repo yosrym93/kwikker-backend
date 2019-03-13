@@ -22,7 +22,7 @@ class Kweeks(Resource):
         """
         pass
 
-    @kweeks_api.response(code=200, description='Kweek has been deleted successfully.')
+    @kweeks_api.response(code=204, description='Kweek has been deleted successfully.')
     @kweeks_api.response(code=404, description='Kweek does not exist.')
     @kweeks_api.response(code=401, description='Unauthorized access.')
     @kweeks_api.param(name='id', type='str', description='The id of the Kweek to be deleted.', required=True)
@@ -76,7 +76,7 @@ class Rekweek(Resource):
         """
         pass
 
-    @kweeks_api.response(code=200, description='Rekweek has been deleted successfully.')
+    @kweeks_api.response(code=204, description='Rekweek has been deleted successfully.')
     @kweeks_api.response(code=404, description='Kweek does not exist.')
     @kweeks_api.response(code=401, description='Unauthorized access.')
     @kweeks_api.param(name='id', type='string', description='Id of the rekweek to be deleted', required=True)
@@ -126,7 +126,7 @@ class Like(Resource):
         """
         pass
 
-    @kweeks_api.response(code=200, description='Kweek has been unliked successfully.')
+    @kweeks_api.response(code=204, description='Kweek has been unliked successfully.')
     @kweeks_api.response(code=404, description='Kweek does not exist.')
     @kweeks_api.response(code=401, description='Unauthorized access.')
     @kweeks_api.param(name='id', type='str', description='The id of the kweek to be disliked', required=True)

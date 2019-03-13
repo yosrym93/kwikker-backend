@@ -8,8 +8,7 @@ interactions_api = APINamespaces.interactions_api
 
 @interactions_api.route('/followers')
 class Followers(Resource):
-    @interactions_api.response(code=200, description='Followers returned successfully.',
-                       model=[User.api_model])
+    @interactions_api.response(code=200, description='Followers returned successfully.', model=[User.api_model])
     @interactions_api.response(code=401, description='Unauthorized access.')
     def get(self):
         """ Retrieve a list of users that follow the authorized user. """
@@ -17,8 +16,7 @@ class Followers(Resource):
 
 @interactions_api.route('/following')
 class Following(Resource):
-    @interactions_api.response(code=200, description='Followed users returned successfully.',
-                       model=[User.api_model])
+    @interactions_api.response(code=200, description='Followed users returned successfully.', model=[User.api_model])
     @interactions_api.response(code=401, description='Unauthorized access.')
     def get(self):
         """ Retrieve a list of users that are followed by the authorized user. """
@@ -36,11 +34,12 @@ class Follow(Resource):
         """ Follow a certain user using their username. """
         pass
 
-    @interactions_api.response(code=200, description='User unfollowed successfully.')
+    @interactions_api.response(code=204, description='User unfollowed successfully.')
     @interactions_api.response(code=404, description='User does not exist.')
     @interactions_api.response(code=400, description='Parameters type does not match.')
     @interactions_api.response(code=401, description='Unauthorized access.')
-    @interactions_api.param(name='username', type='str', description='The username of the user to be unfollowed.')
+    @interactions_api.param(name='username', type='str', required=True,
+                            description='The username of the user to be unfollowed.')
     def delete(self):
         """ Unfollow a certain user using their username. """
 
@@ -61,11 +60,12 @@ class Block(Resource):
         """ Block a certain user using his username. """
         pass
 
-    @interactions_api.response(code=200, description='User unblocked successfully.')
+    @interactions_api.response(code=204, description='User unblocked successfully.')
     @interactions_api.response(code=404, description='User does not exist.')
     @interactions_api.response(code=400, description='Parameters type does not match.')
     @interactions_api.response(code=401, description='Unauthorized access.')
-    @interactions_api.param(name='username', type='str', description='The username of the user to be unblocked.')
+    @interactions_api.param(name='username', type='str', required=True,
+                            description='The username of the user to be unblocked.')
     def delete(self):
         """ Unblock a certain user using his username. """
 
@@ -86,10 +86,11 @@ class Mute(Resource):
         """ Mute a certain user using his username. """
         pass
 
-    @interactions_api.response(code=201, description='User unmuted successfully.')
+    @interactions_api.response(code=204, description='User unmuted successfully.')
     @interactions_api.response(code=404, description='User does not exist.')
     @interactions_api.response(code=400, description='Parameters type does not match')
     @interactions_api.response(code=401, description='Unauthorized access.')
-    @interactions_api.param(name='username', type='str', description='The username of the user to be unmuted.')
+    @interactions_api.param(name='username', type='str', required=True,
+                            description='The username of the user to be unmuted.')
     def delete(self):
         """ Unmute a certain user using his username. """

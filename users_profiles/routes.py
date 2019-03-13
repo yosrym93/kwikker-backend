@@ -22,7 +22,7 @@ class UsersSearch(Resource):
 @user_api.route('/profile_banner')
 class ProfileBanner(Resource):
     @user_api.response(code=401, description='Unauthorized access.')
-    @user_api.response(code=200, description='Profile banner deleted.')
+    @user_api.response(code=204, description='Profile banner deleted.')
     @user_api.response(code=404, description='Delete failed.')
     def delete(self,):
         """ Delete a profile banner (restores the default one). """
@@ -32,7 +32,7 @@ class ProfileBanner(Resource):
     @user_api.response(code=404, description='Update failed.')
     @user_api.response(code=400, description='Parameters type does not match.')
     @user_api.response(code=401, description='Unauthorized access.')
-    @user_api.param(name='image_file', description='The new profile banner.', type='file')
+    @user_api.param(name='image_file', description='The new profile banner.', required=True, type='file')
     def put(self):
         """ Update a profile banner given the new banner image. """
         pass
@@ -40,7 +40,7 @@ class ProfileBanner(Resource):
 
 @user_api.route('/profile_picture')
 class ProfilePicture(Resource):
-    @user_api.response(code=200, description='Profile picture deleted.')
+    @user_api.response(code=204, description='Profile picture deleted.')
     @user_api.response(code=404, description='Delete failed.')
     @user_api.response(code=401, description='Unauthorized access.')
     def delete(self,):
@@ -51,7 +51,7 @@ class ProfilePicture(Resource):
     @user_api.response(code=404, description='Update failed.')
     @user_api.response(code=400, description='Parameters type does not match.')
     @user_api.response(code=401, description='Unauthorized access.')
-    @user_api.param(name='image_file', description='The new profile picture.', type='file')
+    @user_api.param(name='image_file', description='The new profile picture.', required=True, type='file')
     def put(self):
         """ Update a profile picture given the new picture. """
         pass
@@ -74,7 +74,7 @@ class UserProfile(Resource):
     @user_api.response(code=404, description='User does not exist.')
     @user_api.response(code=401, description='Unauthorized access.')
     @user_api.response(code=400, description='Parameters type does not match.')
-    @user_api.param(name='username', type='str', description='The username.')
+    @user_api.param(name='username', type='str', required=True, description='The username.' )
     def get(self):
         """ Retrieve the profile of a specific user. """
         pass
