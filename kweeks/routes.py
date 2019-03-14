@@ -65,7 +65,7 @@ class KweekReplies(Resource):
 @kweeks_api.route('/rekweek')
 class Rekweek(Resource):
     @kweeks_api.expect(create_model('Kweek ID', {
-        'id': fields.String(description='The id of the kweek to be liked.')
+        'id': fields.String(description='The id of the kweek to be rekweeked.')
     }))
     @kweeks_api.response(code=401, description='Unauthorized access.')
     @kweeks_api.response(code=201, description='Reweek created successfully')
