@@ -1,11 +1,11 @@
 from flask_restplus import Resource, fields
 from models import User, UserProfile
 from app import create_model
-from api_namespaces import APINamespaces
+import api_namespaces
 
-user_api = APINamespaces.user_api
-interactions_api = APINamespaces.interactions_api
-search_api = APINamespaces.search_api
+user_api = api_namespaces.user_api
+interactions_api = api_namespaces.interactions_api
+search_api = api_namespaces.search_api
 
 
 @search_api.route('/users')
@@ -14,6 +14,9 @@ class UsersSearch(Resource):
     @search_api.response(code=400, description='Parameters type does not match.')
     @search_api.response(code=401, description='Unauthorized access.')
     @search_api.param(name='search_text', type='str', description='The text entered by the user in the search bar.')
+    @search_api.param(name='last_retrieved_username', type='str',
+                      description="Nullable. Normally the request returns the first 20 users when null."
+                                  "To retrieve more send the username of the last user retrieved.")
     def get(self):
         """ Search for matching users using their username or screen name (or part of them). """
         pass

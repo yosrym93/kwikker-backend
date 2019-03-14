@@ -1,8 +1,8 @@
 from flask_restplus import Resource
 from models import Notification
-from api_namespaces import APINamespaces
+import api_namespaces
 
-notifications_api = APINamespaces.notifications_api
+notifications_api = api_namespaces.notifications_api
 
 
 @notifications_api.route('/')

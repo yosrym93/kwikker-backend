@@ -1,9 +1,9 @@
 from flask_restplus import Resource, fields
 from models import DirectMessage, Conversation
 from app import create_model
-from api_namespaces import APINamespaces
+import api_namespaces
 
-messages_api = APINamespaces.messages_api
+messages_api = api_namespaces.messages_api
 
 
 @messages_api.route('/')

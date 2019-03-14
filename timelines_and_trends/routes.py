@@ -1,11 +1,11 @@
 from flask_restplus import Resource
 from models import Kweek, Trend
-from api_namespaces import APINamespaces
+import api_namespaces
 
-trends_api = APINamespaces.trends_api
-search_api = APINamespaces.search_api
-timelines_api = APINamespaces.timelines_api
-kweeks_api = APINamespaces.kweeks_api
+trends_api = api_namespaces.trends_api
+search_api = api_namespaces.search_api
+timelines_api = api_namespaces.timelines_api
+kweeks_api = api_namespaces.kweeks_api
 
 
 @timelines_api.route('/home')
@@ -81,7 +81,7 @@ class KweeksSearch(Resource):
 
 @trends_api.route('/')
 class Trends(Resource):
-    @search_api.param(name='last_retrieved_trend_id', type='str',
+    @trends_api.param(name='last_retrieved_trend_id', type='str',
                       description="Nullable. Normally the request returns the first 20 trends when null."
                                   "To retrieve more send the id of the last trend retrieved.")
     @trends_api.response(code=200, description='Trends returned successfully.', model=[Trend.api_model])
@@ -93,9 +93,9 @@ class Trends(Resource):
 
 @trends_api.route('/kweeks')
 class Trends(Resource):
-    @search_api.param(name='trend_id', type='str',
+    @trends_api.param(name='trend_id', type='str',
                       description='The id of the trend.', required=True)
-    @search_api.param(name='last_retrieved_kweek_id', type='str',
+    @trends_api.param(name='last_retrieved_kweek_id', type='str',
                       description="Nullable. Normally the request returns the first 20 kweeks when null."
                                   "To retrieve more send the id of the last kweek retrieved.")
     @trends_api.response(code=200, description='Kweeks returned successfully.', model=[Kweek.api_model])

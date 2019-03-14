@@ -1,9 +1,9 @@
 from flask_restplus import Resource, fields
 from app import create_model
 from models import Kweek, User
-from api_namespaces import APINamespaces
+import api_namespaces
 
-kweeks_api = APINamespaces.kweeks_api
+kweeks_api = api_namespaces.kweeks_api
 
 
 @kweeks_api.route('/')
