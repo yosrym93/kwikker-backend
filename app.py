@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_restplus import Api
 import api_namespaces
+import database_manager
 
 
 app = Flask(__name__)
@@ -9,14 +10,19 @@ create_model = api.model
 
 
 def initialize_database():
-    db_name = app.config['DATABASE_NAME']
-    db_username = app.config['DATABASE_USERNAME']
-    db_password = app.config['DATABASE_PASSWORD']
-    """
+    if app.config['ENV'] == 'production':
+        db_name = app.config['DATABASE_NAME']
+        db_username = app.config['DATABASE_USERNAME']
+        db_password = app.config['DATABASE_PASSWORD']
+    else:
+        # Replace with your local database credentials
+        db_name = 'kwikker'
+        db_username = 'postgres'
+        db_password = ''
+
     response = database_manager.db_manager.initialize_connection(db_name=db_name, db_username=db_username,
                                                                  db_password=db_password)
-    """
-    response = None     # Temporary, until the database is created
+
     if response is None:
         print('Connected to the database successfully.')
         return True

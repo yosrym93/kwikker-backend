@@ -89,7 +89,7 @@ class UserProfile:
             'following_count': self.following_count,
             'kweeks_count': self.kweeks_count,
             'likes_count': self.likes_count,
-            'profile_banner_url':self.profile_banner_url,
+            'profile_banner_url': self.profile_banner_url,
             'profile_image_url': self.profile_image_url,
             'following': self.following,
             'follows_you': self.follows_you,
