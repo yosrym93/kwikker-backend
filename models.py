@@ -226,11 +226,13 @@ class Notification:
     api_model = create_model('Notification', {
         'id': fields.String(description='A unique string representing the notification.'),
         'created_at': fields.DateTime(description='The utc datetime of the notification when created.'),
-        'type': fields.String(description='Type of the notification [possible values:follow,rekweek,like,reply].'),
+        'type': fields.String(description='Type of the notification [possible values:follow,rekweek,like,reply, '
+                                          'mentions].'),
         'username': fields.String(description='Username of the notification.'),
         'screen_name': fields.String(description='Handle that the user identifies themselves with.'),
         'kweek_id': fields.String(description='Nullable,a unique string representing the kweek id.'
-                                  , nullable=True)  # Nullable
+                                  , nullable=True),  # Nullable
+        'kweek_text': fields.String(description='The text of the kweek.')
     })
 
     def __init__(self, json):
@@ -240,6 +242,7 @@ class Notification:
         self.username = json['username']
         self.screen_names = json['screen_name']
         self.kweek_id = json['kweek_id']
+        self.kweek_text = json['kweek_text']
 
     def to_json(self):
         return {
@@ -248,7 +251,8 @@ class Notification:
             'type': self.type,
             'username': self.username,
             'screen_name': self.screen_names,
-            'kweek_id': self.kweek_id
+            'kweek_id': self.kweek_id,
+            'kweek_text': self.kweek_text
         }
 
 
