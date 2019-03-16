@@ -29,10 +29,13 @@ class DatabaseManager:
                 return E
             return None  # meaning everything was okay
 
-    def execute_query(self, query: str):
+    def execute_query(self, query: str, data=None):
         with self.connection.cursor(cursor_factory=RealDictCursor) as cursor:
             try:
-                cursor.execute(query)
+                if data is not None:
+                    cursor.execute(query, data)
+                else:
+                    cursor.execute(query)
                 self.connection.commit()
             except Exception as E:
                 self.connection.rollback()
