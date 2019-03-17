@@ -112,7 +112,7 @@ def update_profile_banner(file, authorized_username):
                         *Parameters*:
                             - *file (file)*: The banner image which will be updated.
                             - *authorized_username (string)*: The user that is logged in now .
-                       *Returns*:
+                        *Returns*:
                             - *filename*: the image name saved in database .
     """
     target = os.path.join(APP_ROOT, 'images\ banner/')
