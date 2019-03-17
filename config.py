@@ -3,6 +3,7 @@ class BaseConfig:
     SWAGGER_UI_DOC_EXPANSION = 'list'
     DEBUG = True
     SECRET_KEY = ''
+    ERROR_404_HELP = False
 
 
 class DevelopmentConfig(BaseConfig):
@@ -21,4 +22,3 @@ class ProductionConfig(BaseConfig):
 class TestingConfig(BaseConfig):
     ENV = 'production'
     TESTING = True
-

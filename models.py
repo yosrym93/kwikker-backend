@@ -13,14 +13,17 @@ from flask_restplus import fields
 
 class User:
     api_model = create_model('User', {
-        'username': fields.String(description='the user name.'),
-        'screen_name': fields.String(description='the name shown on profile screen.'),
-        'profile_image_url': fields.String(description='url for profile image.'),
-        'following': fields.Boolean(description='Boolean to tell me if i follows this user.'),
-        'follows_you': fields.Boolean(description='Boolean to tell me if this user follows me.'),
-        'blocked': fields.Boolean(description='Boolean to tell me if i blocked by this user.'),
-        'muted': fields.Boolean(description=' Boolean for muted feature which allow you to remove an account Tweets '
-                                            'from your timeline without unfollowing or blocking that account.')
+        'username': fields.String(description='The user name.'),
+        'screen_name': fields.String(description='The name shown on profile screen.'),
+        'profile_image_url': fields.String(description='Url for profile image.'),
+        'following': fields.Boolean(description='Nullable. Does the authorized user follow this user? '
+                                                'Null if the authorized user is the same as the user in the query.'),
+        'follows_you': fields.Boolean(description='Nullable. Does this user follow the authorized user? '
+                                                  'Null if the authorized user is the same as the user in the query.'),
+        'blocked': fields.Boolean(description='Nullable. Is this user blocked by the authorized user? '
+                                              'Null if the authorized user is the same as the user in the query.'),
+        'muted': fields.Boolean(description='Nullable. Is this user muted by the authorized user? '
+                                            'Null if the authorized user is the same as the user in the query.')
     })
 
     def __init__(self, json):
@@ -57,11 +60,14 @@ class UserProfile:
         'likes_count': fields.Integer(description='Integer indicates number of likes.'),
         'profile_banner_url': fields.String(description='Url for profile banner which is cover photo.'),
         'profile_image_url': fields.String(description='Url for profile image.'),
-        'following': fields.Boolean(description='Boolean to tell me if i follows this user.'),
-        'follows_you': fields.Boolean(description='Boolean to tell me if this user follows me.'),
-        'blocked': fields.Boolean(description='Boolean to tell me if i blocked by this user.'),
-        'muted': fields.Boolean(description=' Boolean for muted feature which allow you to remove an account Tweets '
-                                            'from your timeline without unfollowing or blocking that account.')
+        'following': fields.Boolean(description='Nullable. Does the authorized user follow this user? '
+                                                'Null if the authorized user is the same as the user in the query.'),
+        'follows_you': fields.Boolean(description='Nullable. Does this user follow the authorized user? '
+                                                  'Null if the authorized user is the same as the user in the query.'),
+        'blocked': fields.Boolean(description='Nullable. Is this user blocked by the authorized user? '
+                                              'Null if the authorized user is the same as the user in the query.'),
+        'muted': fields.Boolean(description='Nullable. Is this user muted by the authorized user? '
+                                            'Null if the authorized user is the same as the user in the query.')
     })
 
     def __init__(self, json):
@@ -170,8 +176,8 @@ class Kweek:
         'reply_to': fields.String(description='Nullable. The id of the kweek that this kweek is a reply to,'
                                               ' if any.'),
         'rekweek_info': fields.Nested(RekweekInfo.api_model,
-                                      description= 'Nullable. The information of who rekweeked this kweek,'
-                                                   'if returned as a rekweek.'),
+                                      description='Nullable. The information of who rekweeked this kweek,'
+                                                  'if returned as a rekweek.'),
         'liked_by_user': fields.Boolean(description='Whether or not the user liked this kweek.'),
         'rekweeked_by_user': fields.Boolean(description='Whether or not the user rekweeked this kweek.')
     })
@@ -181,22 +187,16 @@ class Kweek:
         self.created_at = json['created_at']
         self.text = json['text']
         self.media_url = json['media_url']
-        self.user = User(json['user'])
-
-        self.hashtags = []
-        for hashtag in json['hashtags']:
-            self.hashtags.append(hashtag)
-
-        self.mentions = []
-        for mention in json['mentions']:
-            self.mentions.append(mention)
-
+        self.user = json['user']
+        self.hashtags = json['hashtags']
+        self.mentions = json['mentions']
         self.number_of_likes = json['number_of_likes']
         self.number_of_rekweeks = json['number_of_rekweeks']
         self.number_of_replies = json['number_of_replies']
         self.reply_to = json['reply_to']
-        self.rekweek_info = RekweekInfo(json['rekweek_info'])
-        pass
+        self.rekweek_info = json['rekweek_info']
+        self.liked_by_user = json['liked_by_user']
+        self.rekweeked_by_user = json['rekweeked_by_user']
 
     def to_json(self):
         json = {}
@@ -219,6 +219,8 @@ class Kweek:
         json['number_of_replies'] = self.number_of_replies
         json['reply_to'] = self.reply_to
         json['rekweek_info'] = self.rekweek_info.to_json()
+        json['liked_by_user'] = self.liked_by_user
+        json['rekweeked_by_user'] = self.rekweeked_by_user
         return json
 
 
