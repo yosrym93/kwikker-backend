@@ -1,6 +1,8 @@
 from flask_restplus import Resource
 from models import Notification
 import api_namespaces
+from . import actions
+from flask import request, jsonify
 
 notifications_api = api_namespaces.notifications_api
 
@@ -17,6 +19,9 @@ class Notifications(Resource):
                                                                                                ' more send the id of '
                                                                                                'the last retrieved'
                                                                                                ' notification.')
+    @notifications_api.marshal_with(Notification.api_model, as_list=True)
     def get(self):
         """ Retrieves a list of user's notifications. """
-        pass
+        username = request.args.get('username')
+        response = actions.get_notifications(username)
+        return response, 200
