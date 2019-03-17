@@ -23,7 +23,6 @@ Query Factory
 The query_factory module contains the functions constructing the SQL queries needed by the actions.
 
 .. automodule:: notifications.query_factory
-   :members:
 
 
 Tests
