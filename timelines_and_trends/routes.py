@@ -41,7 +41,6 @@ class ProfileTimeline(Resource):
             abort(404, message='A user with this username does not exist.')
         kweeks = actions.get_profile_kweeks(authorized_username=authorized_username,
                                             required_username=username)
-        print(kweeks)
         return kweeks, 200
 
 

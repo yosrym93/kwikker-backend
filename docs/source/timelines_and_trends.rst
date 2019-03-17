@@ -4,7 +4,7 @@ Timelines and Trends
 
 Routes
 -------------------------------------
-The routes modules contains the API endpoints of the timelines and trends.
+The routes module contains the API endpoints of the timelines and trends.
 
 .. automodule:: timelines_and_trends.routes
 

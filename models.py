@@ -175,7 +175,7 @@ class Kweek:
         'number_of_replies': fields.Integer(description='The number of replies of the kweek.'),
         'reply_to': fields.String(description='Nullable. The id of the kweek that this kweek is a reply to,'
                                               ' if any.'),
-        'rekweek_info': fields.Nested(RekweekInfo.api_model,
+        'rekweek_info': fields.Nested(RekweekInfo.api_model, allow_null=True,
                                       description='Nullable. The information of who rekweeked this kweek,'
                                                   'if returned as a rekweek.'),
         'liked_by_user': fields.Boolean(description='Whether or not the user liked this kweek.'),
