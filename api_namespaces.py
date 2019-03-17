@@ -18,6 +18,9 @@ notifications_api = Namespace(name='Notifications', path='/notifications', descr
 
 
 def initialize_api_namespaces(api):
+    """
+        Registers the api namespaces to the api object.
+    """
     api.add_namespace(timelines_api)
     api.add_namespace(account_api)
     api.add_namespace(kweeks_api)
