@@ -13,12 +13,12 @@ def get_user_profile(authorized_username, username):
     """
             The function return user profile for a specific user.
 
-            Parameters:
-                authorized_username (string): The user that is logged in now .
-                username (string): The user that we will test friendship on it like (following ..)
+            *Parameters*:
+                - *authorized_username (string)*: The user that is logged in now.
+                - *username (string)*: The user that we will test friendship on it like (following ..)
 
-            Returns:
-                UserProfile: an object of user profile .
+            *Returns*:
+                - *UserProfile*: an object of user profile .
     """
     profile = query_factory.get_user_profile(username)
     if profile:
@@ -41,14 +41,14 @@ def update_user_profile(authorized_username, bio, screen_name):
     """
                 The function updates bio and screen name in user profile.
 
-                Parameters:
-                    authorized_username (string): The user that is logged in now .
-                    bio (text): The biography of the user.
-                    screen_name(string): The name shown on profile screen.
-                Returns:
-                    response: which is none of case in successful update .
-                    -1: in case of exception error in database.
-                    0: in case of bad request.
+                *Parameters*:
+                    - *authorized_username (string)*: The user that is logged in now .
+                    - *bio (text)*: The biography of the user.
+                    - *screen_name(string)*: The name shown on profile screen.
+                *Returns*:
+                    - *response*: which is none of case in successful update .
+                    - *-1*: in case of exception error in database.
+                    - *0*: in case of bad request.
     """
     if bio == "" and screen_name == "":
         return 0
@@ -67,11 +67,11 @@ def update_profile_picture(file, authorized_username):
     """
                     The function updates profile picture.
 
-                    Parameters:
-                        file (file): The profile image which will be updated.
-                        authorized_username (string): The user that is logged in now .
-                    Returns:
-                        filename: the image name saved in database .
+                    *Parameters*:
+                        - *file (file)*: The profile image which will be updated.
+                        - *authorized_username (string)*: The user that is logged in now .
+                    *Returns*:
+                        - *filename*: the image name saved in database .
     """
     target = os.path.join(APP_ROOT, 'images\profile/')
     if not os.path.isdir(target):
@@ -91,10 +91,10 @@ def delete_profile_picture(authorized_username):
     """
                             The function deletes profile picture and reset it to default.
 
-                            Parameters:
-                                authorized_username (string): The user that is logged in now .
-                            Returns:
-                                response: which is none of case in successful deletion .
+                            *Parameters*:
+                                - *authorized_username (string)*: The user that is logged in now .
+                            *Returns*:
+                                - *response*: which is none of case in successful deletion .
     """
     filename = 'profile.jpg'
     response = query_factory.update_user_profile_picture(authorized_username, filename)
@@ -109,11 +109,11 @@ def update_profile_banner(file, authorized_username):
     """
                         The function updates banner picture.
 
-                        Parameters:
-                            file (file): The banner image which will be updated.
-                            authorized_username (string): The user that is logged in now .
-                        Returns:
-                            filename: the image name saved in database .
+                        *Parameters*:
+                            - *file (file)*: The banner image which will be updated.
+                            - *authorized_username (string)*: The user that is logged in now .
+                       *Returns*:
+                            - *filename*: the image name saved in database .
     """
     target = os.path.join(APP_ROOT, 'images\ banner/')
     if not os.path.isdir(target):
@@ -132,10 +132,10 @@ def delete_banner_picture(authorized_username):
     """
                         The function deletes banner picture and reset it to default.
 
-                        Parameters:
-                            authorized_username (string): The user that is logged in now .
-                        Returns:
-                            response: which is none of case in successful deletion .
+                        *Parameters*:
+                            - *authorized_username (string)*: The user that is logged in now .
+                        *Returns*:
+                            - *response*: which is none of case in successful deletion .
     """
     filename = 'banner.png'
     response = query_factory.update_user_banner_picture(authorized_username, filename)

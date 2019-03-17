@@ -11,7 +11,9 @@ Welcome to Kwikker Backend's documentation!
 
    app
    timelines_and_trends
+   user_profile
    notification
+
 
 
 ==================

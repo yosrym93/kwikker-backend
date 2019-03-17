@@ -34,7 +34,7 @@ class ProfileBanner(Resource):
         authorized_username = 'khaled'  # waiting for function
         response = actions.delete_banner_picture(authorized_username)
         if response == - 1:
-            return '', 404
+            return abort(404)
         url = 'http://127.0.0.1:5000/user/upload/banner/banner.png'
         return url, 200
 
@@ -49,7 +49,7 @@ class ProfileBanner(Resource):
         authorized_username = 'khaled'  # waiting for function
         response = actions.update_profile_banner(file, authorized_username)
         if response == - 1:
-            return '', 404
+            return  abort(404)
         url = 'http://127.0.0.1:5000/user/upload/banner/'
         url = url + response
         return url, 200
@@ -65,7 +65,7 @@ class ProfilePicture(Resource):
         authorized_username = 'khaled'  # waiting for function
         response = actions.delete_profile_picture(authorized_username)
         if response == - 1:
-            return '', 404
+            return abort(404)
         url = 'http://127.0.0.1:5000/user/upload/picture/profile.jpg'
         return url, 200
 
@@ -74,14 +74,14 @@ class ProfilePicture(Resource):
     @user_api.response(code=400, description='Parameters type does not match.')
     @user_api.response(code=401, description='Unauthorized access.')
     @user_api.param(name='image_file', description='The new profile picture.', required=True, type='file')
-    def post(self):
+    def put(self):
         """ Update a profile picture given the new picture. """
         # for file in request.files.getlist("file"):
         file = request.files['file']
         authorized_username = 'khaled'  # waiting for function
         response = actions.update_profile_picture(file, authorized_username)
         if response == - 1:
-            return '', 404
+            return abort(404)
         url = 'http://127.0.0.1:5000/user/upload/picture/'
         url = url + response
         return url, 200
@@ -118,7 +118,7 @@ class UserProfile(Resource):
         if response == - 1:
             abort(404, message='update failed.')
         if response == 0:
-            return '', 400
+            return abort(400)
         return '', 200
 
     @user_api.response(code=200, description='User profile returned successfully.', model=UserProfile.api_model)
@@ -133,7 +133,7 @@ class UserProfile(Resource):
         authorized_username = 'khaled'  # waiting for function
         response = actions.get_user_profile(authorized_username, username)
         if response == - 1:
-            return '', 404
+            return abort(404)
         return response, 200
 
 
