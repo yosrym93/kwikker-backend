@@ -1,5 +1,8 @@
 from . import query_factory
 import datetime
+from flask import jsonify
+from models import Notification
+
 """
     All the functions containing the logic should reside here. 
     The routes functions should contain no logic, they should only call the functions in this module.
@@ -21,9 +24,15 @@ def get_notifications(username):
             - list of notifications for the users in json format
 
 
-
         """
-    return query_factory.get_notifications(username)
+
+    notifications = query_factory.get_notifications(username)
+    notification_list = []
+    if len(notifications) == 0:
+        return notification_list
+    for notification in notifications:
+        notification_list.append(Notification(notification))
+    return notification_list
 
 
 def create_notifications(involved_username, type_notification, kweek_id):
@@ -60,3 +69,7 @@ def get_list_size_notification():
 
         """
     return query_factory.get_list_size_notification()
+
+
+def is_user(username):
+    return query_factory.is_user(username)

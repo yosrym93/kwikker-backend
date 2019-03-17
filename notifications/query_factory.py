@@ -19,7 +19,7 @@ db_manager = database_manager.db_manager
 def get_notifications(user):
     query: str = """SELECT  NOTIFICATION.ID AS id,NOTIFICATION.CREATED_AT AS created_at,TYPE AS type,
     PROFILE.USERNAME AS username,SCREEN_NAME AS screen_name,INVOLVED_KWEEK_ID AS kweek_id,TEXT AS kweek_text,
-    PROFILE_IMAGE_URL AS profile_pic_URL FROM NOTIFICATION INNER JOIN USER_CREDENTIALS 
+    PROFILE_IMAGE_URL AS profile_pic_url FROM NOTIFICATION INNER JOIN USER_CREDENTIALS 
     ON NOTIFIED_USERNAME=USERNAME INNER JOIN PROFILE ON PROFILE.USERNAME=USER_CREDENTIALS.USERNAME 
     INNER JOIN KWEEK ON INVOLVED_KWEEK_ID = KWEEK.ID where profile.username = %s LIMIT 20"""
     data = (user,)
@@ -45,3 +45,14 @@ def get_list_size_notification():
     query: str = """SELECT COUNT(*) FROM NOTIFICATION"""
     response = db_manager.execute_query(query)
     return response
+
+
+def is_user(username):
+    query = """
+                SELECT * FROM USER_CREDENTIALS WHERE USERNAME = %s
+            """
+    data = (username,)
+    if not db_manager.execute_query(query, data):
+        return False
+    else:
+        return True
