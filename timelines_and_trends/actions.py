@@ -130,6 +130,7 @@ def get_profile_kweeks(authorized_username, required_username):
             kweek['rekweek_info'] = rekweek_info
         else:
             kweek['rekweek_info'] = None
+        print(kweek)
         kweeks.append(Kweek(kweek))
 
     return kweeks
@@ -170,3 +171,44 @@ def get_kweek_statistics(authorized_username, kweek_id):
     """
     return query_factory.get_kweek_statistics(authorized_username=authorized_username,
                                               kweek_id=kweek_id)
+
+
+def paginate(dictionaries_list, required_size, start_at_key, start_at_value):
+    """
+        Slices a list of dictionaries, starting at a given element and producing a new list
+        with the required size.
+
+
+        *Parameters:*
+            - *dictionaries_list*: The list of dictionaries to be sliced.
+            - *required_size*: The size of the required list.
+            - *start_at_key*: The dictionary key to be checked for `start_at_value`.
+            - *start_at_value*: The value that the new list will start at.
+
+
+        *Returns:*
+            - *List of Dictionaries*: A new list starting at the required element with the required size (or less).
+            - | *None*: If the element to start at does not exist, the passed dictionaries_list is
+              | not actually a list of dictionaries, or a dictionary does not contain a key that matches the given key.
+    """
+    if not isinstance(dictionaries_list, list):
+        return None
+
+    if required_size >= len(dictionaries_list):
+        return dictionaries_list
+
+    start_at_index = None
+    for index, value in enumerate(dictionaries_list):
+        if not isinstance(value, dict):
+            return None
+        if start_at_key not in value:
+            return None
+        if value[start_at_key] == start_at_value:
+            start_at_index = index
+            break
+
+    if start_at_index is None:
+        return None
+
+    return dictionaries_list[start_at_index: start_at_index + required_size]
+
