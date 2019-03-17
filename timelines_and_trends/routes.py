@@ -1,6 +1,8 @@
-from flask_restplus import Resource
+from flask_restplus import Resource, abort
+from flask import request
 from models import Kweek, Trend
 import api_namespaces
+from . import actions
 
 trends_api = api_namespaces.trends_api
 search_api = api_namespaces.search_api
@@ -22,7 +24,7 @@ class HomeTimeline(Resource):
 
 @timelines_api.route('/profile')
 class ProfileTimeline(Resource):
-    @timelines_api.param(name='username', type='str', required=True,
+    @timelines_api.param(name='username', type='str',
                          description="The username of the user whose profile kweeks are requested.")
     @timelines_api.param(name='last_retrieved_kweek_id', type='str',
                          description="Nullable. Normally the request returns the first 20 kweeks when null."
@@ -30,9 +32,17 @@ class ProfileTimeline(Resource):
     @timelines_api.response(code=200, description='Kweeks returned successfully.', model=[Kweek.api_model])
     @timelines_api.response(code=401, description='Unauthorized access.')
     @timelines_api.response(code=404, description='User does not exist.')
+    @timelines_api.marshal_with(Kweek.api_model, as_list=True)
     def get(self):
         """ Retrieves a list of kweeks in the profile of a user. """
-        pass
+        username = request.args.get('username')
+        authorized_username = 'user1'   # To be replaced
+        if not actions.is_user(username):
+            abort(404, message='A user with this username does not exist.')
+        kweeks = actions.get_profile_kweeks(authorized_username=authorized_username,
+                                            required_username=username)
+        print(kweeks)
+        return kweeks, 200
 
 
 @timelines_api.route('/mentions')
