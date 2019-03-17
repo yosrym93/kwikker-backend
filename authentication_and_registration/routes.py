@@ -1,14 +1,16 @@
-from flask_restplus import Resource, fields
+from flask_restplus import Resource, fields, abort
+from flask import request
 from app import create_model
 import api_namespaces
-
+from authentication_and_registration.actions import authorize
+from . import actions
 account_api = api_namespaces.account_api
 
 
 @account_api.route('/login')
 class Login(Resource):
-    @account_api.response(code=200, description='Logged in successfully.', model=create_model('Token', model={
-        'Token': fields.String(description='Access token.')
+    @account_api.response(code=200, description='Logged in successfully.', model=create_model('token', model={
+        'token': fields.String(description='Access token.')
     }))
     @account_api.response(code=404,
                           description='A user with matching credentials does not exist.')
@@ -18,6 +20,14 @@ class Login(Resource):
                         }))
     def post(self):
         """ Authenticates user and provide an access token for Kwikker. """
+        data = request.get_json()
+        is_verified = actions.verify(data['username'], data['password'])
+        if not is_verified:
+            abort(404, message='A user with matching credentials does not exist.')
+        else:
+            token = actions.create_token(data['username'])
+            token = token.decode('utf-8')
+            return{'token': token}, 200
         pass
 
 
@@ -29,7 +39,7 @@ class Registration(Resource):
                             'username_already_exists': fields.Boolean,
                             'email_already_exists': fields.Boolean
                           }))
-    @account_api.expect(create_model('User Credentials', {
+    @account_api.expect(create_model('User Registration Data', {
         'username': fields.String(description='The username of the new user.'),
         'password': fields.String(description='The password of the new user.'),
         'email': fields.String(description='The email of the user new user.')
@@ -62,7 +72,7 @@ class RegistrationResendEmail(Resource):
     @account_api.response(code=200, description='Email resent successfully.')
     @account_api.response(code=404, description='The user does not exist or is already confirmed.')
     def post(self):
-        """ Resends an email to confirm the user registration. """
+        """ Re-sends an email to confirm the user registration. """
         pass
 
 
@@ -84,4 +94,22 @@ class ForgetPassword(Resource):
                           description='A user with the provided email does not exist.')
     def post(self):
         """ Resets the user's password and sends a new password by email. """
+        pass
+
+
+@account_api.route('/test')
+class ExampleTest(Resource):
+    @account_api.response(code=401, description='Signature expired. Please log in again.')
+    @account_api.response(code=401, description='Invalid token. Please log in again.')
+    @account_api.doc(security='KwikkerKey')
+    # decorator that will verify the token sent
+    @authorize
+    def post(self, username):
+        print('username:', username)
+        return {'username': username}, 200
+
+    @account_api.doc(security='KwikkerKey')
+    @authorize
+    def get(self, username):
+        print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
         pass

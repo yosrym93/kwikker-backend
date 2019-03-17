@@ -2,7 +2,7 @@ class BaseConfig:
     RESTPLUS_MASK_SWAGGER = False
     SWAGGER_UI_DOC_EXPANSION = 'list'
     DEBUG = True
-    SECRET_KEY = ''
+    SECRET_KEY = 'kwikkerSecretKeyIsSALTS'
     ERROR_404_HELP = False
 
 

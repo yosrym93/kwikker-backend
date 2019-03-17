@@ -1,3 +1,5 @@
+bcrypt
+PyJWT
 aniso8601==5.1.0
 apispec==1.0.0b1
 attrs==19.1.0
