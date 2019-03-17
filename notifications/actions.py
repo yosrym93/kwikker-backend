@@ -1,6 +1,5 @@
 from . import query_factory
 import datetime
-from flask import jsonify
 from models import Notification
 
 """
@@ -11,17 +10,17 @@ from models import Notification
 
 def get_notifications(username):
     """
-        this function get list of notifications for a give username
+        this function get list of notifications for a give username.
 
         **PARAMETER**:
 
-            * *involved_username*: user who is reposonsible for the notification
-            * *type_notification*: type of the notification [FOLLOW-REKWEEK-LIKE]
-            * *kweek_id*: the id of the kweek involved
+            * *involved_username*: user who is reposonsible for the notification.
+            * *type_notification*: type of the notification [FOLLOW-REKWEEK-LIKE].
+            * *kweek_id*: the id of the kweek involved.
 
         **RETURNS**:
 
-            - list of notifications for the users in json format
+            - list of notifications for the users in json format.
 
 
         """
@@ -41,13 +40,13 @@ def create_notifications(involved_username, type_notification, kweek_id):
 
      **PARAMETER**:
 
-         * *involved_username*: user who is reposonsible for the notification
-         * *type_notification*: type of the notification [FOLLOW-REKWEEK-LIKE]
-         * *kweek_id*: the id of the kweek involved
+         * *involved_username*: user who is reposonsible for the notification.
+         * *type_notification*: type of the notification [FOLLOW-REKWEEK-LIKE].
+         * *kweek_id*: the id of the kweek involved.
 
      **RETURNS**:
 
-         - doesn't return anything
+         - doesn't return anything.
 
 
      """
@@ -57,14 +56,14 @@ def create_notifications(involved_username, type_notification, kweek_id):
 # function for testing
 def get_list_size_notification():
     """
-        this function count all notifications in database
+        this function count all notifications in database.
 
         **PARAMETER**:
 
-            - no parameter
+            - no parameter.
 
         **RETURNS**:
-            - number of notifications in the database
+            - number of notifications in the database.
 
 
         """
@@ -72,4 +71,16 @@ def get_list_size_notification():
 
 
 def is_user(username):
+    """
+        this function checks if the user is in the database or not.
+
+        **PARAMETER**:
+
+            * *username*: username to be checked in the database.
+
+        **RETURNS**:
+            - a boolean representing if exists in the database or not.
+
+
+    """
     return query_factory.is_user(username)

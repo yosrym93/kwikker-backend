@@ -3,12 +3,41 @@ from models import User, Mention, Hashtag, Kweek
 
 
 def get_friendship(authorized_username, required_username):
+    """
+        Gets the friendship status of the authorized user and a different user.
+
+
+        *Parameters:*
+            - *authorized_username*: The username of the authorized user.
+            - *required_username*: The username of the user whose friendship status is required.
+
+        *Returns:*
+            - *Dictionary*: {
+                                | *following*: bool,
+                                | *follows_you*: bool,
+                                | *muted*: bool,
+                                | *blocked*: bool
+                                | }
+
+            Note: All the dictionary values are None if the authorized user is the same as the required user.
+    """
     friendship = query_factory.get_friendship(authorized_username=authorized_username,
                                               required_username=required_username)
     return friendship
 
 
 def get_user(authorized_username, required_username):
+    """
+        Constructs a user object given its username.
+
+
+        *Parameters:*
+            - *authorized_username*: The username of the authorized user.
+            - *required_username*: The username of the user whose user object is required.
+
+        *Returns:*
+            - *models.User object*
+    """
     user = query_factory.get_user_data(required_username)
     friendship = query_factory.get_friendship(authorized_username=authorized_username,
                                               required_username=required_username)
@@ -17,6 +46,16 @@ def get_user(authorized_username, required_username):
 
 
 def get_kweek_mentions(kweek_id):
+    """
+        Gets the mentions in a given kweek.
+
+
+        *Parameters:*
+            - *kweek_id*: The id of the kweek.
+
+        *Returns:*
+            - *List of models.Mention objects*
+    """
     database_mentions = query_factory.get_kweek_mentions(kweek_id)
     mentions = []
     for database_mention in database_mentions:
@@ -29,6 +68,16 @@ def get_kweek_mentions(kweek_id):
 
 
 def get_kweek_hashtags(kweek_id):
+    """
+        Gets the hashtags in a given kweek.
+
+
+        *Parameters:*
+            - *kweek_id*: The id of the kweek.
+
+        *Returns:*
+            - *List of models.Hashtag objects*
+    """
     database_hashtags = query_factory.get_kweek_hashtags(kweek_id)
     hashtags = []
     for database_hashtag in database_hashtags:
@@ -41,6 +90,17 @@ def get_kweek_hashtags(kweek_id):
 
 
 def get_profile_kweeks(authorized_username, required_username):
+    """
+        Gets the kweeks that should appear on a specific user profile.
+
+
+        *Parameters:*
+            - *authorized_username*: The username of the authorized user.
+            - *required_username*: The username of the user whose user object is required.
+
+        *Returns:*
+            - *List of models.Kweek objects*
+    """
     # Get a list of kweeks with missing data
     profile_kweeks = query_factory.get_profile_kweeks(required_username)
     # The profile user as a user object, will be used for most of the kweeks
@@ -76,9 +136,37 @@ def get_profile_kweeks(authorized_username, required_username):
 
 
 def is_user(username):
+    """
+        Checks if a username belongs to an existing user.
+
+
+        *Parameters:*
+            - *username*: The username to be checked.
+
+        *Returns:*
+            *True*: The username belongs to an existing user.
+            *False*: The username does not exist.
+    """
     return query_factory.is_user(username)
 
 
 def get_kweek_statistics(authorized_username, kweek_id):
+    """
+        Gets the statistics of a kweek and the interactions of the authorized user with it.
+
+
+        *Parameters:*
+            - *authorized_username*: The username of the authorized user.
+            - *kweek_id*: The id of the kweek.
+
+        *Returns:*
+            - *Dictionary*: {
+                                | *number_of_likes*: int,
+                                | *number_of_rekweeks*: int,
+                                | *number_of_replies*: int,
+                                | *liked_by_user*: bool,
+                                | *rekweeked_by_user*: bool
+                                | }
+    """
     return query_factory.get_kweek_statistics(authorized_username=authorized_username,
                                               kweek_id=kweek_id)
