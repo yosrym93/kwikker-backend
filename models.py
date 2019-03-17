@@ -247,7 +247,7 @@ class Notification:
         self.screen_names = json['screen_name']
         self.kweek_id = json['kweek_id']
         self.kweek_text = json['kweek_text']
-        self.profile_pic_URL = json['profile_pic_URL']
+        self.profile_pic_url = json['profile_pic_url']
 
     def to_json(self):
         return {
@@ -258,7 +258,7 @@ class Notification:
             'screen_name': self.screen_names,
             'kweek_id': self.kweek_id,
             'kweek_text': self.kweek_text,
-            'profile_pic_URL': self.profile_pic_URL
+            'profile_pic_url': self.profile_pic_url
         }
 
 
