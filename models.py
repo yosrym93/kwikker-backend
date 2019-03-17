@@ -232,7 +232,9 @@ class Notification:
         'screen_name': fields.String(description='Handle that the user identifies themselves with.'),
         'kweek_id': fields.String(description='Nullable,a unique string representing the kweek id.'
                                   , nullable=True),  # Nullable
-        'kweek_text': fields.String(description='The text of the kweek.')
+        'kweek_text': fields.String(description='The text of the kweek.'),
+        'profile_pic_URL': fields.String(description='The profile picture URL of the involved person who liked,'
+                                                     'followed,etc).')
     })
 
     def __init__(self, json):
@@ -243,6 +245,7 @@ class Notification:
         self.screen_names = json['screen_name']
         self.kweek_id = json['kweek_id']
         self.kweek_text = json['kweek_text']
+        self.profile_pic_URL = json['profile_pic_URL']
 
     def to_json(self):
         return {
@@ -252,7 +255,8 @@ class Notification:
             'username': self.username,
             'screen_name': self.screen_names,
             'kweek_id': self.kweek_id,
-            'kweek_text': self.kweek_text
+            'kweek_text': self.kweek_text,
+            'profile_pic_URL': self.profile_pic_URL
         }
 
 
