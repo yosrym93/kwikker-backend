@@ -2,5 +2,5 @@
 **/__pycache__/
 **/venv/
 docs/build/
-_static/
--template/
+*/_static/
+*/_templates/
