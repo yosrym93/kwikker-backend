@@ -194,18 +194,14 @@ def paginate(dictionaries_list, required_size, start_at_key, start_at_value):
     if not isinstance(dictionaries_list, list):
         return None
 
-    if required_size >= len(dictionaries_list):
-        return dictionaries_list
-
     start_at_index = None
     for index, value in enumerate(dictionaries_list):
         if not isinstance(value, dict):
             return None
         if start_at_key not in value:
             return None
-        if value[start_at_key] == start_at_value:
+        if start_at_index is None and value[start_at_key] == start_at_value:
             start_at_index = index
-            break
 
     if start_at_index is None:
         return None
