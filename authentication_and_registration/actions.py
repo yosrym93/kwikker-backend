@@ -15,10 +15,8 @@ def verify(username, password):
     in the query factory that access the database.
 
     *Parameters:*
-
-        -username(str): holds the value of the username.
-
-        -password(str): holds the value of the password.
+        - *username(string)*: holds the value of the username.
+        - *password(string)*: holds the value of the password.
 
     *Returns:*
         -*True*: if the user is on the system.
@@ -32,8 +30,9 @@ def create_token(username):
     Generate token.
 
     Encode the payload (date of expiration, username) with the secret key.
+
     *Parameters:*
-        -username(str): holds the value of the username.
+        -*username(string)*: holds the value of the username.
 
     *Returns:*
         -*Token*:the token created.
@@ -54,8 +53,8 @@ def authorize(f):
     this decorator validate the token passed in the header with the endpoint.
 
     *Returns:*
-        -*Error Response,401*: if the token is not given in the header, expired or invalid
-        -*Authorize the token*:if the token is valid it allows the access and return the username
+        -*Error Response,401*: if the token is not given in the header, expired or invalid.
+        -*Username*:if the token is valid it allows the access and return the username of the user.
     """
     @wraps(f)
     def decorated(*args, **kwargs):
