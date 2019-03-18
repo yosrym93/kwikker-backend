@@ -1,3 +1,4 @@
+pytest
 bcrypt
 PyJWT
 aniso8601==5.1.0
