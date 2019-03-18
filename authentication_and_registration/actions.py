@@ -4,7 +4,7 @@ from flask import request
 import jwt
 import datetime
 from datetime import timedelta
-secret_key = 'kwikkerSecretKeyIsSALTS'
+from app import secret_key
 
 
 def verify(username, password):

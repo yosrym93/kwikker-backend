@@ -5,6 +5,7 @@ import database_manager
 
 
 app = Flask(__name__)
+app.config.from_object('config.DevelopmentConfig')
 authorizations = {
     'KwikkerKey': {
         'type': 'apiKey',
@@ -14,6 +15,7 @@ authorizations = {
 }
 api = Api(app, authorizations=authorizations, doc='/api/doc', title='Kwikker API', version='1.0')
 create_model = api.model
+secret_key = app.config['SECRET_KEY']
 
 
 def initialize_database():
@@ -35,7 +37,7 @@ def initialize_database():
         # Replace with your local database credentials
         db_name = 'kwikker'
         db_username = 'postgres'
-        db_password = '1'
+        db_password = ''
 
     response = database_manager.db_manager.initialize_connection(db_name=db_name, db_username=db_username,
                                                                  db_password=db_password)
