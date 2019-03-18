@@ -1,9 +1,38 @@
 from flask_restplus import Resource, fields
+from flask import request
 from app import create_model
 from models import Kweek, User
+from kweeks.actions import create_kweek,delete_kweek,get_kweek_with_replies
 import api_namespaces
 
 kweeks_api = api_namespaces.kweeks_api
+
+model2=create_model('Kweek & Replies',
+                                 model={'Kweek': fields.Nested(Kweek.api_model),
+                                            'replies': fields.List(fields.Nested(Kweek.api_model))})
+
+
+
+@kweeks_api.route('/Test')
+class Test(Resource):
+    def get(self):
+        """
+        Retrieve a Kweek with its replies.
+        """
+        response1, response2 = get_kweek_with_replies(int(request.args.get('id')))
+        return response1, response2
+
+
+
+    @kweeks_api.marshal_with(model2, as_list=True)
+    def get(self):
+        """
+        Retrieve a Kweek with its replies.
+        """
+        response1, response2= get_kweek_with_replies(int(request.args.get('id')))
+        return response1,response2
+
+
 
 
 @kweeks_api.route('/')
@@ -14,13 +43,19 @@ class Kweeks(Resource):
                                                                               'is a reply to. Null if the kweek is not'
                                                                               ' a reply.')
                                     }))
+
     @kweeks_api.response(code=401, description='Unauthorized access.')
     @kweeks_api.response(code=201, description='Kweek created successfully.')
     def post(self):
         """
         Create a new Kweek or reply.
         """
-        pass
+        is_successful=create_kweek(request.get_json())
+        if is_successful:
+            return None, 201
+        else:
+            return None, 401
+
 
     @kweeks_api.response(code=204, description='Kweek has been deleted successfully.')
     @kweeks_api.response(code=404, description='Kweek does not exist.')
@@ -30,7 +65,11 @@ class Kweeks(Resource):
         """
         Delete an existing Kweek.
         """
-        pass
+        is_successful = delete_kweek(int(request.args.get('id')))
+        if is_successful:
+            return None, 201
+        else:
+            return None, 401
 
     @kweeks_api.response(code=200, description='Kweek has been returned successfully.',
                          model=create_model('Kweek & Replies',
@@ -45,7 +84,11 @@ class Kweeks(Resource):
         """
         Retrieve a Kweek with its replies.
         """
-        pass
+        is_successful = get_kweek_with_replies(int(request.args.get('id')))
+        if is_successful:
+            return None, 201
+        else:
+            return None, 401
 
 
 @kweeks_api.route('/replies')
