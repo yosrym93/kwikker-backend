@@ -1,33 +1,56 @@
 import database_manager
-
 db_manager = database_manager.db_manager
-
-"""
-    Create your functions here that contain only query construction logic.
-    When passing parameters to queries use the method shown here:
-    http://initd.org/psycopg/docs/usage.html
-
-    Never use string concatenation or any other string formatting methods other than the one specified.
-
-    You must check that the returned object is not an exception.
-
-    The return of a SELECT query is a list of dictionaries, where each row is represented by a dictionary.
-    The keys of the dictionary are the database column names.
-"""
 
 
 def get_notifications(user):
+    """
+            This function get list of notifications for a given username.
+
+
+            *Parameter:*
+
+                - *username*: User who is responsible for the notification.
+
+            *Returns*:
+
+                - List of Dictionaries: {
+                                            | *id*: string,
+                                            | *created_at*: datetime,
+                                            | *type*: [FOLLOW-REKWEEK-LIKE],
+                                            | *username*: string,
+                                            | *screen_name*: string,
+                                            | *kweek_id*: string,
+                                            | *kweek_text*: string,
+                                            | *profile_pic_URL*: string
+                                            | }
+    """
     query: str = """SELECT  NOTIFICATION.ID AS id,NOTIFICATION.CREATED_AT AS created_at,TYPE AS type,
     PROFILE.USERNAME AS username,SCREEN_NAME AS screen_name,INVOLVED_KWEEK_ID AS kweek_id,TEXT AS kweek_text,
     PROFILE_IMAGE_URL AS profile_pic_url FROM NOTIFICATION INNER JOIN USER_CREDENTIALS 
     ON NOTIFIED_USERNAME=USERNAME INNER JOIN PROFILE ON PROFILE.USERNAME=USER_CREDENTIALS.USERNAME 
-    INNER JOIN KWEEK ON INVOLVED_KWEEK_ID = KWEEK.ID where profile.username = %s LIMIT 20"""
+    INNER JOIN KWEEK ON INVOLVED_KWEEK_ID = KWEEK.ID where profile.username = %s """
     data = (user,)
     response = db_manager.execute_query(query, data)
     return response
 
 
 def create_notifications(involved_username, type_notification, kweek_id, created_at):
+    """
+         This function create a notification in the database.
+
+
+         *Parameter:*
+
+             - *involved_username*: user who is reposonsible for the notification.
+             - *type_notification*: type of the notification [FOLLOW-REKWEEK-LIKE].
+             - *kweek_id*: the id of the kweek involved.
+             - *created_at*: date to be created at which will always be 'datetime.datetime.now()' function
+
+         *Returns:*
+
+             - *None*: If the query was executed successfully.
+             - *Exception* object: If the query produced an error.
+    """
     query: str = """ SELECT  USERNAME  FROM KWEEK WHERE ID = %s"""
     data = (kweek_id,)
     notified_username = db_manager.execute_query(query, data)[0]['username']
@@ -41,13 +64,35 @@ def create_notifications(involved_username, type_notification, kweek_id, created
 
 
 # function for testing
-def get_list_size_notification():
+def count_notification():
+    """
+           This function count all notifications in database.
+
+
+           *Parameter:*
+
+               - no parameter.
+
+           *Returns:*
+               - number of notifications in the database.
+    """
     query: str = """SELECT COUNT(*) FROM NOTIFICATION"""
     response = db_manager.execute_query(query)
     return response
 
 
 def is_user(username):
+    """
+            This function checks if the user is in the database or not.
+
+
+            *Parameter:*
+
+                - *username:* username to be checked in the database.
+
+            *Returns:*
+                - a boolean representing if exists in the database or not.
+    """
     query = """
                 SELECT * FROM USER_CREDENTIALS WHERE USERNAME = %s
             """

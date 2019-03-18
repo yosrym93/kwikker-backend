@@ -1,31 +1,27 @@
 from . import query_factory
 import datetime
 from models import Notification
-
-"""
-    All the functions containing the logic should reside here. 
-    The routes functions should contain no logic, they should only call the functions in this module.
-"""
+from timelines_and_trends import actions
 
 
 def get_notifications(username):
     """
-        this function get list of notifications for a give username.
-
-        **PARAMETER**:
-
-            * *involved_username*: user who is reposonsible for the notification.
-            * *type_notification*: type of the notification [FOLLOW-REKWEEK-LIKE].
-            * *kweek_id*: the id of the kweek involved.
-
-        **RETURNS**:
-
-            - list of notifications for the users in json format.
+        This function get list of notifications for a given username by converting lists of dictionaries
+        into lists of notification model, it call fucntion from query factory that returns lists of
+        dictionaries fit notification model.
 
 
+        *Parameter:*
+
+            - *username*: user who is responsible for the notification.
+
+        *Returns*:
+
+            - *models.Notification object*
         """
-
     notifications = query_factory.get_notifications(username)
+    notifications = actions.paginate(notifications, 2, 'id', 4)
+    print(notifications)
     notification_list = []
     if len(notifications) == 0:
         return notification_list
@@ -36,51 +32,49 @@ def get_notifications(username):
 
 def create_notifications(involved_username, type_notification, kweek_id):
     """
-     this function create a notification in the database.
-
-     **PARAMETER**:
-
-         * *involved_username*: user who is reposonsible for the notification.
-         * *type_notification*: type of the notification [FOLLOW-REKWEEK-LIKE].
-         * *kweek_id*: the id of the kweek involved.
-
-     **RETURNS**:
-
-         - doesn't return anything.
+     This function create a notification in the database.
 
 
+     *Parameter:*
+
+         - *involved_username*: user who is reposonsible for the notification.
+         - *type_notification*: type of the notification [FOLLOW-REKWEEK-LIKE].
+         - *kweek_id*: the id of the kweek involved.
+
+     *Returns:*
+
+         - *None*: If the query was executed successfully.
+         - *Exception* object: If the query produced an error.
      """
     return query_factory.create_notifications(involved_username, type_notification, kweek_id, datetime.datetime.now())
 
 
 # function for testing
-def get_list_size_notification():
+def count_notification():
     """
-        this function count all notifications in database.
+        This function count all notifications in database.
 
-        **PARAMETER**:
+
+        *Parameter:*
 
             - no parameter.
 
-        **RETURNS**:
+        *Returns:*
             - number of notifications in the database.
-
-
-        """
-    return query_factory.get_list_size_notification()
+    """
+    return query_factory.count_notification()
 
 
 def is_user(username):
     """
-        this function checks if the user is in the database or not.
+        This function checks if the user is in the database or not.
 
-        **PARAMETER**:
 
-            * *username*: username to be checked in the database.
+        *Parameter:*
 
-        **RETURNS**:
+            - *username:* username to be checked in the database.
+
+        *Returns:*
             - a boolean representing if exists in the database or not.
-
-
     """
     return query_factory.is_user(username)
