@@ -4,7 +4,7 @@ User Profile
 
 Routes
 -------------------------------------
-The routes modules contains the API endpoints of users_profiles.
+The routes modules contains the API endpoints of the user profiles.
 
 .. automodule:: users_profiles.routes
 
@@ -25,10 +25,3 @@ The query_factory module contains the functions constructing the SQL queries nee
 .. automodule:: users_profiles.query_factory
    :members:
 
-
-Tests
----------------
-The tests module contains the unit testing functions of the package.
-
-.. automodule:: users_profiles.tests
-   :members:

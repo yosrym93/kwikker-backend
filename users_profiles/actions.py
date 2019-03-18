@@ -3,10 +3,6 @@ from timelines_and_trends import actions
 from models import UserProfile
 import os
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
-"""
-    All the functions containing the logic should reside here. 
-    The routes functions should contain no logic, they should only call the functions in this module.
-"""
 
 
 def get_user_profile(authorized_username, username):

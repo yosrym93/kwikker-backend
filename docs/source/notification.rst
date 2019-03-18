@@ -4,7 +4,7 @@ Notification
 
 Routes
 ------
-The routes modules contains the API endpoints of the notification.
+The routes modules contains the API endpoints of the notifications.
 
 .. automodule:: notifications.routes
 
@@ -25,9 +25,3 @@ The query_factory module contains the functions constructing the SQL queries nee
 .. automodule:: notifications.query_factory
 
 
-Tests
------
-The tests module contains the unit testing functions of the package.
-
-.. automodule:: notifications.test_actions
-   :members:

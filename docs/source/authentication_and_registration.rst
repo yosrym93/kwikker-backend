@@ -4,7 +4,7 @@ Authentication and Registration
 
 Routes
 -------------------------------------
-The routes modules contains the API endpoints of the timelines and trends.
+The routes modules contains the API endpoints of the user authentication and registration.
 
 .. automodule:: authentication_and_registration.routes
 
@@ -26,9 +26,3 @@ The query_factory module contains the functions constructing the SQL queries nee
    :members:
 
 
-Tests
----------------
-The tests module contains the unit testing functions of the package.
-
-.. automodule:: authentication_and_registration.tests
-   :members:

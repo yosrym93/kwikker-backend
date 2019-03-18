@@ -26,9 +26,4 @@ The query_factory module contains the functions constructing the SQL queries nee
    :members:
 
 
-Tests
----------------
-The tests module contains the unit testing functions of the package.
 
-.. automodule:: timelines_and_trends.tests
-   :members:
