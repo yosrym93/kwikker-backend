@@ -230,7 +230,7 @@ class Notification:
         'created_at': fields.DateTime(description='The utc datetime of the notification when created.'),
         'type': fields.String(description='Type of the notification [possible values:follow,rekweek,like,reply, '
                                           'mentions].'),
-        'username': fields.String(description='Username of the notification.'),
+        'username': fields.String(description='Username of the notification.'),  # involved_username
         'screen_name': fields.String(description='Handle that the user identifies themselves with.'),
         'kweek_id': fields.String(description='Nullable,a unique string representing the kweek id.'
                                   , nullable=True),  # Nullable
@@ -244,7 +244,7 @@ class Notification:
         self.created_at = json['created_at']
         self.type = json['type']
         self.username = json['username']
-        self.screen_names = json['screen_name']
+        self.screen_name = json['screen_name']
         self.kweek_id = json['kweek_id']
         self.kweek_text = json['kweek_text']
         self.profile_pic_url = json['profile_pic_url']
@@ -255,7 +255,7 @@ class Notification:
             'created_at': self.created_at,
             'type': self.type,
             'username': self.username,
-            'screen_name': self.screen_names,
+            'screen_name': self.screen_name,
             'kweek_id': self.kweek_id,
             'kweek_text': self.kweek_text,
             'profile_pic_url': self.profile_pic_url

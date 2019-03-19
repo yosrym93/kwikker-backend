@@ -4,7 +4,7 @@ from models import Notification
 from timelines_and_trends import actions
 
 
-def get_notifications(username):
+def get_notifications(notified_username, last_notification_retrieved_id):
     """
         This function get list of notifications for a given username by converting lists of dictionaries
         into lists of notification model, it call fucntion from query factory that returns lists of
@@ -13,15 +13,15 @@ def get_notifications(username):
 
         *Parameter:*
 
-            - *username*: user who is responsible for the notification.
+            - *username*: user who will be notified .
+            - *last_notification_retrieved_id*: id of last notification retrieved
 
         *Returns*:
 
             - *models.Notification object*
         """
-    notifications = query_factory.get_notifications(username)
-    notifications = actions.paginate(notifications, 2, 'id', 4)
-    print(notifications)
+    notifications = query_factory.get_notifications(notified_username)
+    notifications = actions.paginate(notifications, 30, 'id', last_notification_retrieved_id)
     notification_list = []
     if len(notifications) == 0:
         return notification_list
@@ -37,7 +37,7 @@ def create_notifications(involved_username, type_notification, kweek_id):
 
      *Parameter:*
 
-         - *involved_username*: user who is reposonsible for the notification.
+         - *involved_username*: user who is responsible for the notification.
          - *type_notification*: type of the notification [FOLLOW-REKWEEK-LIKE].
          - *kweek_id*: the id of the kweek involved.
 
