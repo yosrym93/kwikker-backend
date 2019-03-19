@@ -8,15 +8,15 @@ def get_friendship(authorized_username, required_username):
 
 
         *Parameters:*
-            - *authorized_username*: The username of the authorized user.
-            - *required_username*: The username of the user whose friendship status is required.
+            - *authorized_username (string)*: The username of the authorized user.
+            - *required_username (string)*: The username of the user whose friendship status is required.
 
         *Returns:*
             - *Dictionary*: {
-                                | *following*: bool,
-                                | *follows_you*: bool,
-                                | *muted*: bool,
-                                | *blocked*: bool
+                                | *following (bool)*: Is the authorized user following the required user.,
+                                | *follows_you (bool)*: Is the required user following the authorized user.,
+                                | *blocked (bool)*: Is the required user blocked by the authorized user.,
+                                | *muted (bool)*: Is the required user muted by the authorized user.
                                 | }
 
             Note: All the dictionary values are None if the authorized user is the same as the required user.
@@ -32,8 +32,8 @@ def get_user(authorized_username, required_username):
 
 
         *Parameters:*
-            - *authorized_username*: The username of the authorized user.
-            - *required_username*: The username of the user whose user object is required.
+            - *authorized_username (string)*: The username of the authorized user.
+            - *required_username (string)*: The username of the user whose user object is required.
 
         *Returns:*
             - *models.User object*
@@ -51,7 +51,7 @@ def get_kweek_mentions(kweek_id):
 
 
         *Parameters:*
-            - *kweek_id*: The id of the kweek.
+            - *kweek_id (int)*: The id of the kweek.
 
         *Returns:*
             - *List of models.Mention objects*
@@ -73,7 +73,7 @@ def get_kweek_hashtags(kweek_id):
 
 
         *Parameters:*
-            - *kweek_id*: The id of the kweek.
+            - *kweek_id (int)*: The id of the kweek.
 
         *Returns:*
             - *List of models.Hashtag objects*
@@ -95,8 +95,8 @@ def get_profile_kweeks(authorized_username, required_username):
 
 
         *Parameters:*
-            - *authorized_username*: The username of the authorized user.
-            - *required_username*: The username of the user whose user object is required.
+            - *authorized_username (string)*: The username of the authorized user.
+            - *required_username (string)*: The username of the user whose profile kweeks are required.
 
         *Returns:*
             - *List of models.Kweek objects*
@@ -142,11 +142,11 @@ def is_user(username):
 
 
         *Parameters:*
-            - *username*: The username to be checked.
+            - *username (string)*: The username to be checked.
 
         *Returns:*
-            *True*: The username belongs to an existing user.
-            *False*: The username does not exist.
+            - *True*: The username belongs to an existing user.
+            - *False*: The username does not exist.
     """
     return query_factory.is_user(username)
 
@@ -157,16 +157,16 @@ def get_kweek_statistics(authorized_username, kweek_id):
 
 
         *Parameters:*
-            - *authorized_username*: The username of the authorized user.
-            - *kweek_id*: The id of the kweek.
+            - *authorized_username (string)*: The username of the authorized user.
+            - *kweek_id (int)*: The id of the kweek.
 
         *Returns:*
             - *Dictionary*: {
-                                | *number_of_likes*: int,
-                                | *number_of_rekweeks*: int,
-                                | *number_of_replies*: int,
-                                | *liked_by_user*: bool,
-                                | *rekweeked_by_user*: bool
+                                | *number_of_likes (int)*: The number of likes of the kweek.,
+                                | *number_of_rekweeks (int)*: The number of rekweeks of the kweek.,
+                                | *number_of_replies (int)*: The number of replies of the kweek.,
+                                | *liked_by_user (bool)*: Whether the kweek is liked by the authorized user.,
+                                | *rekweeked_by_user (bool)*: Whether the kweek is rekweeked by the authorized user.
                                 | }
     """
     return query_factory.get_kweek_statistics(authorized_username=authorized_username,
@@ -181,13 +181,13 @@ def paginate(dictionaries_list, required_size, start_after_key, start_after_valu
 
         *Parameters:*
             - *dictionaries_list*: The list of dictionaries to be sliced.
-            - *required_size*: The size of the required list.
-            - *start_after_key*: The dictionary key to be checked for `start_after_value`.
-            - *start_after_value*: The value that the new list will start after.
+            - *required_size (int)*: The size of the required list.
+            - *start_after_key (int)*: The dictionary key to be checked for `start_after_value`.
+            - *start_after_value (int)*: The value that the new list will start after.
 
 
         *Returns:*
-            - *List of Dictionaries*: A new list starting at the required element with the required size (or less).
+            - *List of dictionaries*: A new list starting at the required element with the required size (or less).
             - | *None*: If the element to start at does not exist, the passed dictionaries_list is
               | not actually a list of dictionaries, or a dictionary does not contain a key that matches the given key.
     """
@@ -207,4 +207,3 @@ def paginate(dictionaries_list, required_size, start_after_key, start_after_valu
         return None
 
     return dictionaries_list[start_after_index + 1: start_after_index + 1 + required_size]
-
