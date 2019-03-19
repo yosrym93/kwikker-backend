@@ -173,7 +173,7 @@ def get_kweek_statistics(authorized_username, kweek_id):
                                               kweek_id=kweek_id)
 
 
-def paginate(dictionaries_list, required_size, start_at_key, start_at_value):
+def paginate(dictionaries_list, required_size, start_after_key, start_after_value):
     """
         Slices a list of dictionaries, starting at a given element and producing a new list
         with the required size.
@@ -182,8 +182,8 @@ def paginate(dictionaries_list, required_size, start_at_key, start_at_value):
         *Parameters:*
             - *dictionaries_list*: The list of dictionaries to be sliced.
             - *required_size*: The size of the required list.
-            - *start_at_key*: The dictionary key to be checked for `start_at_value`.
-            - *start_at_value*: The value that the new list will start at.
+            - *start_after_key*: The dictionary key to be checked for `start_after_value`.
+            - *start_after_value*: The value that the new list will start after.
 
 
         *Returns:*
@@ -194,17 +194,17 @@ def paginate(dictionaries_list, required_size, start_at_key, start_at_value):
     if not isinstance(dictionaries_list, list):
         return None
 
-    start_at_index = None
+    start_after_index = None
     for index, value in enumerate(dictionaries_list):
         if not isinstance(value, dict):
             return None
-        if start_at_key not in value:
+        if start_after_key not in value:
             return None
-        if start_at_index is None and value[start_at_key] == start_at_value:
-            start_at_index = index
+        if start_after_index is None and value[start_after_key] == start_after_value:
+            start_after_index = index
 
-    if start_at_index is None:
+    if start_after_index is None:
         return None
 
-    return dictionaries_list[start_at_index: start_at_index + required_size]
+    return dictionaries_list[start_after_index + 1: start_after_index + 1 + required_size]
 
