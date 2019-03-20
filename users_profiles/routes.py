@@ -37,7 +37,6 @@ class ProfileBanner(Resource):
     @authorize
     def delete(self, username):
         """ Delete a profile banner (restores the default one). """
-        # authorized_username = 'khaled'
         response = actions.delete_banner_picture(username)
         if response == - 1:
             return abort(404, message='delete request failed you can not delete default banner')
@@ -54,7 +53,9 @@ class ProfileBanner(Resource):
     def put(self, username):
         """ Update a profile banner given the new banner image. """
         authorized_username = username
+        print(authorized_username,'sdsdsdsdsdsdsds')
         file = request.files['file']
+        print(file)
         # authorized_username = 'khaled'
         response = actions.update_profile_banner(file, authorized_username)
         if response == - 1:
@@ -124,17 +125,15 @@ class UserProfile(Resource):
     @user_api.expect(create_model('Profile', model={
         'bio': fields.String(description='Nullable if unchanged. The biography of the user.'),
         'screen_name': fields.String(description='Nullable if unchanged. The name shown on profile screen.')
-    }))
+    }), validate=True)
     @user_api.doc(security='KwikkerKey')
     @authorize
     def patch(self, username):
         """ Update the biography or screen name in user profile."""
-        # authorized_username = 'khaled'   waiting for function
         data = request.get_json()
         bio = data.get('bio')
         screen_name = data.get('screen_name')
         response = actions.update_user_profile(username, bio, screen_name)
-        print(response)
         if response == - 1:
             abort(404, message='update failed.')
         if response == 0:
@@ -155,7 +154,9 @@ class UserProfile(Resource):
         username = request.args.get('username')
         response = actions.get_user_profile(authorized_username, username)
         if response == - 1:
-            return abort(404)
+            return abort(404, message='User does not exist.')
+        if response == Exception:
+            return abort(409, message='conflict happened.')
         return response, 200
 
 

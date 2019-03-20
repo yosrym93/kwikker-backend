@@ -103,7 +103,7 @@ def get_user_followers(username):
                                 - *response*: The number of followers .
     """
     query: str = """
-                         select count(*) from follow where follower_username = %s
+                         select count(*) from follow where followed_username = %s
                  """
     data = (username,)
     response = db_manager.execute_query(query, data)[0]
@@ -120,7 +120,7 @@ def get_user_following(username):
                                     - *response*: The number of following .
     """
     query: str = """
-                         select count(*) from follow where followed_username = %s
+                         select count(*) from follow where follower_username = %s
                  """
     data = (username,)
     response = db_manager.execute_query(query, data)[0]
