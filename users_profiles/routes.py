@@ -1,10 +1,12 @@
-from flask_restplus import Resource, fields , abort
+from flask_restplus import Resource, fields, abort
 from flask import request, send_from_directory
 from models import User, UserProfile
 from app import create_model
 import api_namespaces
 from .import actions
-
+from authentication_and_registration.actions import authorize
+import os
+APP_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 user_api = api_namespaces.user_api
 interactions_api = api_namespaces.interactions_api
 search_api = api_namespaces.search_api
@@ -19,7 +21,9 @@ class UsersSearch(Resource):
     @search_api.param(name='last_retrieved_username', type='str',
                       description="Nullable. Normally the request returns the first 20 users when null."
                                   "To retrieve more send the username of the last user retrieved.")
-    def get(self):
+    @search_api.doc(security='KwikkerKey')
+    @authorize
+    def get(self, authorized_username):
         """ Search for matching users using their username or screen name (or part of them). """
         pass
 
@@ -29,12 +33,14 @@ class ProfileBanner(Resource):
     @user_api.response(code=401, description='Unauthorized access.')
     @user_api.response(code=204, description='Profile banner deleted.')
     @user_api.response(code=404, description='Delete failed.')
-    def delete(self,):
+    @user_api.doc(security='KwikkerKey')
+    @authorize
+    def delete(self, username):
         """ Delete a profile banner (restores the default one). """
-        authorized_username = 'khaled'  # waiting for function
-        response = actions.delete_banner_picture(authorized_username)
+        # authorized_username = 'khaled'
+        response = actions.delete_banner_picture(username)
         if response == - 1:
-            return abort(404)
+            return abort(404, message='delete request failed you can not delete default banner')
         url = 'http://127.0.0.1:5000/user/upload/banner/banner.png'
         return url, 200
 
@@ -43,13 +49,16 @@ class ProfileBanner(Resource):
     @user_api.response(code=400, description='Parameters type does not match.')
     @user_api.response(code=401, description='Unauthorized access.')
     @user_api.param(name='image_file', description='The new profile banner.', required=True, type='file')
-    def put(self):
+    @user_api.doc(security='KwikkerKey')
+    @authorize
+    def put(self, username):
         """ Update a profile banner given the new banner image. """
+        authorized_username = username
         file = request.files['file']
-        authorized_username = 'khaled'  # waiting for function
+        # authorized_username = 'khaled'
         response = actions.update_profile_banner(file, authorized_username)
         if response == - 1:
-            return  abort(404)
+            return abort(404)
         url = 'http://127.0.0.1:5000/user/upload/banner/'
         url = url + response
         return url, 200
@@ -60,12 +69,14 @@ class ProfilePicture(Resource):
     @user_api.response(code=204, description='Profile picture deleted.')
     @user_api.response(code=404, description='Delete failed.')
     @user_api.response(code=401, description='Unauthorized access.')
-    def delete(self,):
+    @user_api.doc(security='KwikkerKey')
+    @authorize
+    def delete(self, username):
         """ Delete a profile picture (restores the default one). """
-        authorized_username = 'khaled'  # waiting for function
-        response = actions.delete_profile_picture(authorized_username)
+        # authorized_username = 'khaled'
+        response = actions.delete_profile_picture(username)
         if response == - 1:
-            return abort(404)
+            return abort(404, message='delete request failed you can not delete default picture')
         url = 'http://127.0.0.1:5000/user/upload/picture/profile.jpg'
         return url, 200
 
@@ -74,12 +85,14 @@ class ProfilePicture(Resource):
     @user_api.response(code=400, description='Parameters type does not match.')
     @user_api.response(code=401, description='Unauthorized access.')
     @user_api.param(name='image_file', description='The new profile picture.', required=True, type='file')
-    def put(self):
+    @user_api.doc(security='KwikkerKey')
+    @authorize
+    def put(self, username):
         """ Update a profile picture given the new picture. """
         # for file in request.files.getlist("file"):
         file = request.files['file']
-        authorized_username = 'khaled'  # waiting for function
-        response = actions.update_profile_picture(file, authorized_username)
+        # authorized_username = 'khaled'
+        response = actions.update_profile_picture(file, username)
         if response == - 1:
             return abort(404)
         url = 'http://127.0.0.1:5000/user/upload/picture/'
@@ -89,14 +102,18 @@ class ProfilePicture(Resource):
 
 @user_api.route('/upload/picture/<filename>')
 class PhotoUploadP(Resource):
-    def get(self, filename):
-        return send_from_directory('users_profiles\images\profile', filename)
+    @staticmethod
+    def get(filename):
+        os.chdir(os.path.dirname(APP_ROOT))
+        return send_from_directory('images\profile', filename)
 
 
 @user_api.route('/upload/banner/<filename>')
 class PhotoUploadB (Resource):
-    def get(self, filename):
-        return send_from_directory('users_profiles\images\ banner', filename)
+    @staticmethod
+    def get(filename):
+        os.chdir(os.path.dirname(APP_ROOT))
+        return send_from_directory('images\ banner', filename)
 
 
 @user_api.route('/profile')
@@ -108,29 +125,34 @@ class UserProfile(Resource):
         'bio': fields.String(description='Nullable if unchanged. The biography of the user.'),
         'screen_name': fields.String(description='Nullable if unchanged. The name shown on profile screen.')
     }))
-    def patch(self):
+    @user_api.doc(security='KwikkerKey')
+    @authorize
+    def patch(self, username):
         """ Update the biography or screen name in user profile."""
-        authorized_username = 'khaled'  # waiting for function
+        # authorized_username = 'khaled'   waiting for function
         data = request.get_json()
         bio = data.get('bio')
         screen_name = data.get('screen_name')
-        response = actions.update_user_profile(authorized_username, bio, screen_name)
+        response = actions.update_user_profile(username, bio, screen_name)
+        print(response)
         if response == - 1:
             abort(404, message='update failed.')
         if response == 0:
-            return abort(400)
-        return '', 200
+            return abort(400, 'pay load is empty or equal to null no update happened')
+        return 'profile updated', 200
 
     @user_api.response(code=200, description='User profile returned successfully.', model=UserProfile.api_model)
     @user_api.response(code=404, description='User does not exist.')
     @user_api.response(code=401, description='Unauthorized access.')
     @user_api.response(code=400, description='Parameters type does not match.')
     @user_api.marshal_with(UserProfile.api_model, as_list=True)
-    @user_api.param(name='username', type='str', required=True, description='The username.' )
-    def get(self):
+    @user_api.param(name='username', type='str', required=True, description='The username.')
+    @user_api.doc(security='KwikkerKey')
+    @authorize
+    def get(self, username):
         """ Retrieve the profile of a specific user. """
-        username = request.args.get('username')  #  user to be sent from front
-        authorized_username = 'khaled'  # waiting for function
+        authorized_username = username
+        username = request.args.get('username')
         response = actions.get_user_profile(authorized_username, username)
         if response == - 1:
             return abort(404)
@@ -144,7 +166,9 @@ class ChangeEmail(Resource):
     @user_api.response(code=401, description='Unauthorized access.')
     @user_api.expect(create_model('New Email', model={
      'email': fields.String(description="User's new email.")}))
-    def put(self):
+    @user_api.doc(security='KwikkerKey')
+    @authorize
+    def put(self, authorized_username):
         """ Update email of the authorized user. """
         pass
 
@@ -156,7 +180,9 @@ class ChangeUsername(Resource):
     @user_api.response(code=401, description='Unauthorized access.')
     @user_api.expect(create_model('New Username', model={
         'username': fields.String(description="User's new username")}))
-    def put(self):
+    @user_api.doc(security='KwikkerKey')
+    @authorize
+    def put(self, authorized_username):
         """ Update username of the authorized user. """
         pass
 
@@ -168,6 +194,8 @@ class ChangePassword(Resource):
     @user_api.response(code=401, description='Unauthorized access.')
     @user_api.expect(create_model('New Password', model={
         'password': fields.String(description="User's new password.")}))
-    def put(self):
+    @user_api.doc(security='KwikkerKey')
+    @authorize
+    def put(self, authorized_username):
         """ Update password of the authorized user. """
         pass

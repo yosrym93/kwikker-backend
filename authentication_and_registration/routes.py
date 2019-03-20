@@ -101,6 +101,7 @@ class ForgetPassword(Resource):
 class ExampleTest(Resource):
     @account_api.response(code=401, description='Signature expired. Please log in again.')
     @account_api.response(code=401, description='Invalid token. Please log in again.')
+    @account_api.response(code=401, description='Token is missing.')
     @account_api.doc(security='KwikkerKey')
     # decorator that will verify the token sent
     @authorize

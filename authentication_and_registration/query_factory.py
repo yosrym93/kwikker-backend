@@ -7,8 +7,8 @@ def is_user(username, password):
     check if the user is on the system.
 
     *Parameters:*
-        -username(str):holds the value of the username.
-        -password(str):holds the value of the password.
+        -*username(string)*:holds the value of the username.
+        -*password(string)*:holds the value of the password.
 
      *Returns:*
      -*True:* if there is a user.

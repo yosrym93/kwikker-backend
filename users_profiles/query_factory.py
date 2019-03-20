@@ -40,7 +40,7 @@ def update_user_profile(username, bio, screen_name):
             response = db_manager.execute_query_no_return(query, data)
             return response
 
-    elif screen_name == '':
+    elif screen_name == '' or screen_name is None:
             query: str = """
                                 update profile set bio = %s  where username = %s
                          """
@@ -155,6 +155,40 @@ def get_number_of_likes(username):
     """
     query: str = """
                         select count(*) from favorite where username = %s
+                 """
+    data = (username,)
+    response = db_manager.execute_query(query, data)[0]
+    return response
+
+
+def get_user_profile_picture(username):
+    """
+                                        Query to get name of  profile picture.
+
+                                        *Parameters*:
+                                            - *username (string)*: The username attribute in user_profile table .
+                                        *Returns*:
+                                            - *response*: The name of  profile picture.
+    """
+    query: str = """
+                            select profile_image_url from profile where username = %s
+                 """
+    data = (username,)
+    response = db_manager.execute_query(query, data)[0]
+    return response
+
+
+def get_user_banner_picture(username):
+    """
+                                            Query to get name of  banner picture.
+
+                                            *Parameters*:
+                                                - *username (string)*: The username attribute in user_profile table .
+                                            *Returns*:
+                                                - *response*: The name of  banner picture.
+    """
+    query: str = """
+                                select profile_banner_url from profile where username = %s
                  """
     data = (username,)
     response = db_manager.execute_query(query, data)[0]

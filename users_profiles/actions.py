@@ -2,7 +2,7 @@ from . import query_factory
 from timelines_and_trends import actions
 from models import UserProfile
 import os
-APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+APP_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def get_user_profile(authorized_username, username):
@@ -46,17 +46,13 @@ def update_user_profile(authorized_username, bio, screen_name):
                     - *-1*: in case of exception error in database.
                     - *0*: in case of bad request.
     """
-    if bio == "" and screen_name == "":
+    if (bio == "" or bio is None) and (screen_name == "" or screen_name is None):
         return 0
-    if bio is not None or screen_name is not None:
-
-        response = query_factory.update_user_profile(authorized_username, bio, screen_name)
-        if response is None:
+    response = query_factory.update_user_profile(authorized_username, bio, screen_name)
+    if response is None:
             return response
-        else:
-            return -1
     else:
-        return 0
+        return -1
 
 
 def update_profile_picture(file, authorized_username):
@@ -69,10 +65,20 @@ def update_profile_picture(file, authorized_username):
                     *Returns*:
                         - *filename*: the image name saved in database .
     """
+    images = os.path.join(APP_ROOT, 'images/')
+    if not os.path.isdir(images):
+        print('creating images folder')
+        os.mkdir(images)
+    print('found images folder')
     target = os.path.join(APP_ROOT, 'images\profile/')
+    print(target, '----target')
+
     if not os.path.isdir(target):
+        print('creating profile folder')
         os.mkdir(target)
-    filename = authorized_username + 'profile.png'
+
+    filename, ext = os.path.splitext(file.filename)  # ------------------------
+    filename = authorized_username + 'profile' + ext
     response = query_factory.update_user_profile_picture(authorized_username, filename)
     if response is None:
         destination = "/".join([target, filename])
@@ -92,10 +98,21 @@ def delete_profile_picture(authorized_username):
                             *Returns*:
                                 - *response*: which is none of case in successful deletion .
     """
-    filename = 'profile.jpg'
-    response = query_factory.update_user_profile_picture(authorized_username, filename)
+
+    default_filename = 'profile.jpg'
+    filename = query_factory.get_user_profile_picture(authorized_username)['profile_image_url']
+    if filename == default_filename:
+        return -1
+    path = APP_ROOT + '\images\profile'
+    response = query_factory.update_user_profile_picture(authorized_username, default_filename)
     if response is None:
-        return
+        os.chdir(path)
+        if os.path.exists(filename):
+
+            os.remove(filename)
+            return
+        else:
+            return -1
 
     else:
         return -1
@@ -111,15 +128,26 @@ def update_profile_banner(file, authorized_username):
                         *Returns*:
                             - *filename*: the image name saved in database .
     """
+    images = os.path.join(APP_ROOT, 'images/')
+    if not os.path.isdir(images):
+        print('creating images folder')
+        os.mkdir(images)
+    print('found images folder')
     target = os.path.join(APP_ROOT, 'images\ banner/')
+    print(target, '----target')
+
     if not os.path.isdir(target):
+        print('creating profile folder')
         os.mkdir(target)
-    filename = authorized_username + 'banner.png'
+
+    filename, ext = os.path.splitext(file.filename)  # ------------------------
+    filename = authorized_username + 'banner' + ext
     response = query_factory.update_user_banner_picture(authorized_username, filename)
     if response is None:
         destination = "/".join([target, filename])
         file.save(destination)
         return filename
+
     else:
         return -1
 
@@ -133,10 +161,23 @@ def delete_banner_picture(authorized_username):
                         *Returns*:
                             - *response*: which is none of case in successful deletion .
     """
-    filename = 'banner.png'
-    response = query_factory.update_user_banner_picture(authorized_username, filename)
+    default_filename = 'banner.png'
+    filename = query_factory.get_user_banner_picture(authorized_username)['profile_banner_url']
+    print(filename)
+    if filename == default_filename:
+        print('already delete')
+        return -1
+    path = APP_ROOT + '\images\ banner'
+    response = query_factory.update_user_banner_picture(authorized_username, default_filename)
     if response is None:
-        return
+        os.chdir(path)
+        if os.path.exists(filename):
+            print('filefound')
+            os.remove(filename)
+            return
+        else:
+            print("The file does not exist")
+            return -1
 
     else:
         return -1
