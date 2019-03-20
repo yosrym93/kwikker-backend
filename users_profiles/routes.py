@@ -35,9 +35,9 @@ class ProfileBanner(Resource):
     @user_api.response(code=404, description='Delete failed.')
     @user_api.doc(security='KwikkerKey')
     @authorize
-    def delete(self, username):
+    def delete(self, authorized_username):
         """ Delete a profile banner (restores the default one). """
-        response = actions.delete_banner_picture(username)
+        response = actions.delete_banner_picture(authorized_username)
         if response == - 1:
             return abort(404, message='delete request failed you can not delete default banner')
         url = 'http://127.0.0.1:5000/user/upload/banner/banner.png'
@@ -50,9 +50,8 @@ class ProfileBanner(Resource):
     @user_api.param(name='image_file', description='The new profile banner.', required=True, type='file')
     @user_api.doc(security='KwikkerKey')
     @authorize
-    def put(self, username):
+    def put(self, authorized_username):
         """ Update a profile banner given the new banner image. """
-        authorized_username = username
         print(authorized_username,'sdsdsdsdsdsdsds')
         file = request.files['file']
         print(file)
@@ -72,10 +71,10 @@ class ProfilePicture(Resource):
     @user_api.response(code=401, description='Unauthorized access.')
     @user_api.doc(security='KwikkerKey')
     @authorize
-    def delete(self, username):
+    def delete(self, authorized_username):
         """ Delete a profile picture (restores the default one). """
         # authorized_username = 'khaled'
-        response = actions.delete_profile_picture(username)
+        response = actions.delete_profile_picture(authorized_username)
         if response == - 1:
             return abort(404, message='delete request failed you can not delete default picture')
         url = 'http://127.0.0.1:5000/user/upload/picture/profile.jpg'
@@ -88,12 +87,12 @@ class ProfilePicture(Resource):
     @user_api.param(name='image_file', description='The new profile picture.', required=True, type='file')
     @user_api.doc(security='KwikkerKey')
     @authorize
-    def put(self, username):
+    def put(self, authorized_username):
         """ Update a profile picture given the new picture. """
         # for file in request.files.getlist("file"):
         file = request.files['file']
         # authorized_username = 'khaled'
-        response = actions.update_profile_picture(file, username)
+        response = actions.update_profile_picture(file, authorized_username)
         if response == - 1:
             return abort(404)
         url = 'http://127.0.0.1:5000/user/upload/picture/'
@@ -128,12 +127,12 @@ class UserProfile(Resource):
     }), validate=True)
     @user_api.doc(security='KwikkerKey')
     @authorize
-    def patch(self, username):
+    def patch(self, authorized_username):
         """ Update the biography or screen name in user profile."""
         data = request.get_json()
         bio = data.get('bio')
         screen_name = data.get('screen_name')
-        response = actions.update_user_profile(username, bio, screen_name)
+        response = actions.update_user_profile(authorized_username, bio, screen_name)
         if response == - 1:
             abort(404, message='update failed.')
         if response == 0:
@@ -148,9 +147,8 @@ class UserProfile(Resource):
     @user_api.param(name='username', type='str', required=True, description='The username.')
     @user_api.doc(security='KwikkerKey')
     @authorize
-    def get(self, username):
+    def get(self, authorized_username):
         """ Retrieve the profile of a specific user. """
-        authorized_username = username
         username = request.args.get('username')
         response = actions.get_user_profile(authorized_username, username)
         if response == - 1:
