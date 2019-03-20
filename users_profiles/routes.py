@@ -38,8 +38,12 @@ class ProfileBanner(Resource):
     def delete(self, authorized_username):
         """ Delete a profile banner (restores the default one). """
         response = actions.delete_banner_picture(authorized_username)
-        if response == - 1:
+        if response == 'default image':
             return abort(404, message='delete request failed you can not delete default banner')
+        if response == 'file does not exist':
+            return abort(404, message='delete request failed file does not exist')
+        if response == Exception:
+            return abort(404, message=response)
         url = 'http://127.0.0.1:5000/user/upload/banner/banner.png'
         return url, 200
 
@@ -52,13 +56,16 @@ class ProfileBanner(Resource):
     @authorize
     def put(self, authorized_username):
         """ Update a profile banner given the new banner image. """
-        print(authorized_username,'sdsdsdsdsdsdsds')
+        if 'file' not in request.files:
+            return abort(404, message='No image part')
         file = request.files['file']
-        print(file)
-        # authorized_username = 'khaled'
         response = actions.update_profile_banner(file, authorized_username)
-        if response == - 1:
-            return abort(404)
+        if response == 'No selected file':
+            return abort(404, message=response)
+        if response == 'not allowed extensions':
+            return abort(404, message=response)
+        if response == Exception:
+            return abort(404, message=response)
         url = 'http://127.0.0.1:5000/user/upload/banner/'
         url = url + response
         return url, 200
@@ -73,10 +80,13 @@ class ProfilePicture(Resource):
     @authorize
     def delete(self, authorized_username):
         """ Delete a profile picture (restores the default one). """
-        # authorized_username = 'khaled'
         response = actions.delete_profile_picture(authorized_username)
-        if response == - 1:
-            return abort(404, message='delete request failed you can not delete default picture')
+        if response == 'default image':
+            return abort(404, message='delete request failed you can not delete default profile picture')
+        if response == 'file does not exist':
+            return abort(404, message='delete request failed file does not exist')
+        if response == Exception:
+            return abort(404, message=response)
         url = 'http://127.0.0.1:5000/user/upload/picture/profile.jpg'
         return url, 200
 
@@ -89,12 +99,16 @@ class ProfilePicture(Resource):
     @authorize
     def put(self, authorized_username):
         """ Update a profile picture given the new picture. """
-        # for file in request.files.getlist("file"):
+        if 'file' not in request.files:
+            return abort(404, message='No image part')
         file = request.files['file']
-        # authorized_username = 'khaled'
         response = actions.update_profile_picture(file, authorized_username)
-        if response == - 1:
-            return abort(404)
+        if response == 'No selected file':
+            return abort(404, message=response)
+        if response == 'not allowed extensions':
+            return abort(404, message=response)
+        if response == Exception:
+            return abort(404, message=response)
         url = 'http://127.0.0.1:5000/user/upload/picture/'
         url = url + response
         return url, 200
