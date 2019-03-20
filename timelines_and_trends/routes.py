@@ -54,6 +54,8 @@ class ProfileTimeline(Resource):
             return kweeks, 200
         except TypeError:
             abort(500, message='An error occurred in the server.')
+        except ValueError:
+            abort(400, 'Invalid ID provided.')
 
 
 @timelines_api.route('/mentions')

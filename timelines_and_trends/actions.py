@@ -116,7 +116,10 @@ def get_profile_kweeks(authorized_username, required_username, last_retrieved_kw
             - *List of models.Kweek objects*
     """
     if last_retrieved_kweek_id is not None:
-        last_retrieved_kweek_id = int(last_retrieved_kweek_id)
+        try:
+            last_retrieved_kweek_id = int(last_retrieved_kweek_id)
+        except ValueError:
+            raise
     # Get a list of kweeks with missing data
     profile_kweeks = query_factory.get_profile_kweeks(required_username)
     # Paginate the results
