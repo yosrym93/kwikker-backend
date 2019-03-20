@@ -16,8 +16,13 @@ def get_user_profile(authorized_username, username):
             *Returns*:
                 - *UserProfile*: an object of user profile .
     """
+    if username is None:
+        return -1
+    check_user = actions.is_user(username)
+    if not check_user:
+        return -1
     profile = query_factory.get_user_profile(username)
-    if profile:
+    if profile is not Exception:
         profile["profile_image_url"] = 'http://127.0.0.1:5000/user/upload/picture/' + profile[
             "profile_image_url"]
         profile["profile_banner_url"] = 'http://127.0.0.1:5000/user/upload/banner/' + profile[
@@ -30,7 +35,7 @@ def get_user_profile(authorized_username, username):
         profile.update(friendship)
         return UserProfile(profile)
     else:
-        return -1
+        return profile
 
 
 def update_user_profile(authorized_username, bio, screen_name):
