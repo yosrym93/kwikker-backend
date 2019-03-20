@@ -21,8 +21,21 @@ def get_friendship(authorized_username, required_username):
 
             Note: All the dictionary values are None if the authorized user is the same as the required user.
     """
-    friendship = query_factory.get_friendship(authorized_username=authorized_username,
-                                              required_username=required_username)
+    friendship = {}
+
+    # The friendship checks are invalid if the authorized username is the same as the required username
+    if authorized_username == required_username:
+        friendship['following'] = None
+        friendship['follows_you'] = None
+        friendship['blocked'] = None
+        friendship['muted'] = None
+        return friendship
+
+    friendship['following'] = query_factory.check_following(authorized_username, required_username)
+    friendship['follows_you'] = query_factory.check_follows_you(authorized_username, required_username)
+    friendship['blocked'] = query_factory.check_blocked(authorized_username, required_username)
+    friendship['muted'] = query_factory.check_muted(authorized_username, required_username)
+
     return friendship
 
 
@@ -38,9 +51,10 @@ def get_user(authorized_username, required_username):
         *Returns:*
             - *models.User object*
     """
-    user = query_factory.get_user_data(required_username)
-    friendship = query_factory.get_friendship(authorized_username=authorized_username,
-                                              required_username=required_username)
+    # The query return a list containing one dictionary, the required_username is already verified to exist.
+    user = query_factory.get_user_data(required_username)[0]
+    friendship = get_friendship(authorized_username=authorized_username,
+                                required_username=required_username)
     user.update(friendship)
     return User(user)
 
