@@ -18,6 +18,7 @@ class HomeTimeline(Resource):
                                      " To retrieve more send the id of the last kweek retrieved.")
     @timelines_api.response(code=200, description='Kweeks returned successfully.', model=[Kweek.api_model])
     @timelines_api.response(code=401, description='Unauthorized access.')
+    @timelines_api.doc(security='KwikkerKey')
     @authorize
     def get(self, username):
         """ Retrieves a list of kweeks in the home page of the authorized user. """
@@ -35,16 +36,24 @@ class ProfileTimeline(Resource):
     @timelines_api.response(code=401, description='Unauthorized access.')
     @timelines_api.response(code=404, description='User does not exist.')
     @timelines_api.marshal_with(Kweek.api_model, as_list=True)
+    @timelines_api.doc(security='KwikkerKey')
     @authorize
     def get(self, username):
         """ Retrieves a list of kweeks in the profile of a user. """
         authorized_username = username
         required_username = request.args.get('username')
+        last_retrieved_kweek_id = request.args.get('last_retrieved_kweek_id')
         if not actions.is_user(required_username):
             abort(404, message='A user with this username does not exist.')
-        kweeks = actions.get_profile_kweeks(authorized_username=authorized_username,
-                                            required_username=required_username)
-        return kweeks, 200
+        try:
+            kweeks = actions.get_profile_kweeks(authorized_username=authorized_username,
+                                                required_username=required_username,
+                                                last_retrieved_kweek_id=last_retrieved_kweek_id)
+            if kweeks is None:
+                abort(404, message='A kweek with the provided ID does not exist.')
+            return kweeks, 200
+        except TypeError:
+            abort(500, message='An error occurred in the server.')
 
 
 @timelines_api.route('/mentions')
@@ -54,6 +63,7 @@ class MentionsTimeline(Resource):
                                      "To retrieve more send the id of the last kweek retrieved.")
     @timelines_api.response(code=200, description='Kweeks returned successfully.', model=[Kweek.api_model])
     @timelines_api.response(code=401, description='Unauthorized access.')
+    @timelines_api.doc(security='KwikkerKey')
     @authorize
     def get(self, username):
         """ Retrieves a list of kweeks where the authorized user is mentioned. """
@@ -70,6 +80,7 @@ class UserLikedTweets(Resource):
     @kweeks_api.response(code=200, description='Kweeks returned successfully.', model=[Kweek.api_model])
     @kweeks_api.response(code=401, description='Unauthorized access.')
     @kweeks_api.response(code=404, description='User does not exist.')
+    @kweeks_api.doc(security='KwikkerKey')
     @authorize
     def get(self, username):
         """ Retrieves a list of kweeks liked by a user. """
@@ -85,6 +96,7 @@ class KweeksSearch(Resource):
                                   "To retrieve more send the id of the last kweek retrieved.")
     @search_api.response(code=200, description='Kweeks returned successfully.', model=[Kweek.api_model])
     @search_api.response(code=401, description='Unauthorized access.')
+    @search_api.doc(security='KwikkerKey')
     @authorize
     def get(self, username):
         """
@@ -101,6 +113,7 @@ class Trends(Resource):
                                   "To retrieve more send the id of the last trend retrieved.")
     @trends_api.response(code=200, description='Trends returned successfully.', model=[Trend.api_model])
     @trends_api.response(code=401, description='Unauthorized access.')
+    @trends_api.doc(security='KwikkerKey')
     @authorize
     def get(self, username):
         """ Retrieves a list of available trends. """
@@ -117,6 +130,7 @@ class Trends(Resource):
     @trends_api.response(code=200, description='Kweeks returned successfully.', model=[Kweek.api_model])
     @trends_api.response(code=401, description='Unauthorized access.')
     @trends_api.response(code=404, description='Trend does not exist.')
+    @trends_api.doc(security='KwikkerKey')
     @authorize
     def get(self, username):
         """ Retrieves a list of kweeks in a given trend. """

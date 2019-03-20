@@ -89,7 +89,7 @@ def get_kweek_hashtags(kweek_id):
     return hashtags
 
 
-def get_profile_kweeks(authorized_username, required_username):
+def get_profile_kweeks(authorized_username, required_username, last_retrieved_kweek_id):
     """
         Gets the kweeks that should appear on a specific user profile.
 
@@ -101,8 +101,19 @@ def get_profile_kweeks(authorized_username, required_username):
         *Returns:*
             - *List of models.Kweek objects*
     """
+    if last_retrieved_kweek_id is not None:
+        last_retrieved_kweek_id = int(last_retrieved_kweek_id)
     # Get a list of kweeks with missing data
     profile_kweeks = query_factory.get_profile_kweeks(required_username)
+    # Paginate the results
+    try:
+        profile_kweeks = paginate(dictionaries_list=profile_kweeks, required_size=20,
+                                  start_after_key='id', start_after_value=last_retrieved_kweek_id)
+    except TypeError as E:
+        print(E)
+        raise
+    if profile_kweeks is None:
+        return None
     # The profile user as a user object, will be used for most of the kweeks
     profile_user = get_user(authorized_username=authorized_username,
                             required_username=required_username)
@@ -130,7 +141,6 @@ def get_profile_kweeks(authorized_username, required_username):
             kweek['rekweek_info'] = rekweek_info
         else:
             kweek['rekweek_info'] = None
-        print(kweek)
         kweeks.append(Kweek(kweek))
 
     return kweeks
@@ -176,7 +186,7 @@ def get_kweek_statistics(authorized_username, kweek_id):
 def paginate(dictionaries_list, required_size, start_after_key, start_after_value):
     """
         Slices a list of dictionaries, starting at a given element and producing a new list
-        with the required size.
+        with the required size. Should be called inside a try block, may raise TypeError.
 
 
         *Parameters:*
@@ -188,18 +198,23 @@ def paginate(dictionaries_list, required_size, start_after_key, start_after_valu
 
         *Returns:*
             - *List of Dictionaries*: A new list starting at the required element with the required size (or less).
-            - | *None*: If the element to start at does not exist, the passed dictionaries_list is
+            - | *Raises TypeError*: If the passed dictionaries_list is
               | not actually a list of dictionaries, or a dictionary does not contain a key that matches the given key.
+            - None: If the element to start at does not exist.
     """
+
     if not isinstance(dictionaries_list, list):
-        return None
+        raise TypeError('dictionaries_list parameter passed was not a list.')
+
+    if start_after_value is None:
+        return dictionaries_list[: required_size + 1]
 
     start_after_index = None
     for index, value in enumerate(dictionaries_list):
         if not isinstance(value, dict):
-            return None
+            raise TypeError('One or more values in dictionaries_list are not a dictionary')
         if start_after_key not in value:
-            return None
+            raise TypeError('One or more dictionary in dictionaries_list do not contain the provided key.')
         if start_after_index is None and value[start_after_key] == start_after_value:
             start_after_index = index
 
@@ -207,4 +222,3 @@ def paginate(dictionaries_list, required_size, start_after_key, start_after_valu
         return None
 
     return dictionaries_list[start_after_index + 1: start_after_index + 1 + required_size]
-
