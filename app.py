@@ -29,15 +29,9 @@ def initialize_database():
             - *True*: If the database connection was successful.
             - *False*: Otherwise. The response of the database connection attempt is also printed.
     """
-    if app.config['ENV'] == 'production':
-        db_name = app.config['DATABASE_NAME']
-        db_username = app.config['DATABASE_USERNAME']
-        db_password = app.config['DATABASE_PASSWORD']
-    else:
-        # Replace with your local database credentials
-        db_name = 'kwikker'
-        db_username = 'postgres'
-        db_password = ''
+    db_name = app.config['DATABASE_NAME']
+    db_username = app.config['DATABASE_USERNAME']
+    db_password = app.config['DATABASE_PASSWORD']
 
     response = database_manager.db_manager.initialize_connection(db_name=db_name, db_username=db_username,
                                                                  db_password=db_password)
