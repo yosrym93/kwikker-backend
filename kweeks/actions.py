@@ -1,41 +1,59 @@
 
 from datetime import datetime
 from models import Kweek, Hashtag, Mention, User, RekweekInfo
-from kweeks.query_factory import add_kweek, get_hashtags, check_uniuqe_hash, delete_hashtag_H, delete_hashtag_HK\
-    , delete_rekweeks, get_replies, delete_likes, delete_mention, delete_main_kweek, retrieve_hashtags\
+from kweeks.query_factory import add_kweek\
+    , delete_rekweeks, delete_likes, delete_main_kweek, retrieve_hashtags\
     , retrieve_mentions, retrieve_replies, retrieve_rekweeks, retrieve_user, retrieve_likers, retrieve_hashtag_text\
     , check_following, check_blocked, check_muted, retrieve_kweek, get_user, add_kweek_hashtag, creat_mention\
-    , create_hashtag, check_existing_hashtag, get_kweek_id
+    , create_hashtag, check_existing_hashtag, get_kweek_id, update_hashtag, validate_id
 
 
-"""
-    All the functions containing the logic should reside here. 
-    The routes functions should contain no logic, they should only call the functions in this module.
-"""
+def create_kweek(request, authorized_username):
+    """
+                Set the data needed to be assigned to the kweek object to later be inserted in the data base
 
 
-def create_kweek(request, logged_in_user):
+                *Parameters:*
+                    - *request*: the body of The kweek creation request sent from the user.
+                    - *authorized_username*: The name of the authorized user who sent the request.
+
+
+                *Returns:*
+                   - *bool*: To indicate whether kweek credentials creation was successful or not.
+                   - *message*: To specify the reason of failure if detected.
+         """
     data = {}
+    check = True
     text = request['text']
+    if type(text) != str:
+        return False, 'invalid data type '
+    if len(text) == 0 or (text.isspace()):
+        return False, 'No text body found'
+
+    # check if str and have a length of minimum one char and is not fully  white space
+    reply_to = request["reply_to"]
+    if reply_to is not None:  # if it was a reply
+        if type(reply_to) != int:
+            return False, 'invalid data type '
+        check = validate_id(reply_to)
+        if len(check) == 0:
+            return False, 'Kweek does not exist '
+
     hashtags, mentions = extract_mentions_hashtags(text)  # two lists of objects
-    userr = get_user(logged_in_user)
-    if type(userr)is Exception:
-        message = 'error retrieving the user'
+    userr = get_user(authorized_username)
+    if len(userr) == 0:
+        message = 'The user does not exist'
         return False, message
     else:
-        if len(userr) == 0:
-            message = 'no such user'
-            return False, message
-        else:
-            userr=userr[0]
+        userr = userr[0]
     dic = {'following': None, 'follows_you': None, 'blocked': None, 'muted': None}
     userr.update(dic)
-    user = User(userr)  #user obj
+    user = User(userr)  # user obj
     data['id'] = 0
     data['created_at'] = datetime.utcnow()
-    data['username'] = logged_in_user  #to be changed
-    data['hashtags'] = hashtags  #list of dics
-    data['mentions'] = mentions  #list of dics
+    data['username'] = authorized_username
+    data['hashtags'] = hashtags  # list of dics
+    data['mentions'] = mentions  # list of dics
     data['media_url'] = None
     data['number_of_likes'] = 0
     data['number_of_rekweeks'] = 0
@@ -45,50 +63,57 @@ def create_kweek(request, logged_in_user):
     data['rekweeked_by_user'] = False
     data['user'] = user
     data.update(request)
-    kweek = Kweek(data)  #kweek obj
+    kweek = Kweek(data)
     print(kweek)
-    message = insert_kweek(kweek)
-    print(message)
-    return message
+    check, message = insert_kweek(kweek)
+    return check, message
 
 
 def insert_kweek(kweek: Kweek):
-    message, check = add_kweek(kweek)
-    if not check:
-        return message
-    message, check, kid = get_kweek_id(kweek)
-    if not check:
-        return message
-    for hash in kweek.hashtags:  #if no hahstags available it won't enter the loop
-        message, check, test = check_existing_hashtag(hash)
-        if not check:
-                return message
-        elif test == 0:  # then it is a new hashtag
-            message, check = create_hashtag(hash)  #create a new hashtag
-            if not check:
-                return message
-            message, check, id = check_existing_hashtag(hash)  #then insert it into kweek-hashtag table
-            if not check:
-                return message
-            elif id == 0:
-                return message
-            else:
-                hid = id
+    """
+            Insert the kweek with its associated data in the data base.
+
+
+            *Parameters:*
+                - *kweek object*: The kweek object to be inserted.
+
+            *Returns:*
+                - *bool*: To indicate whether the insertion was successful or not.
+                - *message*: To specify the reason of failure if detected.
+     """
+    check = 1
+    add_kweek(kweek)
+    kid = get_kweek_id(kweek)
+    for hash in kweek.hashtags:
+        test = check_existing_hashtag(hash)
+        if not test:  # then it is a new hashtag
+            create_hashtag(hash)  # create a new hashtag
+            id = check_existing_hashtag(hash)  # then insert it into kweek-hashtag table
+            hid = id[0]['id']
         else:
-            hid = test
-        message, check = add_kweek_hashtag(hid, kid, hash)
-        if not check:
-            return message
+            hid = test[0]['id']
+        kid = kid[0]['id']
+        add_kweek_hashtag(hid, kid, hash)
 
     for ment in kweek.mentions:
-        message, check = creat_mention(kid, ment)
-        if not check:
-            return message
-    message ='every thing went fine'  #then to be replaced
-    return message
+        creat_mention(kid, ment)
+    message ='every thing went fine'  # then to be replaced
+    return True, message
 
 
 def extract_mentions_hashtags(text):
+    """
+            Extract mentions and replies for the given kweek.
+
+
+            *Parameters:*
+                - *text*: The text of the kweek to be inserted .
+
+            *Returns:*
+                - *List*: The hashtags found within the kweek
+                - *List*: The mentions found within the kweek
+
+    """
     hashtags = []
     mentions = []
     size = len(text)
@@ -125,98 +150,94 @@ def extract_mentions_hashtags(text):
                 mentions.append(Mention(mention))
                 break
         i += 1
-    return hashtags, mentions  #lists of objects
+    return hashtags, mentions  # lists of objects
 ########################################################################################################################
-#################################################DELETE REKWEEK SECTION#################################################
-
-    # 1- get hahstags ids of the rows with kid= id in k-h table, list of dics each dic contains id
-    # 2- loop on that list, for each hashtag, check if exists in h-k table with id other than id
-    # 3- if yes, delete it form h-k only, if no, delete it from h table also
-    # 4- delete any mention in mentions table with kid =id
-    # 5- delete any rekweek with kid=id
-    # 6- delete any kweek with reply_to = id
-    # 7-delete any like to that rekweek
 
 
-def delete_kweek(kid: int):
-    message, check, hashtags = get_hashtags(kid)  #list of dics of kweek hashtags (ids)
+def delete_kweek(kid):
+    """
+               Delete kweek with its credentials.
+
+
+               *Parameters:*
+                   - *kid*: The kweek id to be deleted   .
+
+               *Returns:*
+                   - *bool*: To indicate whether the deletion was successful or not.
+                   - *message*: To specify the reason of failure if detected.
+
+    """
+    check, message = validate_request(kid)
     if not check:
-        return message
-    if hashtags is not None:
-        for hash in hashtags:  # if no hahstags available it won't enter the loop
-            message, check, response = check_uniuqe_hash(hash['hashtag_id'])
-            if not check:
-                return message
-            elif response == 1:  # then it is a unique hashtag
-                message, check = delete_hashtag_HK(kid, hash['hashtag_id'])
-                if not check:
-                    return message
-                message, check = delete_hashtag_H(hash['hashtag_id'])
-                if not check:
-                    return message
-            else:
-                message, check = delete_hashtag_HK(kid, hash['hashtag_id'])
-            if not check:
-                return message
-
-    message, check = delete_rekweeks(kid)
-    if not check:
-        return message
-
-    message, check = delete_mention(kid)
-    if not check:
-        return message
-
-    message, check = delete_likes(kid)
-    if not check:
-        return message
-
-    message, check, response = get_replies(kid)  #list of dics of replies ids
-    if not check:
-        return message
-    else:
-        if response is not None :
-            print('enteredd')
-            print(response)
-            for reply in response:
-                print(reply)
-                message, check = delete_kweek(reply['id'])
-                if not check:
-                    return message
-
-
-    message, check = delete_main_kweek(kid)
-    if not check:
-        return message
-    message = 'every thing went fine'  # then to be replaced
-    return message
+        return check, message
+    response = delete_main_kweek(kid)
+    if response is not None:
+        message = 'No such kweek to be deleted'
+        return False, message
+    response = update_hashtag()
+    if response is not None:
+        message = 'db failed'
+        return False, message
+    return True, None
 
 ########################################################################################################################
-#################################################GET REKWEEK SECTION####################################################
 
 
-def get_kweek(kid):
-    message, check , hashtags = retrieve_hashtags(kid) #rows of hahstag-kweek table (*)
-    if type(hashtags) == Exception:
-        return False
-    mentions = retrieve_mentions(kid)#rows of mention table (*)
-    if type(mentions) == Exception:
-        return False
-    replies = retrieve_replies(kid)#rows of kweek table who is set as a reply yo the retrieved kweek (ids)
-    if type(replies) == Exception:
-        return False
-    rekweeks = retrieve_rekweeks(kid) #rows of rekweeker table for those who rekweek the kweek (usernames)
-    if type(rekweeks) == Exception:
-        return False
-    likers = retrieve_likers(kid) #rows of likers table for those who liked the kweek (usernames)
-    if type(likers) == Exception:
-        return False
-    user = retrieve_user(kid) # row of user profile table fo the user who wrote the kweek (*)
-    if type(user) == Exception:
-        return False
-    hashtags_list = [] #list of hashtag objects
+def validate_request(kid):
+    """
+                       Validate the request parametar.
+
+
+                       *Parameters:*
+                           - *kid*: The kweek id to be Validate.
+
+                       *Returns:*
+                           - *bool*: To indicate the validation result.
+                           - *message*: To specify the reason of  mismatch if detected.
+
+        """
+    try:
+        int(kid)
+        check = validate_id(kid)
+        if len(check) == 0:
+            message = 'Kweek is not available '
+            return False, message
+        else:
+            return True, None
+    except ValueError:
+        return False, 'invalid data type type '
+
+
+
+def get_kweek(kid, authorized_username):
+    """
+                   Get the requested kweek with its credentials.
+
+
+                   *Parameters:*
+                       - *kid*: The id of the kweek to be retrieved   .
+
+                   *Returns:*
+                       - *bool*: To indicate whether the retrieval was successful or not.
+                       - *message*: To specify the reason of failure if detected.
+                       - *kweek object*: The kweek to be retrieved and its credentials.
+                       - *list*: List of replies ids to the kweek
+
+    """
+    message = 'success'  # to be added
+    check, message = validate_request(kid)
+    if not check:
+        return check, message, None, None
+    hashtags = retrieve_hashtags(kid)  # rows of hahstag-kweek table (*)
+    mentions = retrieve_mentions(kid)  # rows of mention table (*)
+    replies = retrieve_replies(kid)  # rows of kweek table who is set as a reply yo the retrieved kweek (ids)
+    rekweeks = retrieve_rekweeks(kid)  # rows of rekweeker table for those who rekweek the kweek (usernames)
+    likers = retrieve_likers(kid)  # rows of likers table for those who liked the kweek (usernames)
+    user = retrieve_user(kid)  # row of user profile table fo the user who wrote the kweek (*)
+    hashtags_list = []  # list of hashtag objects
     mentions_list = []  # list of mention objects
-    if hashtags is not None:
+
+    if hashtags:
         for hash in hashtags:
             Hid = hash['hashtag_id']
             s_index = hash['starting_index']
@@ -225,171 +246,118 @@ def get_kweek(kid):
             indices.append(s_index)
             indices.append(e_index)
             text = retrieve_hashtag_text(Hid)
-            if type(text) == Exception:
-                return False
-            else:
-                hash_dic = {}
-                hash_dic['id'] = Hid
-                hash_dic['indices'] = indices
-                print(text,'/////////////////////////text//////////////////////////')
-                hash_dic['text'] = text[0]['text']
+            hash_dic = {}
+            hash_dic['id'] = Hid
+            hash_dic['indices'] = indices
+            hash_dic['text'] = text[0]['text']
             hashtag = Hashtag(hash_dic)
             hashtags_list.append(hashtag)
-            print("///////////////////hashtags_list ?/////////////////////////")
-            print(hashtags_list)
 
-    if mentions is not None:
+    if mentions:
         for ment in mentions:
             s_index = ment['starting_index']
-            e_index = ment['ending_inex']
+            e_index = ment['ending_index']
             indices = []
             indices.append(s_index)
             indices.append(e_index)
-            username = ment['username'][0]['text']
+            username = ment['username']
             ment_dic = {}
             ment_dic['indices'] = indices
             ment_dic['username'] = username
             mention = Mention(ment_dic)
             mentions_list.append(mention)
-            print("///////////////////mentions_list ?/////////////////////////")
-            print(mentions_list)
 
-    if user is None:
-        return False  # a message may be added or something
+    if not user:
+        return False, message, None, None  # a message may be added or something
     else:
         user = user[0]
         extrauser = {}
-        me = 'default'  # should be replaced by the function getting the current user
+        me = authorized_username  # should be replaced by the function getting the current user
         check = check_following(me, user['username'])
-        print('//////////////////check following//////////////////')
-        print(check)
-        if type(check) == Exception:
-            return False
+        if check:
+            extrauser['following'] = True
         else:
-            if check is not None:
-                extrauser['following'] = True
-            else:
-                extrauser['following'] = False
+            extrauser['following'] = False
 
         check = check_following(user['username'], me)
-        if type(check) == Exception:
-            return False
+        if check:
+            extrauser['follows_you'] = True
         else:
-            if check is not None:
-                extrauser['follows_you'] = True
-            else:
-                extrauser['follows_you'] = False
+            extrauser['follows_you'] = False
 
         check = check_blocked(me, user['username'])
-        if type(check) == Exception:
-            return False
+        if check:
+            extrauser['blocked'] = True
         else:
-            if check is not None:
-                extrauser['blocked'] = True
-            else:
-                extrauser['blocked'] = False
-
+            extrauser['blocked'] = False
         check = check_muted(me, user['username'])
-        if type(check) == Exception:
-            return False
+        if check:
+            extrauser['muted'] = True
         else:
-            if check:
-                extrauser['muted'] = True
-            else:
-                extrauser['muted'] = False
+            extrauser['muted'] = False
         extrauser.update(user)
 
     userobj = User(extrauser)
-    print("///////////////////userobj ?/////////////////////////")
-    print(userobj)
 
-    if replies is not None:
+    if replies:
         num_of_replies = len(replies)
     else:
         num_of_replies = 0
 
-    if likers is not None:
+    if likers:
         num_of_likes = len(likers)
         liked_by_user = {'username': me} in likers
     else:
         num_of_likes = 0
         liked_by_user = False
 
-    if mentions is not None:
-        num_of_mentions = len(mentions)
-    else:
-        num_of_mentions = 0
-
-    if rekweeks is not None:
+    if rekweeks:
         num_of_rekweeks = len(rekweeks)
         rekweeked_by_user = {'username': me} in rekweeks
     else:
-        num_of_mentions = 0
+        num_of_rekweeks = 0
         rekweeked_by_user = False
 
-    rec_info_dic = {'rekweeker_name': 'smth', 'rekweeker_username': 'smth '}
-    rekweek_info = RekweekInfo(rec_info_dic)
-    print(rekweek_info)
+    rekweek_info = None
     kweekdic = {'hashtags': hashtags_list, 'mentions': mentions_list, 'number_of_likes': num_of_likes,
                 'number_of_rekweeks': num_of_rekweeks, 'number_of_replies': num_of_replies,
                 'rekweek_info': rekweek_info,
                 'liked_by_user': liked_by_user, 'rekweeked_by_user': rekweeked_by_user, 'user': userobj}
-    print(kweekdic)
     kweek = retrieve_kweek(kid)  # a row of kweek table
-    if type(kweek) == Exception:
-        return False
-    else:
-        if kweek is not None:
-            kweek = kweek[0]
-            kweekdic.update(kweek)
-        else:
-            return False
-        print("///////////////////kweek dic ?/////////////////////////")
-        print(kweekdic)
+    kweek = kweek[0]
+    kweekdic.update(kweek)
     kweekobj = Kweek(kweekdic)
-    print("/////////////////// kweek obj ?/////////////////////////")
-    print(kweekobj)
-    print(replies)
-    return kweekobj, replies
+    return True, message, kweekobj, replies
 
 
-def get_kweek_with_replies(kid: int):
+def get_kweek_with_replies(kid, username):
+    """
+                       Get the credentials of both requested kweek and its replies.
+
+
+                       *Parameters:*
+                           - *kid*: The id of the kweek to be retrieved   .
+
+                       *Returns:*
+                           - *bool*: To indicate whether the retrieval was successful or not.
+                           - *message*: To specify the reason of failure if detected.
+                           - *kweek object*: The kweek to be retrieved and its credentials.
+                           - *list*: List of replies to the kweek being returned as kweek objects
+
+    """
+
     replies_list_obj = []
-    kweekobj, replies_list_dics = get_kweek(kid)
-    if replies_list_dics is not None:
-        for reply in replies_list_dics:
-            id = reply['id']
-            k, r = get_kweek(id)
-            replies_list_obj.append(k)
-        print("///////////////////replies_list ?/////////////////////////")
-        print(replies_list_obj)
-        print("///////////////////kweek ?/////////////////////////")
-        print(kweekobj)
-    return kweekobj, replies_list_obj
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    check, message, kweekobj, replies_list_dics = get_kweek(kid, username)
+    if check:
+        if replies_list_dics:
+            for reply in replies_list_dics:
+                id = reply['id']
+                check2, message2, k, r = get_kweek(id,'hagar')
+                if check2:
+                    replies_list_obj.append(k)
+                else:
+                    message = 'db failed'
+                    return check2, message2, None, None
+    return check, message, kweekobj, replies_list_obj
 
 

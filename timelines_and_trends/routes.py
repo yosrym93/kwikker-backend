@@ -126,8 +126,8 @@ class Trends(Resource):
 class Trends(Resource):
     @trends_api.param(name='trend_id', type='str',
                       description='The id of the trend.', required=True)
-    @trends_api.param(name='last_retrieved_kweek_id', type='str',
-                      description="Nullable. Normally the request returns the first 20 kweeks when null."
+    @trends_api.param(name='last_retrieved_kweek_id', type='Normallystr',
+                      description="Nullable.  the request returns the first 20 kweeks when null."
                                   "To retrieve more send the id of the last kweek retrieved.")
     @trends_api.response(code=200, description='Kweeks returned successfully.', model=[Kweek.api_model])
     @trends_api.response(code=401, description='Unauthorized access.')

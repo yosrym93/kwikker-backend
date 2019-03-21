@@ -166,13 +166,10 @@ class RekweekInfo:
     })
 
     def __init__(self, json):
-        if json!={}:
+
             print(json['rekweeker_name'])
             self.rekweeker_name = json['rekweeker_name']
             self.rekweeker_username = json['rekweeker_username']
-        else:
-            self.rekweeker_name = ''
-            self.rekweeker_username = ''
 
 
     def __repr__(self):
