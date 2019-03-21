@@ -35,12 +35,15 @@ class ProfileBanner(Resource):
     @user_api.response(code=404, description='Delete failed.')
     @user_api.doc(security='KwikkerKey')
     @authorize
-    def delete(self, username):
+    def delete(self, authorized_username):
         """ Delete a profile banner (restores the default one). """
-        # authorized_username = 'khaled'
-        response = actions.delete_banner_picture(username)
-        if response == - 1:
+        response = actions.delete_banner_picture(authorized_username)
+        if response == 'default image':
             return abort(404, message='delete request failed you can not delete default banner')
+        if response == 'file does not exist':
+            return abort(404, message='delete request failed file does not exist')
+        if response == Exception:
+            return abort(404, message=response)
         url = 'http://127.0.0.1:5000/user/upload/banner/banner.png'
         return url, 200
 
@@ -51,14 +54,18 @@ class ProfileBanner(Resource):
     @user_api.param(name='image_file', description='The new profile banner.', required=True, type='file')
     @user_api.doc(security='KwikkerKey')
     @authorize
-    def put(self, username):
+    def put(self, authorized_username):
         """ Update a profile banner given the new banner image. """
-        authorized_username = username
+        if 'file' not in request.files:
+            return abort(404, message='No image part')
         file = request.files['file']
-        # authorized_username = 'khaled'
         response = actions.update_profile_banner(file, authorized_username)
-        if response == - 1:
-            return abort(404)
+        if response == 'No selected file':
+            return abort(404, message=response)
+        if response == 'not allowed extensions':
+            return abort(404, message=response)
+        if response == Exception:
+            return abort(404, message=response)
         url = 'http://127.0.0.1:5000/user/upload/banner/'
         url = url + response
         return url, 200
@@ -71,12 +78,15 @@ class ProfilePicture(Resource):
     @user_api.response(code=401, description='Unauthorized access.')
     @user_api.doc(security='KwikkerKey')
     @authorize
-    def delete(self, username):
+    def delete(self, authorized_username):
         """ Delete a profile picture (restores the default one). """
-        # authorized_username = 'khaled'
-        response = actions.delete_profile_picture(username)
-        if response == - 1:
-            return abort(404, message='delete request failed you can not delete default picture')
+        response = actions.delete_profile_picture(authorized_username)
+        if response == 'default image':
+            return abort(404, message='delete request failed you can not delete default profile picture')
+        if response == 'file does not exist':
+            return abort(404, message='delete request failed file does not exist')
+        if response == Exception:
+            return abort(404, message=response)
         url = 'http://127.0.0.1:5000/user/upload/picture/profile.jpg'
         return url, 200
 
@@ -87,14 +97,18 @@ class ProfilePicture(Resource):
     @user_api.param(name='image_file', description='The new profile picture.', required=True, type='file')
     @user_api.doc(security='KwikkerKey')
     @authorize
-    def put(self, username):
+    def put(self, authorized_username):
         """ Update a profile picture given the new picture. """
-        # for file in request.files.getlist("file"):
+        if 'file' not in request.files:
+            return abort(404, message='No image part')
         file = request.files['file']
-        # authorized_username = 'khaled'
-        response = actions.update_profile_picture(file, username)
-        if response == - 1:
-            return abort(404)
+        response = actions.update_profile_picture(file, authorized_username)
+        if response == 'No selected file':
+            return abort(404, message=response)
+        if response == 'not allowed extensions':
+            return abort(404, message=response)
+        if response == Exception:
+            return abort(404, message=response)
         url = 'http://127.0.0.1:5000/user/upload/picture/'
         url = url + response
         return url, 200
@@ -124,17 +138,15 @@ class UserProfile(Resource):
     @user_api.expect(create_model('Profile', model={
         'bio': fields.String(description='Nullable if unchanged. The biography of the user.'),
         'screen_name': fields.String(description='Nullable if unchanged. The name shown on profile screen.')
-    }))
+    }), validate=True)
     @user_api.doc(security='KwikkerKey')
     @authorize
-    def patch(self, username):
+    def patch(self, authorized_username):
         """ Update the biography or screen name in user profile."""
-        # authorized_username = 'khaled'   waiting for function
         data = request.get_json()
         bio = data.get('bio')
         screen_name = data.get('screen_name')
-        response = actions.update_user_profile(username, bio, screen_name)
-        print(response)
+        response = actions.update_user_profile(authorized_username, bio, screen_name)
         if response == - 1:
             abort(404, message='update failed.')
         if response == 0:
@@ -149,13 +161,14 @@ class UserProfile(Resource):
     @user_api.param(name='username', type='str', required=True, description='The username.')
     @user_api.doc(security='KwikkerKey')
     @authorize
-    def get(self, username):
+    def get(self, authorized_username):
         """ Retrieve the profile of a specific user. """
-        authorized_username = username
         username = request.args.get('username')
         response = actions.get_user_profile(authorized_username, username)
         if response == - 1:
-            return abort(404)
+            return abort(404, message='User does not exist.')
+        if response == Exception:
+            return abort(409, message='conflict happened.')
         return response, 200
 
 

@@ -8,21 +8,34 @@ def get_friendship(authorized_username, required_username):
 
 
         *Parameters:*
-            - *authorized_username*: The username of the authorized user.
-            - *required_username*: The username of the user whose friendship status is required.
+            - *authorized_username (string)*: The username of the authorized user.
+            - *required_username (string)*: The username of the user whose friendship status is required.
 
         *Returns:*
             - *Dictionary*: {
-                                | *following*: bool,
-                                | *follows_you*: bool,
-                                | *muted*: bool,
-                                | *blocked*: bool
+                                | *following (bool)*: Is the authorized user following the required user.,
+                                | *follows_you (bool)*: Is the required user following the authorized user.,
+                                | *blocked (bool)*: Is the required user blocked by the authorized user.,
+                                | *muted (bool)*: Is the required user muted by the authorized user.
                                 | }
 
             Note: All the dictionary values are None if the authorized user is the same as the required user.
     """
-    friendship = query_factory.get_friendship(authorized_username=authorized_username,
-                                              required_username=required_username)
+    friendship = {}
+
+    # The friendship checks are invalid if the authorized username is the same as the required username
+    if authorized_username == required_username:
+        friendship['following'] = None
+        friendship['follows_you'] = None
+        friendship['blocked'] = None
+        friendship['muted'] = None
+        return friendship
+
+    friendship['following'] = query_factory.check_following(authorized_username, required_username)
+    friendship['follows_you'] = query_factory.check_follows_you(authorized_username, required_username)
+    friendship['blocked'] = query_factory.check_blocked(authorized_username, required_username)
+    friendship['muted'] = query_factory.check_muted(authorized_username, required_username)
+
     return friendship
 
 
@@ -32,15 +45,16 @@ def get_user(authorized_username, required_username):
 
 
         *Parameters:*
-            - *authorized_username*: The username of the authorized user.
-            - *required_username*: The username of the user whose user object is required.
+            - *authorized_username (string)*: The username of the authorized user.
+            - *required_username (string)*: The username of the user whose user object is required.
 
         *Returns:*
             - *models.User object*
     """
-    user = query_factory.get_user_data(required_username)
-    friendship = query_factory.get_friendship(authorized_username=authorized_username,
-                                              required_username=required_username)
+    # The query return a list containing one dictionary, the required_username is already verified to exist.
+    user = query_factory.get_user_data(required_username)[0]
+    friendship = get_friendship(authorized_username=authorized_username,
+                                required_username=required_username)
     user.update(friendship)
     return User(user)
 
@@ -51,7 +65,7 @@ def get_kweek_mentions(kweek_id):
 
 
         *Parameters:*
-            - *kweek_id*: The id of the kweek.
+            - *kweek_id (int)*: The id of the kweek.
 
         *Returns:*
             - *List of models.Mention objects*
@@ -73,7 +87,7 @@ def get_kweek_hashtags(kweek_id):
 
 
         *Parameters:*
-            - *kweek_id*: The id of the kweek.
+            - *kweek_id (int)*: The id of the kweek.
 
         *Returns:*
             - *List of models.Hashtag objects*
@@ -95,14 +109,17 @@ def get_profile_kweeks(authorized_username, required_username, last_retrieved_kw
 
 
         *Parameters:*
-            - *authorized_username*: The username of the authorized user.
-            - *required_username*: The username of the user whose user object is required.
+            - *authorized_username (string)*: The username of the authorized user.
+            - *required_username (string)*: The username of the user whose profile kweeks are required.
 
         *Returns:*
             - *List of models.Kweek objects*
     """
     if last_retrieved_kweek_id is not None:
-        last_retrieved_kweek_id = int(last_retrieved_kweek_id)
+        try:
+            last_retrieved_kweek_id = int(last_retrieved_kweek_id)
+        except ValueError:
+            raise
     # Get a list of kweeks with missing data
     profile_kweeks = query_factory.get_profile_kweeks(required_username)
     # Paginate the results
@@ -152,11 +169,11 @@ def is_user(username):
 
 
         *Parameters:*
-            - *username*: The username to be checked.
+            - *username (string)*: The username to be checked.
 
         *Returns:*
-            *True*: The username belongs to an existing user.
-            *False*: The username does not exist.
+            - *True*: The username belongs to an existing user.
+            - *False*: The username does not exist.
     """
     return query_factory.is_user(username)
 
@@ -167,16 +184,16 @@ def get_kweek_statistics(authorized_username, kweek_id):
 
 
         *Parameters:*
-            - *authorized_username*: The username of the authorized user.
-            - *kweek_id*: The id of the kweek.
+            - *authorized_username (string)*: The username of the authorized user.
+            - *kweek_id (int)*: The id of the kweek.
 
         *Returns:*
             - *Dictionary*: {
-                                | *number_of_likes*: int,
-                                | *number_of_rekweeks*: int,
-                                | *number_of_replies*: int,
-                                | *liked_by_user*: bool,
-                                | *rekweeked_by_user*: bool
+                                | *number_of_likes (int)*: The number of likes of the kweek.,
+                                | *number_of_rekweeks (int)*: The number of rekweeks of the kweek.,
+                                | *number_of_replies (int)*: The number of replies of the kweek.,
+                                | *liked_by_user (bool)*: Whether the kweek is liked by the authorized user.,
+                                | *rekweeked_by_user (bool)*: Whether the kweek is rekweeked by the authorized user.
                                 | }
     """
     return query_factory.get_kweek_statistics(authorized_username=authorized_username,
@@ -191,9 +208,9 @@ def paginate(dictionaries_list, required_size, start_after_key, start_after_valu
 
         *Parameters:*
             - *dictionaries_list*: The list of dictionaries to be sliced.
-            - *required_size*: The size of the required list.
-            - *start_after_key*: The dictionary key to be checked for `start_after_value`.
-            - *start_after_value*: The value that the new list will start after.
+            - *required_size (int)*: The size of the required list.
+            - *start_after_key (int)*: The dictionary key to be checked for `start_after_value`.
+            - *start_after_value (int)*: The value that the new list will start after.
 
 
         *Returns:*
