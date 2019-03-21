@@ -20,7 +20,7 @@ class HomeTimeline(Resource):
     @timelines_api.response(code=401, description='Unauthorized access.')
     @timelines_api.doc(security='KwikkerKey')
     @authorize
-    def get(self, username):
+    def get(self, authorized_username):
         """ Retrieves a list of kweeks in the home page of the authorized user. """
         pass
 
@@ -38,9 +38,9 @@ class ProfileTimeline(Resource):
     @timelines_api.marshal_with(Kweek.api_model, as_list=True)
     @timelines_api.doc(security='KwikkerKey')
     @authorize
-    def get(self, username):
+    def get(self, authorized_username):
         """ Retrieves a list of kweeks in the profile of a user. """
-        authorized_username = username
+        authorized_username = authorized_username
         required_username = request.args.get('username')
         last_retrieved_kweek_id = request.args.get('last_retrieved_kweek_id')
         if not actions.is_user(required_username):
@@ -67,7 +67,7 @@ class MentionsTimeline(Resource):
     @timelines_api.response(code=401, description='Unauthorized access.')
     @timelines_api.doc(security='KwikkerKey')
     @authorize
-    def get(self, username):
+    def get(self, authorized_username):
         """ Retrieves a list of kweeks where the authorized user is mentioned. """
         pass
 
@@ -84,7 +84,7 @@ class UserLikedTweets(Resource):
     @kweeks_api.response(code=404, description='User does not exist.')
     @kweeks_api.doc(security='KwikkerKey')
     @authorize
-    def get(self, username):
+    def get(self, authorized_username):
         """ Retrieves a list of kweeks liked by a user. """
         pass
 
@@ -100,7 +100,7 @@ class KweeksSearch(Resource):
     @search_api.response(code=401, description='Unauthorized access.')
     @search_api.doc(security='KwikkerKey')
     @authorize
-    def get(self, username):
+    def get(self, authorized_username):
         """
             Retrieves a list of kweeks that matches (either fully or partially) the sent string.
             The order of the returned kweeks is based on the users who are followed by the authorized user.
@@ -117,7 +117,7 @@ class Trends(Resource):
     @trends_api.response(code=401, description='Unauthorized access.')
     @trends_api.doc(security='KwikkerKey')
     @authorize
-    def get(self, username):
+    def get(self, authorized_username):
         """ Retrieves a list of available trends. """
         pass
 
@@ -126,14 +126,14 @@ class Trends(Resource):
 class Trends(Resource):
     @trends_api.param(name='trend_id', type='str',
                       description='The id of the trend.', required=True)
-    @trends_api.param(name='last_retrieved_kweek_id', type='str',
-                      description="Nullable. Normally the request returns the first 20 kweeks when null."
+    @trends_api.param(name='last_retrieved_kweek_id', type='Normallystr',
+                      description="Nullable.  the request returns the first 20 kweeks when null."
                                   "To retrieve more send the id of the last kweek retrieved.")
     @trends_api.response(code=200, description='Kweeks returned successfully.', model=[Kweek.api_model])
     @trends_api.response(code=401, description='Unauthorized access.')
     @trends_api.response(code=404, description='Trend does not exist.')
     @trends_api.doc(security='KwikkerKey')
     @authorize
-    def get(self, username):
+    def get(self, authorized_username):
         """ Retrieves a list of kweeks in a given trend. """
         pass

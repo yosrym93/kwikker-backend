@@ -3,6 +3,7 @@ from timelines_and_trends import actions
 from models import UserProfile
 import os
 APP_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 
 def get_user_profile(authorized_username, username):
@@ -16,8 +17,13 @@ def get_user_profile(authorized_username, username):
             *Returns*:
                 - *UserProfile*: an object of user profile .
     """
+    if username is None:
+        return -1
+    check_user = actions.is_user(username)
+    if not check_user:
+        return -1
     profile = query_factory.get_user_profile(username)
-    if profile:
+    if profile is not Exception:
         profile["profile_image_url"] = 'http://127.0.0.1:5000/user/upload/picture/' + profile[
             "profile_image_url"]
         profile["profile_banner_url"] = 'http://127.0.0.1:5000/user/upload/banner/' + profile[
@@ -30,7 +36,7 @@ def get_user_profile(authorized_username, username):
         profile.update(friendship)
         return UserProfile(profile)
     else:
-        return -1
+        return profile
 
 
 def update_user_profile(authorized_username, bio, screen_name):
@@ -55,6 +61,18 @@ def update_user_profile(authorized_username, bio, screen_name):
         return -1
 
 
+def allowed_file(filename):
+    """
+                                The function checks if the uploaded file has allowed extension.
+
+                                *Parameters*:
+                                    - *filename*: The name of the uploaded file .
+                                *Returns*:
+                                    - *True or False*: in the allowed extension or not.
+    """
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
 def update_profile_picture(file, authorized_username):
     """
                     The function updates profile picture.
@@ -65,28 +83,34 @@ def update_profile_picture(file, authorized_username):
                     *Returns*:
                         - *filename*: the image name saved in database .
     """
-    images = os.path.join(APP_ROOT, 'images/')
-    if not os.path.isdir(images):
-        print('creating images folder')
-        os.mkdir(images)
-    print('found images folder')
-    target = os.path.join(APP_ROOT, 'images\profile/')
-    print(target, '----target')
+    if file.filename == '':
+        return 'No selected file'
+    if file and allowed_file(file.filename):
 
-    if not os.path.isdir(target):
-        print('creating profile folder')
-        os.mkdir(target)
+        images = os.path.join(APP_ROOT, 'images/')
+        if not os.path.isdir(images):
+            print('creating images folder')
+            os.mkdir(images)
+        print('found images folder')
+        target = os.path.join(APP_ROOT, 'images\profile/')
+        print(target, '----target')
 
-    filename, ext = os.path.splitext(file.filename)  # ------------------------
-    filename = authorized_username + 'profile' + ext
-    response = query_factory.update_user_profile_picture(authorized_username, filename)
-    if response is None:
-        destination = "/".join([target, filename])
-        file.save(destination)
-        return filename
+        if not os.path.isdir(target):
+            print('creating profile folder')
+            os.mkdir(target)
 
+        filename, ext = os.path.splitext(file.filename)  # ------------------------
+        filename = authorized_username + 'profile' + ext
+        response = query_factory.update_user_profile_picture(authorized_username, filename)
+        if response is None:
+            destination = "/".join([target, filename])
+            file.save(destination)
+            return filename
+
+        else:
+            return response
     else:
-        return -1
+        return 'not allowed extensions'
 
 
 def delete_profile_picture(authorized_username):
@@ -102,7 +126,7 @@ def delete_profile_picture(authorized_username):
     default_filename = 'profile.jpg'
     filename = query_factory.get_user_profile_picture(authorized_username)['profile_image_url']
     if filename == default_filename:
-        return -1
+        return 'default image'
     path = APP_ROOT + '\images\profile'
     response = query_factory.update_user_profile_picture(authorized_username, default_filename)
     if response is None:
@@ -110,12 +134,12 @@ def delete_profile_picture(authorized_username):
         if os.path.exists(filename):
 
             os.remove(filename)
-            return
+            return response
         else:
-            return -1
+            return 'file does not exist'
 
     else:
-        return -1
+        return response
 
 
 def update_profile_banner(file, authorized_username):
@@ -128,28 +152,29 @@ def update_profile_banner(file, authorized_username):
                         *Returns*:
                             - *filename*: the image name saved in database .
     """
-    images = os.path.join(APP_ROOT, 'images/')
-    if not os.path.isdir(images):
-        print('creating images folder')
-        os.mkdir(images)
-    print('found images folder')
-    target = os.path.join(APP_ROOT, 'images\ banner/')
-    print(target, '----target')
+    if file.filename == '':
+        return 'No selected file'
+    if file and allowed_file(file.filename):
+        images = os.path.join(APP_ROOT, 'images/')
+        if not os.path.isdir(images):
+            os.mkdir(images)
+        target = os.path.join(APP_ROOT, 'images\ banner/')
 
-    if not os.path.isdir(target):
-        print('creating profile folder')
-        os.mkdir(target)
+        if not os.path.isdir(target):
+            os.mkdir(target)
 
-    filename, ext = os.path.splitext(file.filename)  # ------------------------
-    filename = authorized_username + 'banner' + ext
-    response = query_factory.update_user_banner_picture(authorized_username, filename)
-    if response is None:
-        destination = "/".join([target, filename])
-        file.save(destination)
-        return filename
+        filename, ext = os.path.splitext(file.filename)  # ------------------------
+        filename = authorized_username + 'banner' + ext
+        response = query_factory.update_user_banner_picture(authorized_username, filename)
+        if response is None:
+            destination = "/".join([target, filename])
+            file.save(destination)
+            return filename
 
+        else:
+            return response
     else:
-        return -1
+        return 'not allowed extensions'
 
 
 def delete_banner_picture(authorized_username):
@@ -163,21 +188,17 @@ def delete_banner_picture(authorized_username):
     """
     default_filename = 'banner.png'
     filename = query_factory.get_user_banner_picture(authorized_username)['profile_banner_url']
-    print(filename)
     if filename == default_filename:
-        print('already delete')
-        return -1
+        return 'default image'
     path = APP_ROOT + '\images\ banner'
     response = query_factory.update_user_banner_picture(authorized_username, default_filename)
     if response is None:
         os.chdir(path)
         if os.path.exists(filename):
-            print('filefound')
             os.remove(filename)
-            return
+            return response
         else:
-            print("The file does not exist")
-            return -1
+            return 'file does not exist'
 
     else:
-        return -1
+        return response

@@ -1,6 +1,7 @@
 from . import query_factory
 from functools import wraps
 from flask import request
+from flask_restplus import abort
 import jwt
 import datetime
 from datetime import timedelta
@@ -60,23 +61,23 @@ def authorize(f):
     def decorated(*args, **kwargs):
 
         token = None
+        user = None
         if 'TOKEN' in request.headers:
             token = request.headers['TOKEN']
 
         if not token:
-            return {'message': 'Token is missing'}, 401
+            abort(401, message='Token is missing.')
 
         try:
             user = jwt.decode(token, secret_key)['username']
 
-        except jwt.InvalidTokenError:
-            return {'message': 'Invalid token. Please log in again.'}, 401
-
         except jwt.ExpiredSignatureError:
-            return {'message': 'Signature expired. Please log in again.'}, 401
+            abort(401, message='Signature expired. Please log in again.')
 
-        print('TOKEN: {}'.format(token))
-        print(user)
-        return f(username=user, *args, **kwargs)
+        except jwt.InvalidTokenError:
+            abort(401, message='Invalid token. Please log in again.')
+
+        # print('TOKEN: {}'.format(token))
+        return f(authorized_username=user, *args, **kwargs)
 
     return decorated

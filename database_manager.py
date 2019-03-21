@@ -99,11 +99,5 @@ class DatabaseManager:
                 return E
             return cursor.fetchall()
 
-    def close_connection(self):
-        self.connection.close()
-
-    def __del__(self):
-        self.connection.close()
-
 
 db_manager = DatabaseManager()
