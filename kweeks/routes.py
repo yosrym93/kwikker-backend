@@ -36,13 +36,15 @@ class Kweeks(Resource):
     @kweeks_api.response(code=404, description='Kweek does not exist.')
     @kweeks_api.response(code=401, description='Unauthorized access.')
     @kweeks_api.param(name='id', type='str', description='The id of the Kweek to be deleted.', required=True)
-    @kweeks_api.doc(security ='KwikkerKey')
+    @kweeks_api.doc(security='KwikkerKey')
     @authorize
     def delete(self, authorized_username):
         """
         Delete an existing Kweek.
         """
-        check, message = delete_kweek(request.args.get('id'))
+        if not request.args.get('id'):
+            abort(401, 'please provide the kweek id')
+        check, message = delete_kweek(request.args.get('id'), authorized_username)
         if check:
             return 'success', 201
         else:
@@ -56,11 +58,11 @@ class Kweeks(Resource):
                                                                                         description='Direct replies '
                                                                                                     'of the Kweek'))}))
     @kweeks_api.marshal_with(create_model('Kweek & Replies',
-                                            model={'kweek': fields.Nested(Kweek.api_model,
-                                                                          description='The returned Kweek.'),
-                                                   'replies': fields.List(fields.Nested(Kweek.api_model,
-                                                                                        description='Direct replies '
-                                                                                                    'of the Kweek'))}))
+                                          model={'kweek': fields.Nested(Kweek.api_model,
+                                                                        description='The returned Kweek.'),
+                                                 'replies': fields.List(fields.Nested(Kweek.api_model,
+                                                                                      description='Direct replies '
+                                                                                                  'of the Kweek'))}))
     @kweeks_api.response(code=404, description='Kweek does not exist.')
     @kweeks_api.param(name='id', type='str', description='Id of the Kweek to be retrieved', required=True)
     @kweeks_api.doc(security='KwikkerKey')
@@ -69,13 +71,16 @@ class Kweeks(Resource):
         """
         Retrieve a Kweek with its replies.
         """
-        check, message, response1, response2 = get_kweek_with_replies(request.args.get('id'), authorized_username)
-        print(response1,response2)
+        if not request.args.get('id'):
+            abort(401, 'please provide the kweek id')
+        check, message, kweek_obj, replies_obj_list =\
+            get_kweek_with_replies(request.args.get('id'), authorized_username)
+        print(kweek_obj, replies_obj_list)
         if check:
-            print(response1, response2)
+            print(kweek_obj, replies_obj_list)
             return {
-                'kweek': response1,
-                'replies': response2
+                'kweek': kweek_obj,
+                'replies': replies_obj_list
             }
         else:
             abort(401, message)

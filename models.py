@@ -45,10 +45,11 @@ class User:
             'blocked': self.blocked,
             'muted': self.muted
         }
+
     def __repr__(self):
         return "<Test username:%s screen_name:%s profile_image_url:%s following:%s follows_you:%s" \
                " blocked:%s muted:%s   >" % \
-               (self.username, self.screen_name,self.profile_image_url, self.following, self.follows_you,
+               (self.username, self.screen_name, self.profile_image_url, self.following, self.follows_you,
                 self.blocked, self.muted)
 
 
@@ -118,22 +119,23 @@ class Hashtag:
         'id': fields.String(description='The unique id of the trend.'),
         'indices': fields.List(fields.Integer,
                                description='The indices of the beginning and ending of the hashtag in the kweek.'),
-        'text':fields.String(description='The body of the hashtag.')
+        'text': fields.String(description='The body of the hashtag.')
     })
 
     def __init__(self, json):
         self.id = json['id']
         self.indices = (json['indices'][0], json['indices'][1])
         self.text = (json['text'])
+
     def __repr__(self):
         return "<id:%s indices:%s text:%s >" % \
-               (self.id, self.indices,self.text)
+               (self.id, self.indices, self.text)
 
     def to_json(self):
         return {
             'id': self.id,
             'indices': [self.indices[0], self.indices[1]],
-            'text':self.text
+            'text': self.text
         }
 
 
@@ -170,7 +172,6 @@ class RekweekInfo:
             print(json['rekweeker_name'])
             self.rekweeker_name = json['rekweeker_name']
             self.rekweeker_username = json['rekweeker_username']
-
 
     def __repr__(self):
         return "<rekweeker_name:%s rekweeker_username:%s  >" % \
@@ -225,25 +226,18 @@ class Kweek:
         return "<Test id:%s created_at:%s text:%s media_url:%s user:%s" \
                " hashtags:%s mentions:%s number_of_likes:%s number_of_rekweeks:%s number_of_replies:%s" \
                " reply_to:%s rekweek_info:%s   >" % \
-               (self.id, self.created_at,self.text, self.media_url,self.user, self.hashtags,
-                self.mentions, self.number_of_likes,self.number_of_rekweeks, self.number_of_replies,
+               (self.id, self.created_at, self.text, self.media_url, self.user, self.hashtags,
+                self.mentions, self.number_of_likes, self.number_of_rekweeks, self.number_of_replies,
                 self.reply_to, self.rekweek_info)
 
     def to_json(self):
-        json = {}
-        json['id'] = self.id
-        json['created_at'] = self.created_at
-        json['text'] = self.text
-        json['media_url'] = self.media_url
-        json['user'] = self.user.to_json()
-        json['hashtags'] = []
+        json = {'id': self.id, 'created_at': self.created_at, 'text': self.text, 'media_url': self.media_url,
+                'user': self.user.to_json(), 'hashtags': []}
         for hashtag in self.hashtags:
             json['hashtags'].append(hashtag.to_json())
-
         json['mentions'] = []
         for mention in self.mentions:
             json['mentions'].append(mention.to_json())
-
         json['number_of_likes'] = self.number_of_likes
         json['number_of_rekweeks'] = self.number_of_rekweeks
         json['number_of_replies'] = self.number_of_replies
@@ -262,8 +256,8 @@ class Notification:
                                           'mentions].'),
         'username': fields.String(description='Username of the notification.'),  # involved_username
         'screen_name': fields.String(description='Handle that the user identifies themselves with.'),
-        'kweek_id': fields.String(description='Nullable,a unique string representing the kweek id.'
-                                  , nullable=True),  # Nullable
+        'kweek_id': fields.String(description='Nullable,a unique string representing the kweek id.',
+                                  nullable=True),  # Nullable
         'kweek_text': fields.String(description='The text of the kweek.'),
         'profile_pic_URL': fields.String(description='The profile picture URL of the involved person who liked,'
                                                      'followed,etc).')
@@ -296,8 +290,8 @@ class DirectMessage:
     api_model = create_model('Direct Message', {
         'created_at': fields.DateTime(description='The utc datetime of the message when created.'),
         'text': fields.String(description='The content of the message.'),
-        'media_url': fields.String(description='Nullable, The url pointing directly to the message.'
-                                   , nullable=True)  # Nullable
+        'media_url': fields.String(description='Nullable, The url pointing directly to the message.',
+                                   nullable=True)  # Nullable
     })
 
     def __init__(self, json):
