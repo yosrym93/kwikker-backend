@@ -30,7 +30,8 @@ def get_notifications(involved_username):
                      INVOLVED_KWEEK_ID AS kweek_id,TEXT AS kweek_text, PROFILE_IMAGE_URL AS profile_pic_url 
                       
                      FROM NOTIFICATION INNER JOIN PROFILE ON INVOLVED_USERNAME=USERNAME	  
-                     INNER JOIN KWEEK ON INVOLVED_KWEEK_ID = KWEEK.ID
+                     LEFT OUTER JOIN KWEEK ON INVOLVED_KWEEK_ID = KWEEK.ID
+                        
                       
                      WHERE NOTIFIED_USERNAME = %s
                       
@@ -43,7 +44,7 @@ def get_notifications(involved_username):
     return response
 
 
-def create_notifications(involved_username, type_notification, kweek_id, created_at):
+def create_notifications(involved_username, notified_username, type_notification, kweek_id, created_at):
     """
          This function create a notification in the database.
 
@@ -51,6 +52,7 @@ def create_notifications(involved_username, type_notification, kweek_id, created
          *Parameter:*
 
              - *involved_username*: user who is responsible for the notification.
+             - *notified_username*: user who is notified.
              - *type_notification*: type of the notification [FOLLOW-REKWEEK-LIKE].
              - *kweek_id*: the id of the kweek involved.
              - *created_at*: date to be created at which will always be 'datetime.datetime.now()' function
@@ -60,9 +62,6 @@ def create_notifications(involved_username, type_notification, kweek_id, created
              - *None*: If the query was executed successfully.
              - *Exception object*: If the query produced an error.
     """
-    query: str = """ SELECT  USERNAME  FROM KWEEK WHERE ID = %s"""
-    data = (kweek_id,)
-    notified_username = db_manager.execute_query(query, data)[0]['username']
     query: str = """
                     INSERT INTO NOTIFICATION(ID, CREATED_AT, NOTIFIED_USERNAME, INVOLVED_USERNAME, 
                     TYPE, INVOLVED_KWEEK_ID, IS_SEEN)
@@ -72,7 +71,6 @@ def create_notifications(involved_username, type_notification, kweek_id, created
 
     data = (created_at, notified_username, involved_username, type_notification, kweek_id, False)
     response = db_manager.execute_query_no_return(query, data)
-
     return response
 
 
@@ -96,23 +94,52 @@ def count_notification():
     return response
 
 
-def is_user(username):
+def is_kweek(kweek_id):
     """
-            This function checks if the user is in the database or not.
+                This function checks if the kweek_id is in the database or not.
 
 
-            *Parameter:*
+                *Parameter:*
 
-                - *username:* username to be checked in the database.
+                    - *kweek_id:* kweek_id to be checked in the database.
 
-            *Returns:*
-                - a boolean representing if exists in the database or not.
+                *Returns:*
+                    - a query to be check if exist or not.
     """
     query = """
-                SELECT * FROM USER_CREDENTIALS WHERE USERNAME = %s
+                SELECT * FROM KWEEK WHERE ID = %s
             """
-    data = (username,)
-    if not db_manager.execute_query(query, data):
-        return False
-    else:
-        return True
+    data = (kweek_id,)
+    return db_manager.execute_query(query, data)
+
+
+def is_notification(involved_username, notified_username, type_notification, kweek_id=None):
+    """
+                    This function checks if the notification  is in the database or not with this specific parameter.
+
+
+                    *Parameter:*
+
+                        - *involved_username:* involved_username in the database.
+                        - *notified_username:* notified_username in the database.
+                        - *type_notification:* type_notification in the database.
+                        - *kweek_id:* kweek_id in the database.
+
+                    *Returns:*
+                        - a query to be check if exist or not.
+        """
+    query = """
+                SELECT * 
+                
+                FROM NOTIFICATION 
+                
+                WHERE INVOLVED_USERNAME= %s
+                AND   NOTIFIED_USERNAME= %s
+                AND   TYPE= %s
+                AND   INVOLVED_KWEEK_ID= %s
+                
+                ORDER BY NOTIFICATION.CREATED_AT DESC
+            """
+    data = (involved_username, notified_username, type_notification, kweek_id)
+    return db_manager.execute_query(query, data)
+

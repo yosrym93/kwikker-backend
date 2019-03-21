@@ -35,6 +35,8 @@ class ProfileTimeline(Resource):
     @timelines_api.response(code=200, description='Kweeks returned successfully.', model=[Kweek.api_model])
     @timelines_api.response(code=401, description='Unauthorized access.')
     @timelines_api.response(code=404, description='Username or kweek id does not exist.')
+    @timelines_api.response(code=500, description='An error occurred in the server.')
+    @timelines_api.response(code=400, description='Invalid ID provided.')
     @timelines_api.marshal_with(Kweek.api_model, as_list=True)
     @timelines_api.doc(security='KwikkerKey')
     @authorize
