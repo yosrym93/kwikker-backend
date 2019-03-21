@@ -348,3 +348,9 @@ class Trend:
             'text': self.text,
             'number_of_kweeks': self.number_of_kweeks
         }
+
+
+# Use this in @api.expect() instead of fields.String for any string that accepts null value
+class NullableString(fields.String):
+    __schema_type__ = ['string', 'null']
+    __schema_example__ = 'nullable string'

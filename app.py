@@ -38,7 +38,7 @@ def initialize_database():
         db_name = 'kwikker'
         db_username = 'postgres'
 
-        db_password = '8949649'
+        db_password = ''
 
     response = database_manager.db_manager.initialize_connection(db_name=db_name, db_username=db_username,
                                                                  db_password=db_password)

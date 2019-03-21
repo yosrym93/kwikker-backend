@@ -1,6 +1,6 @@
 from flask_restplus import Resource, fields, abort
 from flask import request, send_from_directory
-from models import User, UserProfile
+from models import User, UserProfile, NullableString
 from app import create_model
 import api_namespaces
 from .import actions
@@ -136,8 +136,8 @@ class UserProfile(Resource):
     @user_api.response(code=404, description='Update failed.')
     @user_api.response(code=401, description='Unauthorized access.')
     @user_api.expect(create_model('Profile', model={
-        'bio': fields.String(description='Nullable if unchanged. The biography of the user.'),
-        'screen_name': fields.String(description='Nullable if unchanged. The name shown on profile screen.')
+        'bio': NullableString(description='Nullable if unchanged. The biography of the user.'),
+        'screen_name': NullableString(description='Nullable if unchanged. The name shown on profile screen.')
     }), validate=True)
     @user_api.doc(security='KwikkerKey')
     @authorize
