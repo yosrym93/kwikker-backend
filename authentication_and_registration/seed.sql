@@ -1,2 +1,2 @@
-INSERT INTO USER_CREDENTIALS(USERNAME, EMAIL, PASSWORD, IS_CONFIRMED)
-VALUES ('amr', 'amrrr', 'amr@gmail', 'True')
+insert into user_credentials (username, password, email, is_confirmed)
+values ('milan', 'acm', 'acm@gmail.com', True) 
