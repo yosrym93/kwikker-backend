@@ -40,6 +40,12 @@ def create_kweek(request, authorized_username):
 
     # check if str and have a length of minimum one char and is not fully  white space
 
+    reply_to = request["reply_to"]
+    if reply_to or reply_to == 0:
+        check = validate_id(reply_to)
+        if len(check) == 0:
+            return False, 'Kweek does not exist '
+
     hashtags, mentions = extract_mentions_hashtags(text)  # two lists of objects
     partial_user = get_user(authorized_username)
     if len(partial_user) == 0:

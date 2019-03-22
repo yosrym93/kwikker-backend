@@ -13,7 +13,7 @@ kweeks_api = api_namespaces.kweeks_api
 @kweeks_api.route('/')
 class Kweeks(Resource):
     @kweeks_api.expect(create_model('Created Kweek', {
-                                        'kweek_text': fields.String,
+                                        'text': fields.String,
                                         'reply_to': NullableString(description='The id of the kweek that this kweek '
                                                                                'is a reply to. Null if the kweek is not'
                                                                                ' a reply.', validate=True)
@@ -43,7 +43,7 @@ class Kweeks(Resource):
         Delete an existing Kweek.
         """
         if not request.args.get('id'):
-            abort(401, 'please provide the kweek id')
+            abort(400, 'please provide the kweek id')
         check, message = delete_kweek(request.args.get('id'), authorized_username)
         if check:
             return 'success', 201
@@ -72,7 +72,7 @@ class Kweeks(Resource):
         Retrieve a Kweek with its replies.
         """
         if not request.args.get('id'):
-            abort(401, 'please provide the kweek id')
+            abort(400, 'please provide the kweek id')
         check, message, kweek_obj, replies_obj_list =\
             get_kweek_with_replies(request.args.get('id'), authorized_username)
         print(kweek_obj, replies_obj_list)
@@ -83,7 +83,7 @@ class Kweeks(Resource):
                 'replies': replies_obj_list
             }
         else:
-            abort(401, message)
+            abort(404, message)
 
 
 @kweeks_api.route('/replies')

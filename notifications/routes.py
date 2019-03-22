@@ -43,7 +43,7 @@ class Notifications(Resource):
 # class Notifications(Resource):
 #     def get(self):
 #         try:
-#             actions.create_notifications('omar', 'khaled', 'q')
+#             actions.create_notifications('ahly', 'zamalek', 'REKWEEK')
 #         except Exception as e:
 #
 #             print(e)
