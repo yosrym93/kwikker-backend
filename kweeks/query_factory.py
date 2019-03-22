@@ -13,8 +13,7 @@ def get_user(username):
 def add_kweek(kweek: Kweek):
     query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s,%s,%s,%s,%s) """
     data = (kweek.created_at, kweek.text, kweek.media_url, kweek.user.username, kweek.reply_to)
-    response = db_manager.execute_query_no_return(query, data)
-    return response
+    db_manager.execute_query_no_return(query, data)
 
 
 def get_kweek_id():
@@ -36,11 +35,11 @@ def add_kweek_hashtag(hid, kid, hash_obj: Hashtag):
     db_manager.execute_query_no_return(query, data)
 
 
+
 def create_hashtag(hash_obj: Hashtag):
     query: str = """INSERT INTO HASHTAG(TEXT) VALUES (%s) """
     data = (hash_obj.text,)
-    response = db_manager.execute_query_no_return(query, data)
-    return response
+    db_manager.execute_query_no_return(query, data)
 
 
 def check_kweek_writer(kid, authorized_username):
