@@ -2,7 +2,7 @@
 from datetime import datetime
 from models import Kweek, Hashtag, Mention, User
 from kweeks.query_factory import add_kweek, delete_main_kweek, retrieve_hashtags, retrieve_mentions, retrieve_replies,\
-    retrieve_rekweeks, retrieve_user, retrieve_likers, retrieve_hashtag_text, check_following, check_blocked,\
+    retrieve_rekweeks, retrieve_user, retrieve_likers, check_following, check_blocked,\
     check_muted, retrieve_kweek, get_user, add_kweek_hashtag, creat_mention, create_hashtag, check_existing_hashtag, \
     get_kweek_id, update_hashtag, validate_id, check_kweek_writer
 
@@ -32,9 +32,7 @@ def create_kweek(request, authorized_username):
 
     # check if str and have a length of minimum one char and is not fully  white space
     reply_to = request["reply_to"]
-    if reply_to is not None:  # if it was a reply
-        if type(reply_to) != int:
-            return False, 'invalid data type '
+    if reply_to or reply_to==0:
         check = validate_id(reply_to)
         if len(check) == 0:
             return False, 'Kweek does not exist '
@@ -42,7 +40,7 @@ def create_kweek(request, authorized_username):
     hashtags, mentions = extract_mentions_hashtags(text)  # two lists of objects
     partial_user = get_user(authorized_username)
     if len(partial_user) == 0:
-        message = 'The user does not exist'
+        message = 'The authorized user does not exist in the data base'
         return False, message
     else:
         partial_user = partial_user[0]
@@ -65,8 +63,8 @@ def create_kweek(request, authorized_username):
     data.update(request)
     kweek = Kweek(data)
     print(kweek)
-    check, message = insert_kweek(kweek)
-    return check, message
+    insert_kweek(kweek)
+    return True, 'success'
 
 
 def insert_kweek(kweek: Kweek):
@@ -77,13 +75,9 @@ def insert_kweek(kweek: Kweek):
             *Parameters:*
                 - *kweek object*: The kweek object to be inserted.
 
-            *Returns:*
-                   -*Tuple*: {
-                                | *check (bool)*: To indicate whether kweek credentials creation was successful or not.,
-                                | *message (str)*: To specify the reason of failure if detected.
-                                | }
+
      """
-    add_kweek(kweek)
+    print(add_kweek(kweek))
     kid = get_kweek_id()[0]['id']
     for hash_obj in kweek.hashtags:
         test = check_existing_hashtag(hash_obj)
@@ -96,8 +90,6 @@ def insert_kweek(kweek: Kweek):
 
     for ment in kweek.mentions:
         creat_mention(kid, ment)
-    message = 'every thing went fine'  # then to be replaced
-    return True, message
 
 
 def extract_mentions_hashtags(text):
@@ -245,8 +237,8 @@ def get_kweek(kid, authorized_username):
             s_index = hash_obj['starting_index']
             e_index = hash_obj['ending_index']
             indices = [s_index, e_index]
-            text = retrieve_hashtag_text(hid)
-            hash_dic = {'id': hid, 'indices': indices, 'text': text[0]['text']}
+            text = hash_obj['text']
+            hash_dic = {'id': hid, 'indices': indices, 'text': text}
             hashtag = Hashtag(hash_dic)
             hashtags_list.append(hashtag)
 

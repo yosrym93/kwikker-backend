@@ -13,7 +13,8 @@ def get_user(username):
 def add_kweek(kweek: Kweek):
     query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s,%s,%s,%s,%s) """
     data = (kweek.created_at, kweek.text, kweek.media_url, kweek.user.username, kweek.reply_to)
-    db_manager.execute_query_no_return(query, data)
+    response = db_manager.execute_query_no_return(query, data)
+    return response
 
 
 def get_kweek_id():
@@ -97,15 +98,8 @@ def delete_main_kweek(kid):
 
 
 def retrieve_hashtags(kid):
-    query: str = """SELECT * FROM KWEEK_HASHTAG WHERE  KWEEK_ID= %s"""
+    query: str = """SELECT *, TEXT FROM KWEEK_HASHTAG JOIN HASHTAG  ON ID = HASHTAG_ID WHERE KWEEK_ID = %s"""
     data = (kid,)
-    response = db_manager.execute_query(query, data)
-    return response
-
-
-def retrieve_hashtag_text(hid: int):
-    query: str = """SELECT TEXT FROM HASHTAG WHERE  ID= %s"""
-    data = (hid,)
     response = db_manager.execute_query(query, data)
     return response
 

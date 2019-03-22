@@ -1,7 +1,7 @@
 from flask_restplus import Resource, fields, abort
 from flask import request
 from app import create_model
-from models import Kweek, User
+from models import Kweek, User, NullableString
 from kweeks.actions import create_kweek, delete_kweek, get_kweek_with_replies
 import api_namespaces
 from authentication_and_registration.actions import authorize
@@ -14,9 +14,9 @@ kweeks_api = api_namespaces.kweeks_api
 class Kweeks(Resource):
     @kweeks_api.expect(create_model('Created Kweek', {
                                         'kweek_text': fields.String,
-                                        'reply_to': fields.String(description='The id of the kweek that this kweek '
-                                                                              'is a reply to. Null if the kweek is not'
-                                                                              ' a reply.', validate=True)
+                                        'reply_to': NullableString(description='The id of the kweek that this kweek '
+                                                                               'is a reply to. Null if the kweek is not'
+                                                                               ' a reply.', validate=True)
                                     }))
     @kweeks_api.response(code=401, description='Unauthorized access.')
     @kweeks_api.response(code=201, description='Kweek created successfully.')
