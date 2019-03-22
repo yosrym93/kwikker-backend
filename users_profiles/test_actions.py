@@ -34,9 +34,9 @@ db_manager.initialize_connection('kwikker', 'postgres', 'k')
                                                              "kweeks_count": 1,
                                                              "likes_count": 1,
                                                              "profile_banner_url": "http://127.0.0.1:5000/user/upload"
-                                                                                   "/banner/banner.png",
+                                                                                   "/banner/banne.png",
                                                              "profile_image_url": "http://127.0.0.1:5000/user/upload"
-                                                                                  "/picture/profile.jpg",
+                                                                                  "/picture/profil.jpg",
                                                              "following": False,
                                                              "follows_you": True,
                                                              "blocked": False,
@@ -70,9 +70,9 @@ db_manager.initialize_connection('kwikker', 'postgres', 'k')
                                                              "kweeks_count": 3,
                                                              "likes_count": 3,
                                                              "profile_banner_url": "http://127.0.0.1:5000/user"
-                                                                                   "/upload/banner/banner.png",
+                                                                                   "/upload/banner/khaledbanner.jpg",
                                                              "profile_image_url": "http://127.0.0.1:5000/user/upload"
-                                                                                  "/picture/profile.jpg",
+                                                                                  "/picture/khaledprofile.jpg",
                                                              "following": True,
                                                              "follows_you": False,
                                                              "blocked": False,
@@ -84,7 +84,10 @@ db_manager.initialize_connection('kwikker', 'postgres', 'k')
                          )
 def test_get_user_profile(test_authorized_username, test_username, expected_output):
     output = actions.get_user_profile(test_authorized_username, test_username)
-    assert output.to_json() == expected_output.to_json()
+    if output == -1 or output == 'k':
+        assert output == expected_output
+    else:
+        assert output.to_json() == expected_output.to_json()
 
 
 @pytest.mark.parametrize("test_authorized_username,test_bio,test_screen_name,expected_output",
@@ -112,7 +115,6 @@ def test_update_profile_picture(test_file, test_authorized_username, expected_ou
 """
 
 
-@pytest.mark.name
 @pytest.mark.parametrize("test_authorized_username,expected_output",
                          [
                              ('khaled', 'http://127.0.0.1:5000/user/upload/picture/profile.jpg'),
@@ -131,7 +133,6 @@ def test_delete_profile_picture(test_authorized_username, expected_output):
     assert output == expected_output
 
 
-@pytest.mark.name
 @pytest.mark.parametrize("test_authorized_username,expected_output",
                          [
                              ('khaled', 'http://127.0.0.1:5000/user/upload/banner/banner.png'),

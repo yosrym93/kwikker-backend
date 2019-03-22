@@ -51,7 +51,7 @@ def get_user_profile(authorized_username, username):
         return -1
     profile = query_factory.get_user_profile(username)
 
-    profile["profile_image_url"] = create_url('profile', profile[
+    profile["profile_image_url"] = create_url('picture', profile[
         "profile_image_url"])
     profile["profile_banner_url"] = create_url('banner', profile[
         "profile_banner_url"])
