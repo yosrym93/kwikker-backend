@@ -10,6 +10,7 @@ cffi==1.12.2
 chardet==3.0.4
 Click==7.0
 colorama==0.4.1
+coverage==4.5.3
 docutils==0.14
 Flask==1.0.2
 flask-restplus==0.12.1
@@ -20,6 +21,7 @@ Jinja2==2.10
 jsonschema==3.0.1
 MarkupSafe==1.1.1
 more-itertools==6.0.0
+natsort==6.0.0
 packaging==19.0
 pluggy==0.9.0
 psycopg2==2.7.7
@@ -30,6 +32,7 @@ PyJWT==1.7.1
 pyparsing==2.3.1
 pyrsistent==0.14.11
 pytest==4.3.1
+pytest-cov==2.6.1
 pytz==2018.9
 relativetimebuilder==0.2.0
 requests==2.21.0

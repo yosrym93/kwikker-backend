@@ -7,3 +7,4 @@ docs/build/
 **/_build/
 images/ banner/**
 images/profile/**
+.coverage

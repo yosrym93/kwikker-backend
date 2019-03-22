@@ -168,8 +168,6 @@ class RekweekInfo:
     })
 
     def __init__(self, json):
-
-            print(json['rekweeker_name'])
             self.rekweeker_name = json['rekweeker_name']
             self.rekweeker_username = json['rekweeker_username']
 
@@ -242,7 +240,10 @@ class Kweek:
         json['number_of_rekweeks'] = self.number_of_rekweeks
         json['number_of_replies'] = self.number_of_replies
         json['reply_to'] = self.reply_to
-        json['rekweek_info'] = self.rekweek_info.to_json()
+        if self.rekweek_info is not None:
+            json['rekweek_info'] = self.rekweek_info.to_json()
+        else:
+            json['rekweek_info'] = None
         json['liked_by_user'] = self.liked_by_user
         json['rekweeked_by_user'] = self.rekweeked_by_user
         return json

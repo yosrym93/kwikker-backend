@@ -35,6 +35,8 @@ class ProfileTimeline(Resource):
     @timelines_api.response(code=200, description='Kweeks returned successfully.', model=[Kweek.api_model])
     @timelines_api.response(code=401, description='Unauthorized access.')
     @timelines_api.response(code=404, description='Username or kweek id does not exist.')
+    @timelines_api.response(code=500, description='An error occurred in the server.')
+    @timelines_api.response(code=400, description='Invalid ID provided.')
     @timelines_api.marshal_with(Kweek.api_model, as_list=True)
     @timelines_api.doc(security='KwikkerKey')
     @authorize
@@ -126,8 +128,8 @@ class Trends(Resource):
 class Trends(Resource):
     @trends_api.param(name='trend_id', type='str',
                       description='The id of the trend.', required=True)
-    @trends_api.param(name='last_retrieved_kweek_id', type='Normallystr',
-                      description="Nullable.  the request returns the first 20 kweeks when null."
+    @trends_api.param(name='last_retrieved_kweek_id', type='str',
+                      description="Nullable. Normally the request returns the first 20 kweeks when null."
                                   "To retrieve more send the id of the last kweek retrieved.")
     @trends_api.response(code=200, description='Kweeks returned successfully.', model=[Kweek.api_model])
     @trends_api.response(code=401, description='Unauthorized access.')
