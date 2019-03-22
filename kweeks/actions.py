@@ -3,7 +3,7 @@ from datetime import datetime
 from models import Kweek, Hashtag, Mention, User
 from kweeks.query_factory import add_kweek, delete_main_kweek, retrieve_hashtags, retrieve_mentions, retrieve_replies,\
     retrieve_rekweeks, retrieve_user, retrieve_likers, check_following, check_blocked,\
-    check_muted, retrieve_kweek, get_user, add_kweek_hashtag, creat_mention, create_hashtag, check_existing_hashtag, \
+    check_muted, retrieve_kweek, get_user, add_kweek_hashtag, create_mention, create_hashtag, check_existing_hashtag, \
     get_kweek_id, update_hashtag, validate_id, check_kweek_writer
 
 
@@ -63,8 +63,8 @@ def create_kweek(request, authorized_username):
     data.update(request)
     kweek = Kweek(data)
     print(kweek)
-    insert_kweek(kweek)
-    return True, 'success'
+    check, message = insert_kweek(kweek)
+    return check, message
 
 
 def insert_kweek(kweek: Kweek):
@@ -82,14 +82,19 @@ def insert_kweek(kweek: Kweek):
     for hash_obj in kweek.hashtags:
         test = check_existing_hashtag(hash_obj)
         if not test:  # then it is a new hashtag
-            create_hashtag(hash_obj)  # create a new hashtag
+            response = create_hashtag(hash_obj)  # create a new hashtag
+            if response is not None:
+                return False, 'No identical hashtags allowed in the same kweek '
             hid = check_existing_hashtag(hash_obj)[0]['id']  # then insert it into kweek-hashtag table
         else:
             hid = test[0]['id']
         add_kweek_hashtag(hid, kid, hash_obj)
 
     for ment in kweek.mentions:
-        creat_mention(kid, ment)
+        response = create_mention(kid, ment)  # create a new hashtag
+        if response is not None:
+            return False, 'the user mentioned does not exist in the database '
+    return True, 'success'
 
 
 def extract_mentions_hashtags(text):

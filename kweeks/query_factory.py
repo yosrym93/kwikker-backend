@@ -23,10 +23,11 @@ def get_kweek_id():
     return response
 
 
-def creat_mention(kid, ment: Mention):
+def create_mention(kid, ment: Mention):
     query: str = """INSERT INTO MENTION VALUES(%s,%s,%s,%s) """
     data = (kid, ment.username, ment.indices[0], ment.indices[1])
-    db_manager.execute_query_no_return(query, data)
+    response = db_manager.execute_query_no_return(query, data)
+    return response
 
 
 def add_kweek_hashtag(hid, kid, hash_obj: Hashtag):
@@ -38,7 +39,8 @@ def add_kweek_hashtag(hid, kid, hash_obj: Hashtag):
 def create_hashtag(hash_obj: Hashtag):
     query: str = """INSERT INTO HASHTAG(TEXT) VALUES (%s) """
     data = (hash_obj.text,)
-    db_manager.execute_query_no_return(query, data)
+    response = db_manager.execute_query_no_return(query, data)
+    return response
 
 
 def check_kweek_writer(kid, authorized_username):
