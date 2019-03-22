@@ -1,10 +1,11 @@
 import pytest
 from . import actions
 from database_manager import db_manager
-from models import User, Mention, Hashtag, Kweek, RekweekInfo
+from models import User, Mention, Hashtag, Kweek
 from datetime import datetime
 
 db_manager.initialize_connection('kwikker', 'postgres', '8949649')
+
 
 def test_insert_kweek():
     kweek_test = Kweek({
@@ -134,17 +135,17 @@ def test_insert_kweek():
                              ('test_user1', {
                                  'text': "#first tweet",
                                  'reply_to': db_manager.execute_query
-                                     ("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id']
+                                 ("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id']
                              }, (True, 'success')),
                              ('test_user1', {
                                  'text': "",
                                  'reply_to': db_manager.execute_query
-                                     ("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id']
+                                 ("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id']
                              }, (False, 'No text body found')),
                              ('test_user1', {
                                  'text': "  ",
                                  'reply_to': db_manager.execute_query
-                                     ("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id']
+                                 ("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id']
                              }, (False, 'No text body found'))
 
 

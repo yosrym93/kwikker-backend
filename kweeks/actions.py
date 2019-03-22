@@ -32,7 +32,7 @@ def create_kweek(request, authorized_username):
 
     # check if str and have a length of minimum one char and is not fully  white space
     reply_to = request["reply_to"]
-    if reply_to or reply_to==0:
+    if reply_to or reply_to == 0:
         check = validate_id(reply_to)
         if len(check) == 0:
             return False, 'Kweek does not exist '
