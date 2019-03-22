@@ -128,18 +128,32 @@ def is_notification(involved_username, notified_username, type_notification, kwe
                     *Returns:*
                         - a query to be check if exist or not.
         """
-    query = """
-                SELECT * 
-                
-                FROM NOTIFICATION 
-                
-                WHERE INVOLVED_USERNAME= %s
-                AND   NOTIFIED_USERNAME= %s
-                AND   TYPE= %s
-                AND   INVOLVED_KWEEK_ID= %s
-                
-                ORDER BY NOTIFICATION.CREATED_AT DESC
-            """
+    if kweek_id is None:
+        query = """
+                    SELECT * 
+                    
+                    FROM NOTIFICATION 
+                    
+                    WHERE INVOLVED_USERNAME= %s
+                    AND   NOTIFIED_USERNAME= %s
+                    AND   TYPE= %s
+                    AND   INVOLVED_KWEEK_ID IS %s
+                    
+                    ORDER BY NOTIFICATION.CREATED_AT DESC
+                """
+    else:
+        query = """
+                    SELECT * 
+
+                    FROM NOTIFICATION 
+
+                    WHERE INVOLVED_USERNAME= %s
+                    AND   NOTIFIED_USERNAME= %s
+                    AND   TYPE= %s
+                    AND   INVOLVED_KWEEK_ID = %s
+
+                    ORDER BY NOTIFICATION.CREATED_AT DESC
+                """
     data = (involved_username, notified_username, type_notification, kweek_id)
     return db_manager.execute_query(query, data)
 
