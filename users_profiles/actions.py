@@ -2,6 +2,7 @@ from . import query_factory
 from timelines_and_trends import actions
 from models import UserProfile
 import os
+
 APP_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 Server_path = 'http://127.0.0.1:5000/'
@@ -49,20 +50,18 @@ def get_user_profile(authorized_username, username):
     if not check_user:
         return -1
     profile = query_factory.get_user_profile(username)
-    if profile is not Exception:
-        profile["profile_image_url"] = create_url('profile', profile[
-            "profile_image_url"])
-        profile["profile_banner_url"] = create_url('banner', profile[
-            "profile_banner_url"])
-        profile["followers_count"] = query_factory.get_user_followers(username)["count"]
-        profile["following_count"] = query_factory.get_user_following(username)["count"]
-        profile["kweeks_count"] = query_factory.get_number_of_kweeks(username)['count']
-        profile["likes_count"] = query_factory.get_number_of_likes(username)['count']
-        friendship = actions.get_friendship(authorized_username, username)
-        profile.update(friendship)
-        return UserProfile(profile)
-    else:
-        return profile
+
+    profile["profile_image_url"] = create_url('profile', profile[
+        "profile_image_url"])
+    profile["profile_banner_url"] = create_url('banner', profile[
+        "profile_banner_url"])
+    profile["followers_count"] = query_factory.get_user_followers(username)["count"]
+    profile["following_count"] = query_factory.get_user_following(username)["count"]
+    profile["kweeks_count"] = query_factory.get_number_of_kweeks(username)['count']
+    profile["likes_count"] = query_factory.get_number_of_likes(username)['count']
+    friendship = actions.get_friendship(authorized_username, username)
+    profile.update(friendship)
+    return UserProfile(profile)
 
 
 def update_user_profile(authorized_username, bio, screen_name):
@@ -81,10 +80,7 @@ def update_user_profile(authorized_username, bio, screen_name):
     if (bio == "" or bio is None) and (screen_name == "" or screen_name is None):
         return 0
     response = query_factory.update_user_profile(authorized_username, bio, screen_name)
-    if response is None:
-            return response
-    else:
-        return -1
+    return response
 
 
 def update_profile_picture(file, authorized_username):
@@ -146,9 +142,8 @@ def delete_profile_picture(authorized_username):
             return create_url('picture', 'profile.jpg')
         else:
             return 'file does not exist'
-
     else:
-        return response
+        return response  # pragma:no cover
 
 
 def update_profile_banner(file, authorized_username):
@@ -208,6 +203,5 @@ def delete_banner_picture(authorized_username):
             return create_url('banner', 'banner.png')
         else:
             return 'file does not exist'
-
     else:
-        return response
+        return response  # pragma:no cover
