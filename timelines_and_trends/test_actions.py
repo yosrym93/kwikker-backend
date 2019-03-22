@@ -81,7 +81,7 @@ def test_get_kweek_mentions():
     actual_mention = actions.get_kweek_mentions(kweek_id)[0]
     expected_mention = Mention({
                                     'username': 'test_user3',
-                                    'indices': [1,2]
+                                    'indices': [1, 2]
                                })
     assert isinstance(actual_mention, Mention)
     assert actual_mention.to_json() == expected_mention.to_json()
@@ -202,9 +202,9 @@ def test_paginate():
     # Invalid key
     exception_caught = False
     try:
-        new_list = actions.paginate(dictionaries_list=dictionaries_list,
-                                    required_size=2, start_after_key='no_id',
-                                    start_after_value=5)
+        actions.paginate(dictionaries_list=dictionaries_list,
+                         required_size=2, start_after_key='no_id',
+                         start_after_value=5)
     except TypeError as E:
         exception_caught = True
         assert str(E) == 'One or more dictionary in dictionaries_list do not contain the provided key.'
@@ -213,9 +213,9 @@ def test_paginate():
     # Invalid list
     exception_caught = False
     try:
-        new_list = actions.paginate(dictionaries_list=None,
-                                    required_size=2, start_after_key='id',
-                                    start_after_value=5)
+        actions.paginate(dictionaries_list=None,
+                         required_size=2, start_after_key='id',
+                         start_after_value=5)
     except TypeError as E:
         exception_caught = True
         assert str(E) == 'dictionaries_list parameter passed was not a list.'
@@ -224,9 +224,9 @@ def test_paginate():
     # Invalid list items
     exception_caught = False
     try:
-        new_list = actions.paginate(dictionaries_list=[1,2,3],
-                                    required_size=2, start_after_key='id',
-                                    start_after_value=5)
+        actions.paginate(dictionaries_list=[1, 2, 3],
+                         required_size=2, start_after_key='id',
+                         start_after_value=5)
     except TypeError as E:
         exception_caught = True
         assert str(E) == 'One or more values in dictionaries_list are not a dictionary.'
@@ -337,8 +337,7 @@ def test_get_profile_kweeks():
     # Invalid ID
     exception_caught = False
     try:
-        actual_kweeks = actions.get_profile_kweeks('test_user2', 'test_user1', 'invalid_id')
+        actions.get_profile_kweeks('test_user2', 'test_user1', 'invalid_id')
     except ValueError:
         exception_caught = True
     assert exception_caught
-
