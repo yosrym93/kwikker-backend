@@ -45,10 +45,11 @@ class User:
             'blocked': self.blocked,
             'muted': self.muted
         }
+
     def __repr__(self):
         return "<Test username:%s screen_name:%s profile_image_url:%s following:%s follows_you:%s" \
                " blocked:%s muted:%s   >" % \
-               (self.username, self.screen_name,self.profile_image_url, self.following, self.follows_you,
+               (self.username, self.screen_name, self.profile_image_url, self.following, self.follows_you,
                 self.blocked, self.muted)
 
 
@@ -118,13 +119,14 @@ class Hashtag:
         'id': fields.String(description='The unique id of the trend.'),
         'indices': fields.List(fields.Integer,
                                description='The indices of the beginning and ending of the hashtag in the kweek.'),
-        'text':fields.String(description='The body of the hashtag.')
+        'text': fields.String(description='The body of the hashtag.')
     })
 
     def __init__(self, json):
         self.id = json['id']
         self.indices = (json['indices'][0], json['indices'][1])
         self.text = (json['text'])
+
     def __repr__(self):
         return "<id:%s indices:%s text:%s >" % \
                (self.id, self.indices,self.text)
@@ -133,7 +135,7 @@ class Hashtag:
         return {
             'id': self.id,
             'indices': [self.indices[0], self.indices[1]],
-            'text':self.text
+            'text': self.text
         }
 
 
@@ -166,11 +168,8 @@ class RekweekInfo:
     })
 
     def __init__(self, json):
-
-            print(json['rekweeker_name'])
             self.rekweeker_name = json['rekweeker_name']
             self.rekweeker_username = json['rekweeker_username']
-
 
     def __repr__(self):
         return "<rekweeker_name:%s rekweeker_username:%s  >" % \
@@ -248,7 +247,10 @@ class Kweek:
         json['number_of_rekweeks'] = self.number_of_rekweeks
         json['number_of_replies'] = self.number_of_replies
         json['reply_to'] = self.reply_to
-        json['rekweek_info'] = self.rekweek_info.to_json()
+        if self.rekweek_info is not None:
+            json['rekweek_info'] = self.rekweek_info.to_json()
+        else:
+            json['rekweek_info'] = None
         json['liked_by_user'] = self.liked_by_user
         json['rekweeked_by_user'] = self.rekweeked_by_user
         return json

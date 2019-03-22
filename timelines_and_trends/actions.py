@@ -1,5 +1,5 @@
 from . import query_factory
-from models import User, Mention, Hashtag, Kweek
+from models import User, Mention, Hashtag, Kweek, RekweekInfo
 
 
 def get_friendship(authorized_username, required_username):
@@ -97,7 +97,8 @@ def get_kweek_hashtags(kweek_id):
     for database_hashtag in database_hashtags:
         hashtag = {
             'id': database_hashtag['hashtag_id'],
-            'indices': [database_hashtag['starting_index'], database_hashtag['ending_index']]
+            'indices': [database_hashtag['starting_index'], database_hashtag['ending_index']],
+            'text': database_hashtag['text']
         }
         hashtags.append(Hashtag(hashtag))
     return hashtags
@@ -151,10 +152,10 @@ def get_profile_kweeks(authorized_username, required_username, last_retrieved_kw
         kweek['hashtags'] = get_kweek_hashtags(kweek['id'])
         # Add rekweek info
         if kweek['is_rekweek']:
-            rekweek_info = {
+            rekweek_info = RekweekInfo({
                 'rekweeker_name': profile_user.screen_name,
                 'rekweeker_username': profile_user.username
-            }
+            })
             kweek['rekweek_info'] = rekweek_info
         else:
             kweek['rekweek_info'] = None
@@ -224,12 +225,12 @@ def paginate(dictionaries_list, required_size, start_after_key, start_after_valu
         raise TypeError('dictionaries_list parameter passed was not a list.')
 
     if start_after_value is None:
-        return dictionaries_list[: required_size + 1]
+        return dictionaries_list[: required_size]
 
     start_after_index = None
     for index, value in enumerate(dictionaries_list):
         if not isinstance(value, dict):
-            raise TypeError('One or more values in dictionaries_list are not a dictionary')
+            raise TypeError('One or more values in dictionaries_list are not a dictionary.')
         if start_after_key not in value:
             raise TypeError('One or more dictionary in dictionaries_list do not contain the provided key.')
         if start_after_index is None and value[start_after_key] == start_after_value:

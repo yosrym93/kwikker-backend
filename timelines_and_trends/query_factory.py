@@ -61,25 +61,36 @@ def get_kweek_statistics(kweek_id, authorized_username):
                                 | }
     """
     kweek_statistics = {}
-
     # Number of likes
     query = """
                 SELECT COUNT(*) FROM FAVORITE WHERE KWEEK_ID = %s
             """
     data = (kweek_id, )
-    kweek_statistics['number_of_likes'] = db_manager.execute_query(query, data)[0].get('count')
+    response = db_manager.execute_query(query, data)
+    if not response:
+        kweek_statistics['number_of_likes'] = 0
+    else:
+        kweek_statistics['number_of_likes'] = response[0].get('count')
 
     # Number of rekweeks
     query = """
                 SELECT COUNT(*) FROM REKWEEK WHERE KWEEK_ID = %s
             """
-    kweek_statistics['number_of_rekweeks'] = db_manager.execute_query(query, data)[0].get('count')
+    response = db_manager.execute_query(query, data)
+    if not response:
+        kweek_statistics['number_of_rekweeks'] = 0
+    else:
+        kweek_statistics['number_of_rekweeks'] = response[0].get('count')
 
     # Number of replies
     query = """
                 SELECT COUNT(*) FROM KWEEK WHERE REPLY_TO = %s 
             """
-    kweek_statistics['number_of_replies'] = db_manager.execute_query(query, data)[0].get('count')
+    response = db_manager.execute_query(query, data)
+    if not response:
+        kweek_statistics['number_of_replies'] = 0
+    else:
+        kweek_statistics['number_of_replies'] = response[0].get('count')
 
     # Is liked by the authorized user
     query = """
@@ -147,7 +158,9 @@ def get_kweek_hashtags(kweek_id):
                                 | }
     """
     query = """
-                SELECT * FROM KWEEK_HASHTAG WHERE KWEEK_ID = %s
+                SELECT *, TEXT FROM KWEEK_HASHTAG 
+                JOIN HASHTAG H ON H.ID = HASHTAG_ID
+                WHERE KWEEK_ID = %s
             """
     data = (kweek_id,)
     hashtags = db_manager.execute_query(query, data)
