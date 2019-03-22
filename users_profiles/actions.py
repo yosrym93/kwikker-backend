@@ -4,6 +4,32 @@ from models import UserProfile
 import os
 APP_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+Server_path = 'http://127.0.0.1:5000/'
+
+
+def create_url(upload_type, filename):
+    """
+                    The function return url of profile image .
+                    *Parameters*:
+                        - *upload_type (str)*: The type of upload banner or picture.
+                        - *filename (str)*: The name of the profile image.
+                    *Returns*:
+                        - url of profile image .
+    """
+    url = Server_path + 'user/upload/' + upload_type + '/' + filename
+    return url
+
+
+def allowed_file(filename):
+    """
+                                The function checks if the uploaded file has allowed extension.
+
+                                *Parameters*:
+                                    - *filename*: The name of the uploaded file .
+                                *Returns*:
+                                    - *True or False*: in the allowed extension or not.
+    """
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 def get_user_profile(authorized_username, username):
@@ -24,10 +50,10 @@ def get_user_profile(authorized_username, username):
         return -1
     profile = query_factory.get_user_profile(username)
     if profile is not Exception:
-        profile["profile_image_url"] = 'http://127.0.0.1:5000/user/upload/picture/' + profile[
-            "profile_image_url"]
-        profile["profile_banner_url"] = 'http://127.0.0.1:5000/user/upload/banner/' + profile[
-            "profile_banner_url"]
+        profile["profile_image_url"] = create_url('profile', profile[
+            "profile_image_url"])
+        profile["profile_banner_url"] = create_url('banner', profile[
+            "profile_banner_url"])
         profile["followers_count"] = query_factory.get_user_followers(username)["count"]
         profile["following_count"] = query_factory.get_user_following(username)["count"]
         profile["kweeks_count"] = query_factory.get_number_of_kweeks(username)['count']
@@ -61,18 +87,6 @@ def update_user_profile(authorized_username, bio, screen_name):
         return -1
 
 
-def allowed_file(filename):
-    """
-                                The function checks if the uploaded file has allowed extension.
-
-                                *Parameters*:
-                                    - *filename*: The name of the uploaded file .
-                                *Returns*:
-                                    - *True or False*: in the allowed extension or not.
-    """
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
 def update_profile_picture(file, authorized_username):
     """
                     The function updates profile picture.
@@ -89,23 +103,19 @@ def update_profile_picture(file, authorized_username):
 
         images = os.path.join(APP_ROOT, 'images/')
         if not os.path.isdir(images):
-            print('creating images folder')
             os.mkdir(images)
-        print('found images folder')
         target = os.path.join(APP_ROOT, 'images\profile/')
-        print(target, '----target')
 
         if not os.path.isdir(target):
-            print('creating profile folder')
             os.mkdir(target)
 
-        filename, ext = os.path.splitext(file.filename)  # ------------------------
+        filename, ext = os.path.splitext(file.filename)
         filename = authorized_username + 'profile' + ext
         response = query_factory.update_user_profile_picture(authorized_username, filename)
         if response is None:
             destination = "/".join([target, filename])
             file.save(destination)
-            return filename
+            return create_url('picture', filename)
 
         else:
             return response
@@ -132,9 +142,8 @@ def delete_profile_picture(authorized_username):
     if response is None:
         os.chdir(path)
         if os.path.exists(filename):
-
             os.remove(filename)
-            return response
+            return create_url('picture', 'profile.jpg')
         else:
             return 'file does not exist'
 
@@ -169,7 +178,7 @@ def update_profile_banner(file, authorized_username):
         if response is None:
             destination = "/".join([target, filename])
             file.save(destination)
-            return filename
+            return create_url('banner', filename)
 
         else:
             return response
@@ -196,7 +205,7 @@ def delete_banner_picture(authorized_username):
         os.chdir(path)
         if os.path.exists(filename):
             os.remove(filename)
-            return response
+            return create_url('banner', 'banner.png')
         else:
             return 'file does not exist'
 

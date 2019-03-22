@@ -44,8 +44,7 @@ class ProfileBanner(Resource):
             return abort(404, message='delete request failed file does not exist')
         if response == Exception:
             return abort(404, message=response)
-        url = 'http://127.0.0.1:5000/user/upload/banner/banner.png'
-        return url, 200
+        return response, 200
 
     @user_api.response(code=200, description='Profile banner updated.')
     @user_api.response(code=404, description='Update failed.')
@@ -66,9 +65,7 @@ class ProfileBanner(Resource):
             return abort(404, message=response)
         if response == Exception:
             return abort(404, message=response)
-        url = 'http://127.0.0.1:5000/user/upload/banner/'
-        url = url + response
-        return url, 200
+        return response, 200
 
 
 @user_api.route('/profile_picture')
@@ -87,8 +84,7 @@ class ProfilePicture(Resource):
             return abort(404, message='delete request failed file does not exist')
         if response == Exception:
             return abort(404, message=response)
-        url = 'http://127.0.0.1:5000/user/upload/picture/profile.jpg'
-        return url, 200
+        return response, 200
 
     @user_api.response(code=200, description='Profile picture updated.')
     @user_api.response(code=404, description='Update failed.')
@@ -109,9 +105,7 @@ class ProfilePicture(Resource):
             return abort(404, message=response)
         if response == Exception:
             return abort(404, message=response)
-        url = 'http://127.0.0.1:5000/user/upload/picture/'
-        url = url + response
-        return url, 200
+        return response, 200
 
 
 @user_api.route('/upload/picture/<filename>')
