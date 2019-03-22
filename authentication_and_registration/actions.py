@@ -43,7 +43,7 @@ def create_token(username):
         'username': username,
         'exp': exp
     }
-    token = jwt.encode(payload, secret_key)
+    token = jwt.encode(payload, secret_key, algorithm='HS256')
     return token
 
 
@@ -57,7 +57,7 @@ def authorize(f):
         -*Error Response,401*: if the token is not given in the header, expired or invalid.
         -*Username*:if the token is valid it allows the access and return the username of the user.
     """
-    @wraps(f)
+    @wraps(f)  # pragma:no cover
     def decorated(*args, **kwargs):
 
         token = None
@@ -69,7 +69,7 @@ def authorize(f):
             abort(401, message='Token is missing.')
 
         try:
-            user = jwt.decode(token, secret_key)['username']
+            user = jwt.decode(token, secret_key, algorithms=['HS256'])['username']
 
         except jwt.ExpiredSignatureError:
             abort(401, message='Signature expired. Please log in again.')
@@ -80,4 +80,4 @@ def authorize(f):
         # print('TOKEN: {}'.format(token))
         return f(authorized_username=user, *args, **kwargs)
 
-    return decorated
+    return decorated  # pragma:no cover

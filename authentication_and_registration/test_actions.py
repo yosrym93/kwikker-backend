@@ -15,7 +15,7 @@ pytest -v --capture=no => to see functions print for test cases
 
 def test_create_token():
     token = actions.create_token('amr')
-    answer = jwt.decode(token, secret_key)
+    answer = jwt.decode(token, secret_key, algorithms=['HS256'])
     print(answer)
     assert answer['username'] == 'amr'
 
