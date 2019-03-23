@@ -1,14 +1,15 @@
 INSERT INTO USER_CREDENTIALS(USERNAME, PASSWORD, EMAIL, IS_CONFIRMED) VALUES
 ('test_user1', 'password', 'test_user1@test.com', TRUE),
 ('test_user2', 'password', 'test_user3@test.com', TRUE),
-('test_user3', 'password', 'test_user3@test.com', TRUE);
-
+('test_user3', 'password', 'test_user3@test.com', TRUE),
+('hagar', 'password', 'hagar@test.com', TRUE);
 
 INSERT INTO PROFILE(USERNAME, SCREEN_NAME, PROFILE_IMAGE_URL, PROFILE_BANNER_URL, BIO, CREATED_AT, BIRTH_DATE)
 VALUES
 ('test_user1', 'test1', 'image_url', 'banner_url', 'bio', '01-01-2019', '01-01-1999'),
 ('test_user2', 'test2', 'image_url', 'banner_url', 'bio', '01-01-2019', '01-01-1999'),
-('test_user3', 'test3', 'image_url', 'banner_url', 'bio', '01-01-2019', '01-01-1999');
+('test_user3', 'test3', 'image_url', 'banner_url', 'bio', '01-01-2019', '01-01-1999'),
+('hagar', 'test1', 'image_url', 'banner_url', 'bio', '01-01-2019', '01-01-1999');
 
 INSERT INTO FOLLOW VALUES
 ('test_user1', 'test_user3'),

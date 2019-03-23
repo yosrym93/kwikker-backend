@@ -175,7 +175,6 @@ def update_hashtag():
 
     """
 
-
     query: str =\
         """ DELETE FROM HASHTAG WHERE ID NOT IN (SELECT HASHTAG_ID FROM KWEEK_HASHTAG WHERE HASHTAG_ID = ID); """
     db_manager.execute_query_no_return(query)

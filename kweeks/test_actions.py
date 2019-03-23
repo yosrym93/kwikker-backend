@@ -106,12 +106,12 @@ def test_insert_kweek():
     print("hashtag", resulted_hashtag)
     expected_mention = {'kweek_id': kid, 'username': 'test_user1', 'starting_index': 10,
                         'ending_index': 16}
-    expected_hahstag = {'text': '#moon', 'kweek_id': kid, 'hashtag_id': hid,
+    expected_hashtag = {'text': '#moon', 'kweek_id': kid, 'hashtag_id': hid,
                         'starting_index': 10, 'ending_index': 16}
     expected_kweek = {'id': kid, 'text': '#testtest',
                       'media_url': None, 'username': 'test_user1', 'reply_to': None}
     assert expected_kweek == resulted_kweek
-    assert expected_hahstag == resulted_hashtag
+    assert expected_hashtag == resulted_hashtag
     assert expected_mention == resulted_mention
     query: str = """SELECT COUNT(*) FROM HASHTAG """
     second_count = db_manager.execute_query(query)[0]['count']
@@ -139,17 +139,17 @@ def test_insert_kweek():
                              ('test_user1', {
                                  'text': "#first tweet",
                                  'reply_to': str(db_manager.execute_query
-                                                     ("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
+                                                 ("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
                              }, (True, 'success')),
                              ('test_user1', {
                                  'text': "",
                                  'reply_to': str(db_manager.execute_query
-                                                     ("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
+                                                 ("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
                              }, (False, 'No text body found')),
                              ('test_user1', {
                                  'text': "  ",
                                  'reply_to': str(db_manager.execute_query
-                                                     ("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
+                                                 ("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
                              }, (False, 'No text body found'))
 
                          ])
@@ -197,7 +197,7 @@ def test_extract_mentions_hashtags(text, expected_hashtags, expected_mentions):
 
 @pytest.mark.parametrize("parameter, expected_output",
                          [
-                             ('265000',
+                             ('-1',
                               (False, 'Kweek is not available')),
                              (str(db_manager.execute_query
                                                      ("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id']),
@@ -355,7 +355,6 @@ def test_delete_kweek():
     data = ('hashtag3',)
     response = db_manager.execute_query(query, data)
     assert response == []
-
 
     # fourth test- first kweek #
 
