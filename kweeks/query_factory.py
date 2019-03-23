@@ -153,7 +153,7 @@ def check_kweek_mention(kid, ment: Mention):
 
                    *Parameters*:
                        - *ment(object)*: The mention object to be checked.
-                       - *kid *: The id of the kweek to be checked.
+                       - *kid*: The id of the kweek to be checked.
 
 
                    *Returns*:
@@ -208,14 +208,12 @@ def delete_likes(lid):
     db_manager.execute_query_no_return(query, data)
 
 
-
 def validate_id(kid):
     """
                    Query to check if a kweek id is valid or not .
 
                    *Parameters*:
                        - *kid*: The id of the kweek to be checked.
-                        *Returns*:
 
                    *Returns*:
                        -*response*: A tuple the kweek to indicate whether valid or not.

@@ -240,7 +240,7 @@ def get_kweek(kid, authorized_username):
                    *Returns:*
                        -*Tuple*: {
                                     | *check (bool)*: To indicate whether kweek credentials creation
-                                    was successful or not.,
+                                    | was successful or not.,
                                     | *message (str)*: To specify the reason of failure if detected.
                                     | *kweekobj (kweek object )*: the kweek to be retrieved,
                                     | *replies (list of int )*: Ids of  the replies to the retrieved kweek .
@@ -354,7 +354,7 @@ def get_kweek_with_replies(kid, username):
                        *Returns:*
                            -*Tuple*: {
                                     | *check (bool)*: To indicate whether kweek credentials creation was
-                                    successful or not.,
+                                    | successful or not.,
                                     | *message (str)*: To specify the reason of failure if detected.
                                     | *kweekobj (kweek object )*: the kweek to be retrieved,
                                     | *replies (list of kweek objects )*: replies of the retrieved kweek .

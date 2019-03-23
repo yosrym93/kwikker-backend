@@ -4,7 +4,7 @@ from database_manager import db_manager
 from models import User, Mention, Hashtag, Kweek
 from datetime import datetime
 
-db_manager.initialize_connection('kwikker', 'postgres', '8949649')
+db_manager.initialize_connection('kwikker', 'postgres', '')
 
 
 def test_insert_kweek():
