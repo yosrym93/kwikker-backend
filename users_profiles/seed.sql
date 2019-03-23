@@ -23,19 +23,19 @@ INSERT INTO profile(
 
 INSERT INTO kweek(
 	 created_at, text, media_url, username, reply_to)
-	VALUES ( '2019-10-19 10:23:54', 'first kweek','url med1' , 'khaled', 1000);
+	VALUES ( '2019-10-19 10:23:54', 'first kweek','url med1' , 'khaled', null);
 INSERT INTO kweek(
 	 created_at, text, media_url, username, reply_to)
-	VALUES ( '2018-10-1 10:23:54', 'second kweek','url med2' , 'amr', 100);
+	VALUES ( '2018-10-1 10:23:54', 'second kweek','url med2' , 'amr', null);
 INSERT INTO kweek(
 	 created_at, text, media_url, username, reply_to)
-	VALUES ( '2019-10-19 10:23:54', 'third kweek','url med3' , 'omar', 10);
+	VALUES ( '2019-10-19 10:23:54', 'third kweek','url med3' , 'omar', null);
 INSERT INTO kweek(
 	 created_at, text, media_url, username, reply_to)
-	VALUES ( '2001-10-19 10:23:54', 'fourth kweek','url med4' , 'khaled', 10);
+	VALUES ( '2001-10-19 10:23:54', 'fourth kweek','url med4' , 'khaled', null);
 INSERT INTO kweek(
 	 created_at, text, media_url, username, reply_to)
-	VALUES ( '2010-10-19 10:23:54', 'fifth kweek','url med5' , 'khaled', 20000);
+	VALUES ( '2010-10-19 10:23:54', 'fifth kweek','url med5' , 'khaled', null);
 
 
 INSERT INTO follow(
@@ -54,19 +54,19 @@ INSERT INTO follow(
 
 INSERT INTO favorite(
 	username, kweek_id, created_at)
-	VALUES ('khaled', 1,'2001-12-19 10:10:24' );
+	VALUES ('khaled', (select id from kweek where username='khaled'and text ='first kweek') ,'2001-12-19 10:10:24' );
 INSERT INTO favorite(
 	username, kweek_id, created_at)
-	VALUES ('khaled', 2,'2001-12-19 10:10:24' );
+	VALUES ('khaled', (select id from kweek where username='amr'and text ='second kweek'),'2001-12-19 10:10:24' );
 INSERT INTO favorite(
 	username, kweek_id, created_at)
-	VALUES ('khaled', 3,'2001-12-19 10:10:24' );
+	VALUES ('khaled', (select id from kweek where username='omar'and text ='third kweek'),'2001-12-19 10:10:24' );
 INSERT INTO favorite(
 	username, kweek_id, created_at)
-	VALUES ('amr', 1,'2001-12-19 10:10:24' );
+	VALUES ('amr', (select id from kweek where username='khaled'and text ='first kweek'),'2001-12-19 10:10:24' );
 INSERT INTO favorite(
 	username, kweek_id, created_at)
-	VALUES ('amr', 4,'2001-12-19 10:10:24' );
+	VALUES ('amr', (select id from kweek where username='khaled'and text ='fourth kweek'),'2001-12-19 10:10:24' );
 INSERT INTO favorite(
 	username, kweek_id, created_at)
-	VALUES ('omar', 4,'2001-12-19 10:10:24' );
+	VALUES ('omar', (select id from kweek where username='khaled'and text ='fourth kweek'),'2001-12-19 10:10:24' );

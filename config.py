@@ -27,5 +27,5 @@ class TestingConfig(BaseConfig):
     TESTING = True
     DATABASE_NAME = 'kwikker_test'
     DATABASE_USERNAME = 'postgres'
-    DATABASE_PASSWORD = ''
+    DATABASE_PASSWORD = '8949649'
     MIGRATIONS_DATABASE_NAME = 'migrations_test'

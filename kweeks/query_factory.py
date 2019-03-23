@@ -1,5 +1,5 @@
 import database_manager
-from models import Kweek, Hashtag,Mention
+from models import Kweek, Hashtag, Mention
 db_manager = database_manager.db_manager
 
 
@@ -13,92 +13,105 @@ def get_user(username):
 def add_kweek(kweek: Kweek):
     query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s,%s,%s,%s,%s) """
     data = (kweek.created_at, kweek.text, kweek.media_url, kweek.user.username, kweek.reply_to)
-    response = db_manager.execute_query_no_return(query, data)
+    db_manager.execute_query_no_return(query, data)
 
 
-def get_kweek_id(kweek: Kweek):
+def get_kweek_id():
     query: str = """SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """
     response = db_manager.execute_query(query)
     return response
 
 
-def creat_mention(Kid, ment: Mention):
+def create_mention(kid, ment: Mention):
     query: str = """INSERT INTO MENTION VALUES(%s,%s,%s,%s) """
-    data = (Kid, ment.username, ment.indices[0], ment.indices[1])
+    data = (kid, ment.username, ment.indices[0], ment.indices[1])
     response = db_manager.execute_query_no_return(query, data)
+    return response
 
 
-def add_kweek_hashtag(Hid, Kid, hash: Hashtag):
+def add_kweek_hashtag(hid, kid, hash_obj: Hashtag):
     query: str = """INSERT INTO KWEEK_HASHTAG VALUES (%s,%s,%s,%s)"""
-    data = (Kid, Hid, hash.indices[0], hash.indices[1],)
-    response = db_manager.execute_query_no_return(query, data)
+    data = (kid, hid, hash_obj.indices[0], hash_obj.indices[1],)
+    db_manager.execute_query_no_return(query, data)
 
 
-def create_hashtag(hash: Hashtag):
+def create_hashtag(hash_obj: Hashtag):
     query: str = """INSERT INTO HASHTAG(TEXT) VALUES (%s) """
-    data = (hash.text,)
-    response = db_manager.execute_query_no_return(query, data)
+    data = (hash_obj.text,)
+    db_manager.execute_query_no_return(query, data)
+
+
+def check_kweek_writer(kid, authorized_username):
+    query: str = """SELECT * FROM KWEEK WHERE USERNAME =%s AND ID= %s  """
+    data = (authorized_username, kid)
+    response = db_manager.execute_query(query, data)
+    return response
+
+
+def check_kweek_owner(kid, authorized_username):
+    query: str = """SELECT * FROM KWEEK REPLY JOIN KWEEK POST ON REPLY.REPLY_TO = POST.ID 
+     WHERE POST.USERNAME =%s AND REPLY.ID= %s  """
+    data = (authorized_username, kid)
+    response = db_manager.execute_query(query, data)
+    return response
 
 
 def check_existing_hashtag(hashtag: Hashtag):
-     query: str = """SELECT ID FROM HASHTAG WHERE TEXT =%s """
-     data = (hashtag.text,)
-     response = db_manager.execute_query(query, data)
-     return response
+    query: str = """SELECT ID FROM HASHTAG WHERE TEXT =%s """
+    data = (hashtag.text,)
+    response = db_manager.execute_query(query, data)
+    return response
+
+
+def check_kweek_mention(kid, ment: Mention):
+    query: str = """SELECT COUNT(*) FROM MENTION WHERE KWEEK_ID =%s AND USERNAME =%s """
+    data = (kid, ment.username)
+    response = db_manager.execute_query(query, data)
+    return response
+
 
 ########################################################################################################################
-#################################################DELETE REKWEEK SECTION#################################################
 
 
 def update_hashtag():
     query: str =\
         """ DELETE FROM HASHTAG WHERE ID NOT IN (SELECT HASHTAG_ID FROM KWEEK_HASHTAG WHERE HASHTAG_ID = ID); """
     data = (id,)
-    response = db_manager.execute_query_no_return(query, data)
-    return response
+    db_manager.execute_query_no_return(query, data)
 
 
-def delete_rekweeks(id):
+def delete_rekweeks(rid):
     query: str = """DELETE FROM REKWEEK WHERE KWEEK_ID=%s """
-    data = (id,)
+    data = (rid,)
     response = db_manager.execute_query_no_return(query, data)
     return response
 
 
-def delete_likes(id):
+def delete_likes(lid):
     query: str = """DELETE FROM FAVORITE WHERE KWEEK_ID=%s """
-    data = (id,)
+    data = (lid,)
     response = db_manager.execute_query_no_return(query, data)
     return response
 
 
-def validate_id(id):
+def validate_id(kid):
     query: str = """SELECT * FROM KWEEK WHERE ID=%s """
-    data = (id,)
-    response = db_manager.execute_query(query, data)
-    return response
-
-
-def delete_main_kweek(id):
-    query: str = """DELETE FROM KWEEK WHERE ID=%s """
-    data = (id,)
-    response = db_manager.execute_query_no_return(query, data)
-    return response
-
-########################################################################################################################
-#################################################GET REKWEEK SECTION#################################################
-
-
-def retrieve_hashtags(kid: int):
-    query: str = """SELECT * FROM KWEEK_HASHTAG WHERE  KWEEK_ID= %s"""
     data = (kid,)
     response = db_manager.execute_query(query, data)
     return response
 
 
-def retrieve_hashtag_text(Hid: int):
-    query: str = """SELECT TEXT FROM HASHTAG WHERE  ID= %s"""
-    data = (Hid,)
+def delete_main_kweek(kid):
+    query: str = """DELETE FROM KWEEK WHERE ID=%s """
+    data = (kid,)
+    db_manager.execute_query_no_return(query, data)
+
+########################################################################################################################
+
+
+def retrieve_hashtags(kid):
+    query: str = """SELECT *, TEXT FROM KWEEK_HASHTAG JOIN HASHTAG  ON ID = HASHTAG_ID WHERE KWEEK_ID = %s"""
+    data = (kid,)
     response = db_manager.execute_query(query, data)
     return response
 
@@ -164,7 +177,3 @@ def retrieve_kweek(kid):
     data = (kid,)
     response = db_manager.execute_query(query, data)
     return response
-
-
-
-
