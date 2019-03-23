@@ -22,15 +22,15 @@ INSERT INTO BLOCK VALUES
 ('test_user2', 'test_user1');
 
 INSERT INTO KWEEK(CREATED_AT, TEXT, USERNAME, REPLY_TO) VALUES
-('01-01-2010', 'hagar, first kweek', 'test_user1', null),
-('01-01-2013', 'Test user 1, second kweek', 'test_user1', null),
-('01-01-2016', 'Test user 1, third kweek', 'test_user1', null),
-('01-01-2011', 'Test user 2, first kweek', 'test_user2', null),
-('01-01-2014', 'Test user 2, second kweek', 'test_user2', null),
-('01-01-2015', 'Test user 2, third kweek', 'test_user2', null),
-('01-01-2012', 'Test user 3, first kweek', 'test_user3', null),
-('01-01-2017', 'Test user 3, second kweek', 'test_user3', null),
-('01-01-2018', 'Test user 3, third kweek', 'test_user3', null);
+('01-01-2010', 'post1, user1', 'test_user1', null),
+('01-01-2013', 'post2, user1', 'test_user1', null),
+('01-01-2016', 'post3, user1', 'test_user1', null),
+('01-01-2011', 'post1, user2', 'test_user2', null),
+('01-01-2014', 'post2, user2', 'test_user2', null),
+('01-01-2015', 'post3, user2', 'test_user2', null),
+('01-01-2012', 'post1, user3', 'test_user3', null),
+('01-01-2017', 'post2, user3', 'test_user3', null),
+('01-01-2018', 'post3, user3', 'test_user3', null);
 
 INSERT INTO MENTION(KWEEK_ID, USERNAME, STARTING_INDEX, ENDING_INDEX) VALUES
 ((SELECT ID FROM KWEEK WHERE USERNAME = 'test_user1' LIMIT 1), 'test_user3', 1, 2);

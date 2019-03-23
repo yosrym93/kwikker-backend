@@ -281,7 +281,7 @@ def get_kweek(kid, authorized_username):
             mentions_list.append(mention)
 
     if not user:
-        return False, message, None, None  # a message may be added or something
+        return False, 'not a valid user', None, None  # a message may be added or something
     else:
         user = user[0]
         extrauser = {}
@@ -361,7 +361,6 @@ def get_kweek_with_replies(kid, username):
                                     | }
 
     """
-
     replies_list_obj = []
     check, message, kweekobj, replies_list_dics = get_kweek(kid, username)
     if check:

@@ -199,7 +199,8 @@ def test_extract_mentions_hashtags(text, expected_hashtags, expected_mentions):
                          [
                              ('265000',
                               (False, 'Kweek is not available')),
-                             ('265',
+                             (str(db_manager.execute_query
+                                                     ("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id']),
                               (True, 'success')),
                              ('abc',
                               (False, 'Invalid data type type'))
@@ -207,3 +208,359 @@ def test_extract_mentions_hashtags(text, expected_hashtags, expected_mentions):
 def test_validate_request(parameter, expected_output):
     check, message = actions.validate_request(parameter)
     assert (check, message) == expected_output
+
+
+def test_delete_kweek():
+
+    # first test -  first kweek#
+
+    query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
+    data = ('01-01-2010', 'test1', None, 'hagar', None)
+    db_manager.execute_query_no_return(query, data)
+    kid1 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
+
+    query: str = """INSERT INTO HASHTAG(TEXT) VALUES (%s) """
+    data = ('hashtag1',)
+    db_manager.execute_query_no_return(query, data)
+
+    query: str = """SELECT ID FROM HASHTAG WHERE TEXT = %s """
+    data = ('hashtag1',)
+    hid1 = db_manager.execute_query(query, data)[0]['id']
+
+    query: str = """INSERT INTO KWEEK_HASHTAG VALUES (%s,%s,%s,%s)"""
+    data = (kid1, hid1, 0, 9,)
+    db_manager.execute_query_no_return(query, data)
+
+    actions.delete_kweek(kid1, 'hagar')
+
+    query: str = """SELECT * FROM KWEEK WHERE  ID= %s"""
+    data = (kid1,)
+    response = db_manager.execute_query(query, data)
+    assert response == []
+    # second test - first kweek #
+
+    query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
+    data = ('01-01-2010', 'test2', None, 'hagar', None)
+    db_manager.execute_query_no_return(query, data)
+    kid1 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
+
+    query: str = """INSERT INTO HASHTAG(TEXT) VALUES (%s) """
+    data = ('hashtag2',)
+    db_manager.execute_query_no_return(query, data)
+
+    query: str = """SELECT ID FROM HASHTAG WHERE TEXT = %s """
+    data = ('hashtag2',)
+    hid1 = db_manager.execute_query(query, data)[0]['id']
+
+    query: str = """INSERT INTO KWEEK_HASHTAG VALUES (%s,%s,%s,%s)"""
+    data = (kid1, hid1, 0, 9,)
+    db_manager.execute_query_no_return(query, data)
+
+    # second test- second kweek #
+
+    query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
+    data = ('01-01-2010', 'test2', None, 'hagar', kid1)
+    db_manager.execute_query_no_return(query, data)
+    kid2 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
+
+    query: str = """INSERT INTO HASHTAG(TEXT) VALUES (%s) """
+    data = ('hashtag2',)
+    db_manager.execute_query_no_return(query, data)
+
+    query: str = """SELECT ID FROM HASHTAG WHERE TEXT = %s """
+    data = ('hashtag2',)
+    hid2 = db_manager.execute_query(query, data)[0]['id']
+
+    query: str = """INSERT INTO KWEEK_HASHTAG VALUES (%s,%s,%s,%s)"""
+    data = (kid2, hid2, 0, 9,)
+    db_manager.execute_query_no_return(query, data)
+
+    # second test- third kweek #
+
+    query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
+    data = ('01-01-2010', 'test2', None, 'hagar', None)
+    db_manager.execute_query_no_return(query, data)
+    kid3 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
+
+    query: str = """INSERT INTO HASHTAG(TEXT) VALUES (%s) """
+    data = ('hashtag2',)
+    db_manager.execute_query_no_return(query, data)
+
+    query: str = """SELECT ID FROM HASHTAG WHERE TEXT = %s """
+    data = ('hashtag2',)
+    hid3 = db_manager.execute_query(query, data)[0]['id']
+
+    query: str = """INSERT INTO KWEEK_HASHTAG VALUES (%s,%s,%s,%s)"""
+    data = (kid3, hid3, 0, 9,)
+    db_manager.execute_query_no_return(query, data)
+
+    actions.delete_kweek(kid1, 'hagar')
+
+    query: str = """SELECT * FROM KWEEK WHERE  ID= %s"""
+    data = (kid1,)
+    response = db_manager.execute_query(query, data)
+    assert response == []
+
+    query: str = """SELECT TEXT FROM HASHTAG  WHERE TEXT= %s"""
+    data = ('hashtag2',)
+    response = db_manager.execute_query(query, data)
+    assert response != []
+
+    # third test - first kweek #
+
+    query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
+    data = ('01-01-2010', 'test3', None, 'hagar', None)
+    db_manager.execute_query_no_return(query, data)
+    kid1 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
+
+    query: str = """INSERT INTO HASHTAG(TEXT) VALUES (%s) """
+    data = ('hashtag3',)
+    db_manager.execute_query_no_return(query, data)
+
+    query: str = """SELECT ID FROM HASHTAG WHERE TEXT = %s """
+    data = ('hashtag3',)
+    hid1 = db_manager.execute_query(query, data)[0]['id']
+
+    query: str = """INSERT INTO KWEEK_HASHTAG VALUES (%s,%s,%s,%s)"""
+    data = (kid1, hid1, 0, 9,)
+    db_manager.execute_query_no_return(query, data)
+
+    # third test- second kweek #
+
+    query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
+    data = ('01-01-2010', 'test3', None, 'hagar', kid1)
+    db_manager.execute_query_no_return(query, data)
+    kid2 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
+
+    query: str = """INSERT INTO HASHTAG(TEXT) VALUES (%s) """
+    data = ('hashtag3',)
+    db_manager.execute_query_no_return(query, data)
+
+    query: str = """SELECT ID FROM HASHTAG WHERE TEXT = %s """
+    data = ('hashtag3',)
+    hid2 = db_manager.execute_query(query, data)[0]['id']
+
+    query: str = """INSERT INTO KWEEK_HASHTAG VALUES (%s,%s,%s,%s)"""
+    data = (kid2, hid2, 0, 9,)
+    db_manager.execute_query_no_return(query, data)
+
+    actions.delete_kweek(kid1, 'hagar')
+
+    query: str = """SELECT * FROM KWEEK WHERE  ID= %s"""
+    data = (kid1,)
+    response = db_manager.execute_query(query, data)
+    assert response == []
+
+    query: str = """SELECT TEXT FROM HASHTAG  WHERE TEXT= %s"""
+    data = ('hashtag3',)
+    response = db_manager.execute_query(query, data)
+    assert response == []
+
+
+    # fourth test- first kweek #
+
+    query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
+    data = ('01-01-2010', 'test4', None, 'hagar', None)
+    db_manager.execute_query_no_return(query, data)
+    kid1 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
+
+    query: str = """INSERT INTO HASHTAG(TEXT) VALUES (%s) """
+    data = ('hashtag4',)
+    db_manager.execute_query_no_return(query, data)
+
+    query: str = """SELECT ID FROM HASHTAG WHERE TEXT = %s """
+    data = ('hashtag4',)
+    hid1 = db_manager.execute_query(query, data)[0]['id']
+
+    query: str = """INSERT INTO KWEEK_HASHTAG VALUES (%s,%s,%s,%s)"""
+    data = (kid1, hid1, 0, 9,)
+    db_manager.execute_query_no_return(query, data)
+
+    # fourth test- second kweek #
+
+    query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
+    data = ('01-01-2010', 'test4', None, 'test_user1', kid1)
+    db_manager.execute_query_no_return(query, data)
+    kid2 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
+
+    query: str = """INSERT INTO HASHTAG(TEXT) VALUES (%s) """
+    data = ('hashtag4',)
+    db_manager.execute_query_no_return(query, data)
+
+    query: str = """SELECT ID FROM HASHTAG WHERE TEXT = %s """
+    data = ('hashtag4',)
+    hid2 = db_manager.execute_query(query, data)[0]['id']
+
+    query: str = """INSERT INTO KWEEK_HASHTAG VALUES (%s,%s,%s,%s)"""
+    data = (kid2, hid2, 0, 9,)
+    db_manager.execute_query_no_return(query, data)
+
+    actions.delete_kweek(kid2, 'hagar')
+
+    query: str = """SELECT * FROM KWEEK WHERE  ID= %s"""
+    data = (kid2,)
+    response = db_manager.execute_query(query, data)
+    assert response == []
+
+    # fifth test- first kweek #
+
+    query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
+    data = ('01-01-2010', 'test5', None, 'hagar', None)
+    db_manager.execute_query_no_return(query, data)
+    kid1 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
+
+    query: str = """INSERT INTO HASHTAG(TEXT) VALUES (%s) """
+    data = ('hashtag5',)
+    db_manager.execute_query_no_return(query, data)
+
+    query: str = """SELECT ID FROM HASHTAG WHERE TEXT = %s """
+    data = ('hashtag5',)
+    hid1 = db_manager.execute_query(query, data)[0]['id']
+
+    query: str = """INSERT INTO KWEEK_HASHTAG VALUES (%s,%s,%s,%s)"""
+    data = (kid1, hid1, 0, 9,)
+    db_manager.execute_query_no_return(query, data)
+
+    # fifth test- second kweek #
+
+    query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
+    data = ('01-01-2010', 'test5', None, 'test_user1', kid1)
+    db_manager.execute_query_no_return(query, data)
+    kid2 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
+
+    query: str = """INSERT INTO HASHTAG(TEXT) VALUES (%s) """
+    data = ('hashtag5',)
+    db_manager.execute_query_no_return(query, data)
+
+    query: str = """SELECT ID FROM HASHTAG WHERE TEXT = %s """
+    data = ('hashtag5',)
+    hid2 = db_manager.execute_query(query, data)[0]['id']
+
+    query: str = """INSERT INTO KWEEK_HASHTAG VALUES (%s,%s,%s,%s)"""
+    data = (kid2, hid2, 0, 9,)
+    db_manager.execute_query_no_return(query, data)
+
+    actions.delete_kweek(kid2, 'test_user2')
+
+    query: str = """SELECT * FROM KWEEK WHERE  ID= %s"""
+    data = (kid2,)
+    response = db_manager.execute_query(query, data)
+    assert response != []
+
+
+#                   test get kweek              #
+
+
+def test_get_kweek():
+
+    # first kweek #
+
+    query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
+    data = ('01-01-2010', 'test1', None, 'test_user1', None)
+    db_manager.execute_query_no_return(query, data)
+    kid1 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
+
+    query: str = """INSERT INTO HASHTAG(TEXT) VALUES (%s) """
+    data = ('hashtag1',)
+    db_manager.execute_query_no_return(query, data)
+
+    query: str = """SELECT ID FROM HASHTAG WHERE TEXT = %s """
+    data = ('hashtag1',)
+    hid1 = db_manager.execute_query(query, data)[0]['id']
+
+    query: str = """INSERT INTO KWEEK_HASHTAG VALUES (%s,%s,%s,%s)"""
+    data = (kid1, hid1, 0, 9,)
+    db_manager.execute_query_no_return(query, data)
+
+    query: str = """INSERT INTO MENTION VALUES(%s,%s,%s,%s) """
+    data = (kid1, 'test_user2', 10, 15)
+
+    query: str = """INSERT INTO REKWEEK VALUES(%s,%s,%s) """
+    data = ('test_user2', kid1, '01-01-2010')
+
+    query: str = """INSERT INTO FAVORITE VALUES(%s,%s,%s) """
+    data = ('test_user2', kid1, '01-01-2010')
+
+    # second kweek #
+
+    query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
+    data = ('01-01-2010', 'test2', None, 'test_user3', kid1)
+    db_manager.execute_query_no_return(query, data)
+    kid2 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
+
+    query: str = """INSERT INTO HASHTAG(TEXT) VALUES (%s) """
+    data = ('hashtag2',)
+    db_manager.execute_query_no_return(query, data)
+
+    query: str = """SELECT ID FROM HASHTAG WHERE TEXT = %s """
+    data = ('hashtag2',)
+    hid2 = db_manager.execute_query(query, data)[0]['id']
+
+    query: str = """INSERT INTO KWEEK_HASHTAG VALUES (%s,%s,%s,%s)"""
+    data = (kid2, hid2, 0, 9,)
+    db_manager.execute_query_no_return(query, data)
+
+    query: str = """INSERT INTO FAVORITE VALUES(%s,%s,%s) """
+    data = ('test_user1', kid2, '01-01-2010')
+
+    # third kweek #
+
+    query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
+    data = ('01-01-2010', 'test3', None, 'test_user1', kid1)
+    db_manager.execute_query_no_return(query, data)
+    kid3 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
+
+    query: str = """INSERT INTO HASHTAG(TEXT) VALUES (%s) """
+    data = ('hashtag3',)
+    db_manager.execute_query_no_return(query, data)
+
+    query: str = """SELECT ID FROM HASHTAG WHERE TEXT = %s """
+    data = ('hashtag3',)
+    hid3 = db_manager.execute_query(query, data)[0]['id']
+
+    query: str = """INSERT INTO KWEEK_HASHTAG VALUES (%s,%s,%s,%s)"""
+    data = (kid3, hid3, 0, 9,)
+    db_manager.execute_query_no_return(query, data)
+
+    query: str = """INSERT INTO FAVORITE VALUES(%s,%s,%s) """
+    data = ('test_user3', kid3, '01-01-2010')
+
+    # first output #
+    kweek_test1 = Kweek({
+        'id': kid1,
+        'created_at': '01-01-2010',
+        'text': 'test1',
+        'media_url': None,
+        'user': User({
+            'username': 'test_user1',
+            'screen_name': 'test1',
+            'profile_image_url': 'image_url',
+            'following': False,
+            'follows_you': False,
+            'muted': False,
+            'blocked': False
+        }),
+        'mentions': [
+            Mention({
+                'username': 'test_user1',
+                'indices': [10, 16]}),
+            Mention({
+                'username': 'test_user2',
+                'indices': [18, 20]},
+            )
+        ],
+        'hashtags': [
+            Hashtag({
+                'text': '#moon',
+                'indices': [10, 16],
+                'id': 0
+            })
+        ],
+        'number_of_likes': 0,
+        'number_of_rekweeks': 0,
+        'number_of_replies': 0,
+        'reply_to': None,
+        'rekweek_info': None,
+        'liked_by_user': False,
+        'rekweeked_by_user': False
+    })
