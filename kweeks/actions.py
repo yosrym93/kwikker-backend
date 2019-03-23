@@ -145,7 +145,6 @@ def extract_mentions_hashtags(text):
                 else:
                     continue
                 hashtag_text = text[hashtag_indices_list[0]:hashtag_indices_list[1]]
-                print(hashtag_text)
                 hashtag = {'indices': hashtag_indices_list, 'text': hashtag_text, 'id': 0}
                 hashtags.append(Hashtag(hashtag))
                 break
@@ -164,7 +163,6 @@ def extract_mentions_hashtags(text):
                 mentions.append(Mention(mention))
                 break
         i += 1
-    print(hashtags, mentions)
 
     return hashtags, mentions  # lists of objects
 ########################################################################################################################
@@ -239,7 +237,8 @@ def get_kweek(kid, authorized_username):
 
                    *Returns:*
                        -*Tuple*: {
-                                    | *check (bool)*: To indicate whether kweek credentials creation was successful or not.,
+                                    | *check (bool)*: To indicate whether kweek credentials creation
+                                    was successful or not.,
                                     | *message (str)*: To specify the reason of failure if detected.
                                     | *kweekobj (kweek object )*: the kweek to be retrieved,
                                     | *replies (list of int )*: Ids of  the replies to the retrieved kweek .
@@ -352,7 +351,8 @@ def get_kweek_with_replies(kid, username):
 
                        *Returns:*
                            -*Tuple*: {
-                                    | *check (bool)*: To indicate whether kweek credentials creation was successful or not.,
+                                    | *check (bool)*: To indicate whether kweek credentials creation was
+                                    successful or not.,
                                     | *message (str)*: To specify the reason of failure if detected.
                                     | *kweekobj (kweek object )*: the kweek to be retrieved,
                                     | *replies (list of kweek objects )*: replies of the retrieved kweek .

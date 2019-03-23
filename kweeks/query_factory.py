@@ -35,7 +35,6 @@ def add_kweek_hashtag(hid, kid, hash_obj: Hashtag):
     db_manager.execute_query_no_return(query, data)
 
 
-
 def create_hashtag(hash_obj: Hashtag):
     query: str = """INSERT INTO HASHTAG(TEXT) VALUES (%s) """
     data = (hash_obj.text,)
@@ -43,8 +42,9 @@ def create_hashtag(hash_obj: Hashtag):
 
 
 def check_kweek_writer(kid, authorized_username):
-    query: str = """SELECT * FROM KWEEK WHERE ID =%s AND USERNAME = %s  """
-    data = (kid, authorized_username)
+    query: str = """SELECT * FROM KWEEK REPLY JOIN KWEEK POST ON REPLY.REPLY_TO = POST.ID 
+     WHERE POST.USERNAME =%s AND REPLY.ID= %s  """
+    data = (authorized_username, kid)
     response = db_manager.execute_query(query, data)
     return response
 
@@ -54,6 +54,7 @@ def check_existing_hashtag(hashtag: Hashtag):
     data = (hashtag.text,)
     response = db_manager.execute_query(query, data)
     return response
+
 
 def check_kweek_mention(kid, ment: Mention):
     query: str = """SELECT COUNT(*) FROM MENTION WHERE KWEEK_ID =%s AND USERNAME =%s """
