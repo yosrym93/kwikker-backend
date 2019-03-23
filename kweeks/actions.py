@@ -4,7 +4,7 @@ from models import Kweek, Hashtag, Mention, User
 from kweeks.query_factory import add_kweek, delete_main_kweek, retrieve_hashtags, retrieve_mentions, retrieve_replies,\
     retrieve_rekweeks, retrieve_user, retrieve_likers, check_following, check_blocked,\
     check_muted, retrieve_kweek, get_user, add_kweek_hashtag, create_mention, create_hashtag, check_existing_hashtag, \
-    get_kweek_id, update_hashtag, validate_id, check_kweek_writer
+    get_kweek_id, update_hashtag, validate_id, check_kweek_writer, check_kweek_mention
 
 
 def create_kweek(request, authorized_username):
@@ -103,6 +103,9 @@ def insert_kweek(kweek: Kweek):
         add_kweek_hashtag(hid, kid, hash_obj)
 
     for ment in kweek.mentions:
+        existed = check_kweek_mention(kid, ment)[0]['count']
+        if existed != 0:
+            return False, 'Repeated mention in the same kweek'
         response = create_mention(kid, ment)
         if response is not None:
             return False, 'the user mentioned does not exist in the database '
@@ -142,6 +145,7 @@ def extract_mentions_hashtags(text):
                 else:
                     continue
                 hashtag_text = text[hashtag_indices_list[0]:hashtag_indices_list[1]]
+                print(hashtag_text)
                 hashtag = {'indices': hashtag_indices_list, 'text': hashtag_text, 'id': 0}
                 hashtags.append(Hashtag(hashtag))
                 break
@@ -160,6 +164,8 @@ def extract_mentions_hashtags(text):
                 mentions.append(Mention(mention))
                 break
         i += 1
+    print(hashtags, mentions)
+
     return hashtags, mentions  # lists of objects
 ########################################################################################################################
 
@@ -188,14 +194,8 @@ def delete_kweek(kid, authorized_username):
     check = check_kweek_writer(kid, authorized_username)
     if not check:
         return False, 'Deletion is not allowed'
-    response = delete_main_kweek(kid)
-    if response is not None:
-        message = 'No such kweek to be deleted'
-        return False, message
-    response = update_hashtag()
-    if response is not None:
-        message = 'db failed'
-        return False, message
+    delete_main_kweek(kid)
+    update_hashtag()
     return True, None
 
 ########################################################################################################################
@@ -221,12 +221,12 @@ def validate_request(kid):
         int(kid)
         check = validate_id(kid)
         if len(check) == 0:
-            message = 'Kweek is not available '
+            message = 'Kweek is not available'
             return False, message
         else:
             return True, 'success'
     except ValueError:
-        return False, 'invalid data type type '
+        return False, 'Invalid data type type'
 
 
 def get_kweek(kid, authorized_username):

@@ -55,6 +55,12 @@ def check_existing_hashtag(hashtag: Hashtag):
     response = db_manager.execute_query(query, data)
     return response
 
+def check_kweek_mention(kid, ment: Mention):
+    query: str = """SELECT COUNT(*) FROM MENTION WHERE KWEEK_ID =%s AND USERNAME =%s """
+    data = (kid, ment.username)
+    response = db_manager.execute_query(query, data)
+    return response
+
 
 ########################################################################################################################
 
@@ -63,8 +69,7 @@ def update_hashtag():
     query: str =\
         """ DELETE FROM HASHTAG WHERE ID NOT IN (SELECT HASHTAG_ID FROM KWEEK_HASHTAG WHERE HASHTAG_ID = ID); """
     data = (id,)
-    response = db_manager.execute_query_no_return(query, data)
-    return response
+    db_manager.execute_query_no_return(query, data)
 
 
 def delete_rekweeks(rid):
@@ -91,9 +96,7 @@ def validate_id(kid):
 def delete_main_kweek(kid):
     query: str = """DELETE FROM KWEEK WHERE ID=%s """
     data = (kid,)
-    response = db_manager.execute_query_no_return(query, data)
-    return response
-
+    db_manager.execute_query_no_return(query, data)
 
 ########################################################################################################################
 
