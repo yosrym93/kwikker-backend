@@ -42,6 +42,13 @@ def create_hashtag(hash_obj: Hashtag):
 
 
 def check_kweek_writer(kid, authorized_username):
+    query: str = """SELECT * FROM KWEEK WHERE USERNAME =%s AND ID= %s  """
+    data = (authorized_username, kid)
+    response = db_manager.execute_query(query, data)
+    return response
+
+
+def check_kweek_owner(kid, authorized_username):
     query: str = """SELECT * FROM KWEEK REPLY JOIN KWEEK POST ON REPLY.REPLY_TO = POST.ID 
      WHERE POST.USERNAME =%s AND REPLY.ID= %s  """
     data = (authorized_username, kid)

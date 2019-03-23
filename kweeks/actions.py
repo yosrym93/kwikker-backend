@@ -4,7 +4,7 @@ from models import Kweek, Hashtag, Mention, User
 from kweeks.query_factory import add_kweek, delete_main_kweek, retrieve_hashtags, retrieve_mentions, retrieve_replies,\
     retrieve_rekweeks, retrieve_user, retrieve_likers, check_following, check_blocked,\
     check_muted, retrieve_kweek, get_user, add_kweek_hashtag, create_mention, create_hashtag, check_existing_hashtag, \
-    get_kweek_id, update_hashtag, validate_id, check_kweek_writer, check_kweek_mention
+    get_kweek_id, update_hashtag, validate_id, check_kweek_writer, check_kweek_mention, check_kweek_owner
 
 
 def create_kweek(request, authorized_username):
@@ -191,7 +191,9 @@ def delete_kweek(kid, authorized_username):
         return check, message
     check = check_kweek_writer(kid, authorized_username)
     if not check:
-        return False, 'Deletion is not allowed'
+        check = check_kweek_owner(kid, authorized_username)
+        if not check:
+            return False, 'Deletion is not allowed'
     delete_main_kweek(kid)
     update_hashtag()
     return True, None
