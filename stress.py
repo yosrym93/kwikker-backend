@@ -53,6 +53,11 @@ class UserBehavior(TaskSet):
         else:
             self.client.post("/kweeks/", json = {"text": "Hi Kweek", "reply_to": None}, headers={"TOKEN" : self.token_string})
 
+    @task(1)
+    def notifications(self):
+        self.client.get("/notifications/",headers={"TOKEN": self.token_string})
+
+
 class WebsiteUser(HttpLocust):
     task_set = UserBehavior
     min_wait = 5000
