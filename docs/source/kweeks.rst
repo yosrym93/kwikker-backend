@@ -1,10 +1,10 @@
-Timelines and Trends
+Kweeks
 ====================
 
 
 Routes
 -------------------------------------
-The routes module contains the API endpoints of the timelines and trends.
+The routes module contains the API endpoints of the kweeks.
 
 .. automodule:: kweeks.routes
 
