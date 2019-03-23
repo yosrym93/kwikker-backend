@@ -1,7 +1,7 @@
 from flask_restplus import Resource, fields, abort
 from flask import request
 from app import create_model
-from models import Kweek, User
+from models import Kweek, User, NullableString
 from kweeks.actions import create_kweek, delete_kweek, get_kweek_with_replies
 import api_namespaces
 from authentication_and_registration.actions import authorize
@@ -13,10 +13,10 @@ kweeks_api = api_namespaces.kweeks_api
 @kweeks_api.route('/')
 class Kweeks(Resource):
     @kweeks_api.expect(create_model('Created Kweek', {
-                                        'kweek_text': fields.String,
-                                        'reply_to': fields.String(description='The id of the kweek that this kweek '
-                                                                              'is a reply to. Null if the kweek is not'
-                                                                              ' a reply.', validate=True)
+                                        'text': fields.String,
+                                        'reply_to': NullableString(description='The id of the kweek that this kweek '
+                                                                               'is a reply to. Null if the kweek is not'
+                                                                               ' a reply.', validate=True)
                                     }))
     @kweeks_api.response(code=401, description='Unauthorized access.')
     @kweeks_api.response(code=201, description='Kweek created successfully.')
@@ -36,13 +36,15 @@ class Kweeks(Resource):
     @kweeks_api.response(code=404, description='Kweek does not exist.')
     @kweeks_api.response(code=401, description='Unauthorized access.')
     @kweeks_api.param(name='id', type='str', description='The id of the Kweek to be deleted.', required=True)
-    @kweeks_api.doc(security ='KwikkerKey')
+    @kweeks_api.doc(security='KwikkerKey')
     @authorize
     def delete(self, authorized_username):
         """
         Delete an existing Kweek.
         """
-        check, message = delete_kweek(request.args.get('id'))
+        if not request.args.get('id'):
+            abort(400, 'please provide the kweek id')
+        check, message = delete_kweek(request.args.get('id'), authorized_username)
         if check:
             return 'success', 201
         else:
@@ -56,11 +58,11 @@ class Kweeks(Resource):
                                                                                         description='Direct replies '
                                                                                                     'of the Kweek'))}))
     @kweeks_api.marshal_with(create_model('Kweek & Replies',
-                                            model={'kweek': fields.Nested(Kweek.api_model,
-                                                                          description='The returned Kweek.'),
-                                                   'replies': fields.List(fields.Nested(Kweek.api_model,
-                                                                                        description='Direct replies '
-                                                                                                    'of the Kweek'))}))
+                                          model={'kweek': fields.Nested(Kweek.api_model,
+                                                                        description='The returned Kweek.'),
+                                                 'replies': fields.List(fields.Nested(Kweek.api_model,
+                                                                                      description='Direct replies '
+                                                                                                  'of the Kweek'))}))
     @kweeks_api.response(code=404, description='Kweek does not exist.')
     @kweeks_api.param(name='id', type='str', description='Id of the Kweek to be retrieved', required=True)
     @kweeks_api.doc(security='KwikkerKey')
@@ -69,16 +71,19 @@ class Kweeks(Resource):
         """
         Retrieve a Kweek with its replies.
         """
-        check, message, response1, response2 = get_kweek_with_replies(request.args.get('id'), authorized_username)
-        print(response1,response2)
+        if not request.args.get('id'):
+            abort(400, 'please provide the kweek id')
+        check, message, kweek_obj, replies_obj_list =\
+            get_kweek_with_replies(request.args.get('id'), authorized_username)
+        print(kweek_obj, replies_obj_list)
         if check:
-            print(response1, response2)
+            print(kweek_obj, replies_obj_list)
             return {
-                'kweek': response1,
-                'replies': response2
+                'kweek': kweek_obj,
+                'replies': replies_obj_list
             }
         else:
-            abort(401, message)
+            abort(404, message)
 
 
 @kweeks_api.route('/replies')
