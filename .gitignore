@@ -8,4 +8,3 @@ docs/build/
 images/ banner/**
 images/profile/**
 .coverage
-**/.pytest_cache/

@@ -1,7 +1,7 @@
 from datetime import date, datetime
+
 import pytest
-import os
-import shutil
+
 from database_manager import db_manager
 from models import UserProfile
 from . import actions
@@ -77,9 +77,7 @@ db_manager.initialize_connection('kwikker', 'postgres', 'k')
                                                              "follows_you": False,
                                                              "blocked": False,
                                                              "muted": False
-                                                             })),
-                             ('omar', 'k', -1),
-                             ('khaled', None, - 1)
+                                                             }))
                          ]
                          )
 def test_get_user_profile(test_authorized_username, test_username, expected_output):
@@ -103,48 +101,30 @@ def test_update_user_profile(test_authorized_username, test_bio, test_screen_nam
     assert output == expected_output
 
 
-"""
-@pytest.mark.parametrize("test_file,test_authorized_username,expected_output",
-                         ['file', 'khaled', 'http://127.0.0.1:5000/user/upload/picture/khaledprofile.jpg')])
+"""@pytest.mark.parametrize("test_file,test_authorized_username,expected_output",
+                         [(file, 'khaled', 'http://127.0.0.1:5000/user/upload/picture/khaledprofile.jpg')])
 def test_update_profile_picture(test_file, test_authorized_username, expected_output):
     output = actions.update_profile_picture(test_file, test_authorized_username)
     assert output == expected_output
 """
 
 
-@pytest.mark.name
 @pytest.mark.parametrize("test_authorized_username,expected_output",
                          [
-                             ('khaled', 'http://127.0.0.1:5000/user/upload/picture/profile.jpg'),
-                             ('amr', 'default image'),
-                             ('omar', 'file does not exist')
-
+                             ('omar', 'http://127.0.0.1:5000/user/upload/picture/profile.jpg'),
+                             ('omar', 'default image')
                          ])
 def test_delete_profile_picture(test_authorized_username, expected_output):
-    if test_authorized_username == 'khaled':
-        path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        source_profile = path + '/images/test/khaledprofile.jpg'
-        destination_profile = path + '/images/profile'
-        os.chdir(os.path.dirname(path))
-        shutil.copy(source_profile, destination_profile)
     output = actions.delete_profile_picture(test_authorized_username)
     assert output == expected_output
 
 
-@pytest.mark.name
 @pytest.mark.parametrize("test_authorized_username,expected_output",
                          [
-                             ('khaled', 'http://127.0.0.1:5000/user/upload/banner/banner.png'),
-                             ('amr', 'default image'),
-                             ('omar', 'file does not exist')
+                             ('omar', 'http://127.0.0.1:5000/user/upload/banner/banner.png'),
+                             ('omar', 'default image')
                          ])
 def test_delete_profile_banner(test_authorized_username, expected_output):
-    if test_authorized_username == 'khaled':
-        path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        source_banner = path + '/images/test/khaledbanner.jpg'
-        destination_banner = path + '/images/ banner'
-        os.chdir(os.path.dirname(path))
-        shutil.copy(source_banner, destination_banner)
     output = actions.delete_banner_picture(test_authorized_username)
     assert output == expected_output
 

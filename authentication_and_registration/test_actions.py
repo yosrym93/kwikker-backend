@@ -14,17 +14,17 @@ pytest -v --capture=no => to see functions print for test cases
 
 
 def test_create_token():
-    token = actions.create_token('milan')
+    token = actions.create_token('amr')
     answer = jwt.decode(token, secret_key, algorithms=['HS256'])
     print(answer)
-    assert answer['username'] == 'milan'
+    assert answer['username'] == 'amr'
 
 
 @pytest.mark.parametrize("test_username, test_password, expected_output",
                          [
-                             ('milan', 'acm', True),
-                             ('mil', 'acm', False),
-                             ('milan', 'a', False)
+                             ('amr', 'amrrr', True),
+                             ('am', 'amrrr', False),
+                             ('amr', 'a', False)
                          ]
                          )
 def test_verify(test_username, test_password, expected_output):
