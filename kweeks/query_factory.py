@@ -153,7 +153,7 @@ def check_kweek_mention(kid, ment: Mention):
 
                    *Parameters*:
                        - *ment(object)*: The mention object to be checked.
-                       - *kid *: The id of the kweek to be checked.
+                       - *kid*: The id of the kweek to be checked.
 
 
                    *Returns*:
@@ -174,7 +174,6 @@ def update_hashtag():
                    Query to delete the hashtag form the hashtag table if it was the last one in the kweek_hashtag table.
 
     """
-
 
     query: str =\
         """ DELETE FROM HASHTAG WHERE ID NOT IN (SELECT HASHTAG_ID FROM KWEEK_HASHTAG WHERE HASHTAG_ID = ID); """
@@ -214,7 +213,6 @@ def validate_id(kid):
 
                    *Parameters*:
                        - *kid*: The id of the kweek to be checked.
-                        *Returns*:
 
                    *Returns*:
                        -*response*: A tuple the kweek to indicate whether valid or not.

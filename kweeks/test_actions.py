@@ -4,7 +4,7 @@ from database_manager import db_manager
 from models import User, Mention, Hashtag, Kweek, RekweekInfo
 from datetime import datetime
 
-db_manager.initialize_connection('kwikker', 'postgres', '8949649')
+db_manager.initialize_connection('kwikker', 'postgres', '')
 
 
 def test_insert_kweek():
@@ -139,17 +139,22 @@ def test_insert_kweek():
                              ('test_user1', {
                                  'text': "#first tweet",
                                  'reply_to': str(db_manager.execute_query
-                                                     ("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
+                                                 ("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
                              }, (True, 'success')),
                              ('test_user1', {
                                  'text': "",
                                  'reply_to': str(db_manager.execute_query
-                                                     ("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
+                                                 ("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
                              }, (False, 'No text body found')),
                              ('test_user1', {
                                  'text': "  ",
                                  'reply_to': "ahmed"
                              }, (False, 'Not valid id')),
+                             ('test_user1', {
+                                 'text': "  ",
+                                 'reply_to': str(db_manager.execute_query
+                                                 ("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
+                             }, (False, 'No text body found'))
 
                          ])
 def test_create_kweek(authorized_username, request_kweek, expected_output):
@@ -196,7 +201,7 @@ def test_extract_mentions_hashtags(text, expected_hashtags, expected_mentions):
 
 @pytest.mark.parametrize("parameter, expected_output",
                          [
-                             ('265000',
+                             ('-1',
                               (False, 'Kweek is not available')),
                              (str(db_manager.execute_query
                                       ("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id']),

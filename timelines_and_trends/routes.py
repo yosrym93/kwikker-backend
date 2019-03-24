@@ -43,7 +43,10 @@ class ProfileTimeline(Resource):
     def get(self, authorized_username):
         """ Retrieves a list of kweeks in the profile of a user. """
         authorized_username = authorized_username
-        required_username = request.args.get('username')
+        if 'username' in request.args.keys():
+            required_username = request.args.get('username')
+        else:
+            abort(404, message='No username was sent.')
         last_retrieved_kweek_id = request.args.get('last_retrieved_kweek_id')
         if not actions.is_user(required_username):
             abort(404, message='A user with this username does not exist.')
