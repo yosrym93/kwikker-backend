@@ -40,12 +40,6 @@ def create_kweek(request, authorized_username):
 
     # check if str and have a length of minimum one char and is not fully  white space
 
-    reply_to = request["reply_to"]
-    if reply_to or reply_to == 0:
-        check = validate_id(reply_to)
-        if len(check) == 0:
-            return False, 'Kweek does not exist '
-
     hashtags, mentions = extract_mentions_hashtags(text)  # two lists of objects
     partial_user = get_user(authorized_username)
     if len(partial_user) == 0:
@@ -245,7 +239,6 @@ def get_kweek(kid, authorized_username):
                                     | *kweekobj (kweek object )*: the kweek to be retrieved,
                                     | *replies (list of int )*: Ids of  the replies to the retrieved kweek .
                                     | }
-
     """
     check, message = validate_request(kid)
     if not check:
@@ -253,7 +246,7 @@ def get_kweek(kid, authorized_username):
     hashtags = retrieve_hashtags(kid)  # rows of hahstag-kweek table (*)
     mentions = retrieve_mentions(kid)  # rows of mention table (*)
     replies = retrieve_replies(kid)  # rows of kweek table who is set as a reply yo the retrieved kweek (ids)
-    rekweeks = retrieve_rekweeks(kid)  # rows of rekweeker table for those who rekweek the kweek (usernames)
+    rekweeks = retrieve_rekweeks(kid)
     likers = retrieve_likers(kid)  # rows of likers table for those who liked the kweek (usernames)
     user = retrieve_user(kid)  # row of user profile table fo the user who wrote the kweek (*)
     hashtags_list = []  # list of hashtag objects
@@ -298,12 +291,12 @@ def get_kweek(kid, authorized_username):
         else:
             extrauser['follows_you'] = False
 
-        check = check_blocked(me, user['username'])
+        check = check_blocked(user['username'], me)
         if check:
             extrauser['blocked'] = True
         else:
             extrauser['blocked'] = False
-        check = check_muted(me, user['username'])
+        check = check_muted(user['username'], me)
         if check:
             extrauser['muted'] = True
         else:

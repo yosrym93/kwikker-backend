@@ -208,7 +208,6 @@ def delete_likes(lid):
     db_manager.execute_query_no_return(query, data)
 
 
-
 def validate_id(kid):
     """
                    Query to check if a kweek id is valid or not .
@@ -284,6 +283,7 @@ def retrieve_mentions(kid: int):
     data = (kid,)
     response = db_manager.execute_query(query, data)
     return response
+    print(response)
 
 
 def retrieve_replies(kid):
