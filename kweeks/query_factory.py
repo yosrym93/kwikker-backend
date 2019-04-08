@@ -1,5 +1,6 @@
 import database_manager
 from models import Kweek, Hashtag, Mention
+from datetime import datetime
 db_manager = database_manager.db_manager
 
 
@@ -194,16 +195,17 @@ def delete_rekweeks(rid):
     db_manager.execute_query_no_return(query, data)
 
 
-def delete_likes(lid):
+def delete_like(lid, authorized_username):
     """
                    Query to delete the likes for a particular kweek.
 
                    *Parameters*:
                        - *lid*: The id of the kweek to be liked.
+                       - *authorized_username(string)*: The user currently logged in.
 
     """
-    query: str = """DELETE FROM FAVORITE WHERE KWEEK_ID=%s """
-    data = (lid,)
+    query: str = """DELETE FROM FAVORITE WHERE KWEEK_ID=%s AND USERNAME=%s"""
+    data = (lid, authorized_username)
     db_manager.execute_query_no_return(query, data)
 
 
@@ -302,57 +304,30 @@ def retrieve_replies(kid):
     return response
 
 
-def retrieve_rekweeks(kid):
-    """
-                   Gets the rekweeks for a given kweek.
-
-
-                   *Parameters:*
-                       - *kid*: The id of the kweek.
-
-                   *Returns:*
-                       - *response*: A list of dictionaries of rekweeks.
-
-    """
-    query: str = """SELECT * FROM REKWEEK WHERE  KWEEK_ID= %s"""
-    data = (kid,)
-    response = db_manager.execute_query(query, data)
-    return response
-
-
-def retrieve_likers(kid):
-    """
-                   Gets the likers of a given kweek.
-
-
-                   *Parameters:*
-                       - *kid*: The id of the kweek.
-
-                   *Returns:*
-                       - *response*: A list of dictionaries of usernames of users.
-
-    """
-    query: str = """SELECT USERNAME FROM FAVORITE WHERE  KWEEK_ID= %s"""
-    data = (kid,)
-    response = db_manager.execute_query(query, data)
-    return response
-
-
-def retrieve_user(kid):
+def retrieve_user(kweek_id, num):
     """
                    Gets the profile of the writer for a given kweek .
 
 
                    *Parameters:*
                        - *kid*: The id of the kweek.
+                       - *number*: the number of the query to be executed, .
 
                    *Returns:*
                        - *response*: A list of dictionary of the user tuple .
 
     """
-    query: str = """SELECT * FROM PROFILE WHERE USERNAME IN (SELECT USERNAME FROM KWEEK WHERE ID=%s)"""
-    data = (kid,)
-    response = db_manager.execute_query(query, data)
+    query1: str = """SELECT * FROM PROFILE WHERE USERNAME IN (SELECT USERNAME FROM KWEEK WHERE ID=%s)"""
+    query2: str = """SELECT * FROM PROFILE WHERE USERNAME = (SELECT USERNAME FROM FAVORITE WHERE  KWEEK_ID= %s)"""
+    query3: str = """SELECT * FROM PROFILE WHERE USERNAME = (SELECT USERNAME FROM REKWEEK WHERE  KWEEK_ID= %s)"""
+    data = (kweek_id,)
+    if num == 1:
+        response = db_manager.execute_query(query1, data)
+    elif num == 2:
+        response = db_manager.execute_query(query2, data)
+    elif num == 3:
+        response = db_manager.execute_query(query3, data)
+
     return response
 
 
@@ -429,3 +404,69 @@ def retrieve_kweek(kid):
     data = (kid,)
     response = db_manager.execute_query(query, data)
     return response
+
+
+def add_rekweek(kweek_id, authorized_username):
+    """
+                   Query to insert rekweek into the data base.
+
+                   *Parameters*:
+                       - *kweek_id (string)*: The kweek id to be rekweeked.
+                       - *authorized_username(string)*: The user currently logged in.
+
+    """
+    query: str = """INSERT INTO  REKWEEK (USERNAME,KWEEK_ID,CREATED_AT) VALUES(%s,%s,%s) """
+    data = (authorized_username, kweek_id, datetime.utcnow() )
+    db_manager.execute_query_no_return(query, data)
+
+def check_kweek_rekweeker(kid, authorized_username):
+    """
+                  Query to get the user if it was the writer of a particular kweek .
+
+                  *Parameters*:
+                      - *kid*: The id of the kweek to be checked.
+                      - *authorized_username(string)*: The user currently logged in.
+
+                  *Returns*:
+                      - *response*: A list of dictionary containing the rekweek tuple   .
+
+        """
+
+    query: str = """SELECT * FROM REKWEEK WHERE USERNAME =%s AND KWEEK_ID= %s  """
+    data = (authorized_username, kid)
+    response = db_manager.execute_query(query, data)
+    return response
+
+
+def check_kweek_liker(kid, authorized_username):
+    """
+                  Query to get the user have liked a particular kweek .
+
+                  *Parameters*:
+                      - *kid*: The id of the kweek to be checked.
+                      - *authorized_username(string)*: The user currently logged in.
+
+                  *Returns*:
+                      - *response*: A list of dictionary containing a favorite tuple   .
+
+        """
+
+    query: str = """SELECT * FROM FAVORITE WHERE USERNAME =%s AND KWEEK_ID= %s  """
+    data = (authorized_username, kid)
+    response = db_manager.execute_query(query, data)
+    return response
+
+
+def add_like(kweek_id, authorized_username):
+    """
+                      Query to update likes of a kweek .
+
+                      *Parameters*:
+                          - *kweek_id (string)*: The kweek id to be rekweeked.
+                          - *authorized_username(string)*: The user currently logged in.
+
+
+       """
+    query: str = """INSERT INTO  FAVORITE (USERNAME,KWEEK_ID,CREATED_AT) VALUES(%s,%s,%s) """
+    data = (authorized_username, kweek_id, datetime.utcnow())
+    db_manager.execute_query_no_return(query, data)

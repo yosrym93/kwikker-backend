@@ -7,7 +7,7 @@ class BaseConfig:
     TESTING = False
     DATABASE_NAME = 'kwikker'
     DATABASE_USERNAME = 'postgres'
-    DATABASE_PASSWORD = '1234'
+    DATABASE_PASSWORD = '8949649'
     MIGRATIONS_DATABASE_NAME = 'migrations'
 
 
