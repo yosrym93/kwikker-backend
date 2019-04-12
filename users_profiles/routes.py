@@ -21,11 +21,23 @@ class UsersSearch(Resource):
     @search_api.param(name='last_retrieved_username', type='str',
                       description="Nullable. Normally the request returns the first 20 users when null."
                                   "To retrieve more send the username of the last user retrieved.")
+    @search_api.marshal_with(User.api_model, as_list=True)
     @search_api.doc(security='KwikkerKey')
     @authorize
     def get(self, authorized_username):
         """ Search for matching users using their username or screen name (or part of them). """
-        pass
+        search_key = request.args.get('search_text')
+        username = request.args.get('last_retrieved_username')
+
+        try:
+            response = actions.search_user(authorized_username, search_key, username)
+            if response is None:
+                abort(404, message='A user with the provided username does not exist.')
+            return response, 200
+        except TypeError:
+            abort(500, message='An error occurred in the server.')
+        except ValueError:
+            abort(400, 'Invalid Username provided.')
 
 
 @user_api.route('/profile_banner')
@@ -206,3 +218,5 @@ class ChangePassword(Resource):
     def put(self, authorized_username):
         """ Update password of the authorized user. """
         pass
+
+

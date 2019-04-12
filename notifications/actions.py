@@ -2,6 +2,7 @@ from . import query_factory
 import datetime
 from models import Notification
 from timelines_and_trends import actions
+from direct_messages import actions as action
 
 
 def get_notifications(notified_username, last_notification_retrieved_id=None):
@@ -37,6 +38,7 @@ def get_notifications(notified_username, last_notification_retrieved_id=None):
     if len(notifications) == 0:
         return notification_list
     for notification in notifications:
+        notification['created_at'] = action.change_time(notification['created_at'])
         notification_list.append(Notification(notification))
     return notification_list
 
