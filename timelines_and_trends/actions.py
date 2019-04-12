@@ -164,6 +164,111 @@ def get_profile_kweeks(authorized_username, required_username, last_retrieved_kw
     return kweeks
 
 
+def get_home_kweeks(authorized_username, last_retrieved_kweek_id):
+    """
+        Gets the kweeks that should appear on the authorized user's home timeline.
+
+
+        *Parameters:*
+            - *authorized_username (string)*: The username of the authorized user.
+
+        *Returns:*
+            - *List of models.Kweek objects*
+    """
+    if last_retrieved_kweek_id is not None:
+        try:
+            last_retrieved_kweek_id = int(last_retrieved_kweek_id)
+        except ValueError:
+            raise
+    # Get a list of kweeks with missing data
+    home_kweeks = query_factory.get_home_kweeks(authorized_username=authorized_username)
+    # Paginate the results
+    try:
+        home_kweeks = paginate(dictionaries_list=home_kweeks, required_size=20,
+                               start_after_key='id', start_after_value=last_retrieved_kweek_id)
+    except TypeError as E:
+        print(E)
+        raise
+    if home_kweeks is None:
+        return None
+
+    kweeks = []
+    for kweek in home_kweeks:
+        # Add the user
+        kweek['user'] = get_user(authorized_username=authorized_username,
+                                 required_username=kweek['username'])
+        # Add the statistics
+        kweek_statistics = get_kweek_statistics(authorized_username=authorized_username,
+                                                kweek_id=kweek['id'])
+        kweek.update(kweek_statistics)
+        # Add mentions and hashtags
+        kweek['mentions'] = get_kweek_mentions(kweek['id'])
+        kweek['hashtags'] = get_kweek_hashtags(kweek['id'])
+        # Add rekweek info
+        if kweek['is_rekweek']:
+            rekweeker_username = kweek['rekweeker']
+            rekweeker_name = query_factory.get_user_data(required_username=rekweeker_username)[0].get('screen_name')
+            rekweek_info = RekweekInfo({
+                'rekweeker_name': rekweeker_name,
+                'rekweeker_username': rekweeker_username
+            })
+            kweek['rekweek_info'] = rekweek_info
+        else:
+            kweek['rekweek_info'] = None
+        kweeks.append(Kweek(kweek))
+
+    return kweeks
+
+
+def get_user_liked_kweeks(authorized_username, required_username, last_retrieved_kweek_id):
+    """
+        Gets the kweeks that should appear on the authorized user's home timeline.
+
+
+        *Parameters:*
+            - *authorized_username (string)*: The username of the authorized user.
+            - *required_username (string)*: The username of the user whose liked kweeks are required.
+
+        *Returns:*
+            - *List of models.Kweek objects*
+    """
+    if last_retrieved_kweek_id is not None:
+        try:
+            last_retrieved_kweek_id = int(last_retrieved_kweek_id)
+        except ValueError:
+            raise
+    # Get a list of kweeks with missing data
+    user_liked_kweeks = query_factory.get_user_liked_kweeks(username=required_username)
+    # Paginate the results
+    try:
+        user_liked_kweeks = paginate(dictionaries_list=user_liked_kweeks, required_size=20,
+                                     start_after_key='id', start_after_value=last_retrieved_kweek_id)
+    except TypeError as E:
+        print(E)
+        raise
+    if user_liked_kweeks is None:
+        return None
+
+    kweeks = []
+    for kweek in user_liked_kweeks:
+        # Add the user
+        kweek['user'] = get_user(authorized_username=authorized_username,
+                                 required_username=kweek['username'])
+        # Add the statistics
+        kweek_statistics = get_kweek_statistics(authorized_username=authorized_username,
+                                                kweek_id=kweek['id'])
+        kweek.update(kweek_statistics)
+        # Add mentions and hashtags
+        kweek['mentions'] = get_kweek_mentions(kweek['id'])
+        kweek['hashtags'] = get_kweek_hashtags(kweek['id'])
+        # Add rekweek info (original kweeks appear in user likes, not rekweeks)
+        kweek['rekweek_info'] = None
+
+        kweeks.append(Kweek(kweek))
+
+    return kweeks
+
+
 def is_user(username):
     """
         Checks if a username belongs to an existing user.

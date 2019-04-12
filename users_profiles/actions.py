@@ -1,11 +1,12 @@
 from . import query_factory
 from timelines_and_trends import actions
 from models import UserProfile
+from app import app
 import os
 
 APP_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
-Server_path = 'http://127.0.0.1:5000/'
+Server_path = app.config['SERVER_PATH']
 
 
 def create_url(upload_type, filename):
