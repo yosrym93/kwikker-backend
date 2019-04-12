@@ -65,12 +65,15 @@ def create_notifications(involved_username, notified_username, type_notification
         raise Exception('Involved_username does not exist')
     if actions.is_user(notified_username) is False:
         raise Exception('Notified_username does not exist')
+    if type_notification == 'REPLY' or type_notification == 'MENTION':
+        return query_factory.create_notifications(involved_username, notified_username, type_notification,
+                                                  kweek_id, datetime.datetime.now(), True)
     if type_notification != 'FOLLOW' and type_notification != 'REKWEEK' and type_notification != 'LIKE':
         raise Exception('Type does not exist')
     if is_notification(involved_username, notified_username, type_notification, kweek_id) is True:
         return "already exists"
     return query_factory.create_notifications(involved_username, notified_username, type_notification,
-                                              kweek_id, datetime.datetime.now())
+                                              kweek_id, datetime.datetime.now(), False)
 
 
 # function for testing

@@ -44,7 +44,7 @@ def get_notifications(involved_username):
     return response
 
 
-def create_notifications(involved_username, notified_username, type_notification, kweek_id, created_at):
+def create_notifications(involved_username, notified_username, type_notification, kweek_id, created_at, is_seen):
     """
          This function create a notification in the database.
 
@@ -69,7 +69,7 @@ def create_notifications(involved_username, notified_username, type_notification
                     VALUES (DEFAULT, %s, %s, %s, %s, %s, %s)
                  """
 
-    data = (created_at, notified_username, involved_username, type_notification, kweek_id, False)
+    data = (created_at, notified_username, involved_username, type_notification, kweek_id, is_seen)
     response = db_manager.execute_query_no_return(query, data)
     return response
 
@@ -156,4 +156,3 @@ def is_notification(involved_username, notified_username, type_notification, kwe
                 """
     data = (involved_username, notified_username, type_notification, kweek_id)
     return db_manager.execute_query(query, data)
-
