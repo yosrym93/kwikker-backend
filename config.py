@@ -1,3 +1,9 @@
+"""
+Add your custom configurations to config_local.py
+Configurations on config_local.py overwrite the configurations in this file.
+"""
+
+
 class BaseConfig:
     RESTPLUS_MASK_SWAGGER = False
     SWAGGER_UI_DOC_EXPANSION = 'list'
@@ -6,8 +12,10 @@ class BaseConfig:
     ERROR_404_HELP = False
     TESTING = False
     DATABASE_NAME = 'kwikker'
-    DATABASE_USERNAME = 'postgres'
-    DATABASE_PASSWORD = '8949649'
+    DATABASE_USERNAME = 'kwikker'
+    DATABASE_PASSWORD = '8Av5R7tRNqJSm4sXW23E'
+    DATABASE_HOST = None
+    DATABASE_PORT = 5432
     MIGRATIONS_DATABASE_NAME = 'migrations'
 
 
@@ -19,6 +27,7 @@ class DevelopmentConfig(BaseConfig):
 class ProductionConfig(BaseConfig):
     ENV = 'production'
     DEBUG = False
+    DATABASE_HOST = 'kwikker-database.cxappseoabsy.eu-central-1.rds.amazonaws.com'
 
 
 class TestingConfig(BaseConfig):
@@ -26,6 +35,4 @@ class TestingConfig(BaseConfig):
     DEBUG = False
     TESTING = True
     DATABASE_NAME = 'kwikker_test'
-    DATABASE_USERNAME = 'postgres'
-    DATABASE_PASSWORD = '8949649'
     MIGRATIONS_DATABASE_NAME = 'migrations_test'
