@@ -12,7 +12,7 @@ class DatabaseManager:
     def __init__(self):
         self.connection = None
 
-    def initialize_connection(self, db_name, db_username, db_password):
+    def initialize_connection(self, db_name, db_username, db_password, host, port):
         """
             Initializes the connection to the database.
 
@@ -27,11 +27,19 @@ class DatabaseManager:
                 - *Exception* object: The exception thrown by the database connector if the connection failed.
 
         """
-        # Create the connection string
-        connection_str: str = f"dbname='{db_name}' user='{db_username}' password='{db_password}'"
+        params = {
+            'dbname': db_name,
+            'user': db_username,
+            'password': db_password,
+            'port': port
+        }
+        if host:
+            params.update({
+                'host': host
+            })
         # initialize connection to the database
         try:
-            self.connection = psycopg2.connect(connection_str)
+            self.connection = psycopg2.connect(**params)
         except Exception as E:
             return E
         return None  # meaning everything was okay
