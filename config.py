@@ -9,6 +9,7 @@ class BaseConfig:
     DATABASE_USERNAME = 'postgres'
     DATABASE_PASSWORD = ''
     MIGRATIONS_DATABASE_NAME = 'migrations'
+    SERVER_PATH = 'http://6d5bcddc.ngrok.io/'
 
 
 class DevelopmentConfig(BaseConfig):
