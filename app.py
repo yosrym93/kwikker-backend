@@ -95,7 +95,8 @@ def initialize(env):
     else:
         app.config.from_object(config.DevelopmentConfig)
     app.config.from_pyfile('config_local.py')
-
+    global secret_key
+    secret_key = app.config['SECRET_KEY']
     api_namespaces.initialize_api_namespaces(api=api)
     import_routes()
     return initialize_database()
