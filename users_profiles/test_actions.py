@@ -143,7 +143,7 @@ def test_delete_profile_banner(test_authorized_username, expected_output):
     if test_authorized_username == 'khaled':
         path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         source_banner = path + '/images/test/khaledbanner.jpg'
-        destination_banner = path + '/images/ banner'
+        destination_banner = path + '/images/banner'
         os.chdir(os.path.dirname(path))
         shutil.copy(source_banner, destination_banner)
     output = actions.delete_banner_picture(test_authorized_username)

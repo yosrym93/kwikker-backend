@@ -189,7 +189,7 @@ def update_profile_banner(file, authorized_username):
         images = os.path.join(APP_ROOT, 'images/')
         if not os.path.isdir(images):
             os.mkdir(images)
-        target = os.path.join(APP_ROOT, 'images\ banner/')
+        target = os.path.join(APP_ROOT, 'images\banner/')
 
         if not os.path.isdir(target):
             os.mkdir(target)
@@ -221,7 +221,7 @@ def delete_banner_picture(authorized_username):
     filename = query_factory.get_user_banner_picture(authorized_username)['profile_banner_url']
     if filename == default_filename:
         return 'default image'
-    path = APP_ROOT + '\images\ banner'
+    path = APP_ROOT + '\images\banner'
     response = query_factory.update_user_banner_picture(authorized_username, default_filename)
     if response is None:
         os.chdir(path)
