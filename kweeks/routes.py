@@ -108,7 +108,6 @@ class KweekReplies(Resource):
             abort(404, message)
 
 
-
 @kweeks_api.route('/rekweek')
 class Rekweek(Resource):
     @kweeks_api.expect(create_model('Kweek ID', {
@@ -146,9 +145,6 @@ class Rekweek(Resource):
             return 'success', 201
         else:
             abort(404, message)
-
-
-
 
 
 @kweeks_api.route('/like')
