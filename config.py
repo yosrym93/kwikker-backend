@@ -12,12 +12,12 @@ class BaseConfig:
     ERROR_404_HELP = False
     TESTING = False
     DATABASE_NAME = 'kwikker'
-    DATABASE_USERNAME = 'kwikker'
-    DATABASE_PASSWORD = '8Av5R7tRNqJSm4sXW23E'
+    DATABASE_USERNAME = 'postgres'
+    DATABASE_PASSWORD = ''
     DATABASE_HOST = None
     DATABASE_PORT = 5432
     MIGRATIONS_DATABASE_NAME = 'migrations'
-    SERVER_PATH = 'http://6d5bcddc.ngrok.io/'
+    SERVER_PATH = 'http://127.0.0.1:5000/'
 
 
 class DevelopmentConfig(BaseConfig):
@@ -28,6 +28,8 @@ class DevelopmentConfig(BaseConfig):
 class ProductionConfig(BaseConfig):
     ENV = 'production'
     DEBUG = False
+    DATABASE_USERNAME = 'kwikker'
+    DATABASE_PASSWORD = '8Av5R7tRNqJSm4sXW23E'
     DATABASE_HOST = 'kwikker-database.cxappseoabsy.eu-central-1.rds.amazonaws.com'
 
 
