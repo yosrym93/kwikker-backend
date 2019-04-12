@@ -5,7 +5,8 @@ from kweeks.query_factory import add_kweek, delete_main_kweek, retrieve_hashtags
     retrieve_user, check_following, check_blocked,\
     check_muted, retrieve_kweek, get_user, add_kweek_hashtag, create_mention, create_hashtag, check_existing_hashtag, \
     get_kweek_id, update_hashtag, validate_id, check_kweek_writer, check_kweek_mention, check_kweek_owner, add_rekweek,\
-    delete_rekweeks, check_kweek_rekweeker, add_like, delete_like, check_kweek_liker
+    delete_rekweeks, check_kweek_rekweeker, add_like, delete_like
+from notifications.actions import create_notifications
 
 
 
@@ -27,12 +28,11 @@ def create_kweek(request, authorized_username):
     """
     data = {}
     reply_to = request["reply_to"]
-    if reply_to is not None or reply_to == 0:
-        if reply_to != 0:
-            if len(reply_to) == 0 or (reply_to.isspace()):
-                return False, 'No reply body found'
-            if not reply_to.isdigit():
-                return False, 'Not valid id'
+    if reply_to is not None :
+        if len(reply_to) == 0 or (reply_to.isspace()):
+            return False, 'No reply body found'
+        if not reply_to.isdigit():
+            return False, 'Not valid id'
         check = validate_id(reply_to)
         if len(check) == 0:
             return False, 'Kweek does not exist '
@@ -103,7 +103,7 @@ def insert_kweek(kweek: Kweek):
             return False, 'Repeated mention in the same kweek'
         response = create_mention(kid, ment)
         if response is not None:
-            return False, 'the user mentioned does not exist in the database '
+            return False, 'the user mentioned does not exist in the database'
     return True, 'success'
 
 
@@ -411,6 +411,8 @@ def create_rekweek(request, authorized_username):
         message = 'The authorized user does not exist in the data base'
         return False, message
     add_rekweek(rekweek_id, authorized_username)
+    notified_user = retrieve_user(rekweek_id, 1)[0]['username']
+    create_notifications(authorized_username, notified_user, 'REKWEEK', rekweek_id)
     return True, 'success '
 
 
@@ -438,7 +440,7 @@ def delete_rekweek(kweek_id, authorized_username):
     if not check:
         return False, 'Deletion is not allowed'
     delete_rekweeks(kweek_id)
-    return True, None
+    return True, 'success '
 
 
 def like_kweek(request, authorized_username):
@@ -457,7 +459,7 @@ def like_kweek(request, authorized_username):
                                 | }
 
         """
-    kweek_id = request["id"]
+    kweek_id = request['id']
     if id is not None:
         if len(kweek_id) == 0 or (kweek_id.isspace()):
             return False, 'No id found'
@@ -469,6 +471,8 @@ def like_kweek(request, authorized_username):
     else:
         return False, 'No id found'
     add_like(kweek_id, authorized_username)
+    notified_user = retrieve_user(kweek_id, 1)[0]['username']
+    create_notifications(authorized_username, notified_user, 'LIKE', kweek_id)
     return True, 'success '
 
 
@@ -492,9 +496,6 @@ def dislike_kweek(kweek_id, authorized_username):
     check, message = validate_request(kweek_id)
     if not check:
         return check, message
-    check = check_kweek_liker(kweek_id, authorized_username)
-    if not check:
-        return False, 'You have not liked this kweek.'
     delete_like(kweek_id, authorized_username)
     return True, None
 

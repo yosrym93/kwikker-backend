@@ -327,7 +327,7 @@ def retrieve_user(kweek_id, num):
         response = db_manager.execute_query(query2, data)
     elif num == 3:
         response = db_manager.execute_query(query3, data)
-
+    print(response)
     return response
 
 
@@ -436,26 +436,6 @@ def check_kweek_rekweeker(kid, authorized_username):
     data = (authorized_username, kid)
     response = db_manager.execute_query(query, data)
     return response
-
-
-def check_kweek_liker(kid, authorized_username):
-    """
-                  Query to get the user have liked a particular kweek .
-
-                  *Parameters*:
-                      - *kid*: The id of the kweek to be checked.
-                      - *authorized_username(string)*: The user currently logged in.
-
-                  *Returns*:
-                      - *response*: A list of dictionary containing a favorite tuple   .
-
-        """
-
-    query: str = """SELECT * FROM FAVORITE WHERE USERNAME =%s AND KWEEK_ID= %s  """
-    data = (authorized_username, kid)
-    response = db_manager.execute_query(query, data)
-    return response
-
 
 def add_like(kweek_id, authorized_username):
     """

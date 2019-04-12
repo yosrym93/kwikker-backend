@@ -10,7 +10,11 @@ VALUES
 ('test_user1', 'test1', 'image_url', 'banner_url', 'bio', '01-01-2019', '01-01-1999'),
 ('test_user2', 'test2', 'image_url', 'banner_url', 'bio', '01-01-2019', '01-01-1999'),
 ('test_user3', 'test3', 'image_url', 'banner_url', 'bio', '01-01-2019', '01-01-1999'),
+('user1', 'test1', 'image_url', 'banner_url', 'bio', '01-01-2019', '01-01-1999'),
+('user2', 'test2', 'image_url', 'banner_url', 'bio', '01-01-2019', '01-01-1999'),
+('user3', 'test3', 'image_url', 'banner_url', 'bio', '01-01-2019', '01-01-1999'),
 ('hagar', 'test1', 'image_url', 'banner_url', 'bio', '01-01-2019', '01-01-1999');
+
 
 INSERT INTO FOLLOW VALUES
 ('test_user1', 'test_user3'),
