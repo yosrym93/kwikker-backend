@@ -288,7 +288,7 @@ def migrate_non_cli(_db_username, _db_password, _db_name, _migrations_db_name, _
     db_name = _db_name
     migrations_db_name = _migrations_db_name
     db_host = _db_host
-    db_port = _db_password
+    db_port = _db_port
     db_manager = _db_manager
 
     return check_migrations_db() and run_migrations()
