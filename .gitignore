@@ -10,3 +10,4 @@ images/profile/**
 .coverage
 **/.pytest_cache/
 config_local.py
+
