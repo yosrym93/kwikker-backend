@@ -133,7 +133,7 @@ class PhotoUploadB (Resource):
     @staticmethod
     def get(filename):
         os.chdir(os.path.dirname(APP_ROOT))
-        return send_from_directory('images\banner', filename)
+        return send_from_directory('images\\banner', filename)
 
 
 @user_api.route('/profile')
