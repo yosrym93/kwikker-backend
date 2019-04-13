@@ -255,7 +255,7 @@ def get_recent_conversationers(from_username, last_conversationers_retrieved_use
     except TypeError:
         raise
     if conversationers is None:
-        return None
+        return []
     conversationer_list = []
     if len(conversationers) == 0:
         return conversationer_list

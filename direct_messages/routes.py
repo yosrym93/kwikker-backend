@@ -128,12 +128,9 @@ class RecentConversationers(Resource):
         try:
             recent_conversationers = actions.get_recent_conversationers(authorized_username,
                                                                         last_conversationers_retrieved_username)
-            if recent_conversationers is None:
-                abort(404, message='A user does not exist.')
-            else:
-                if len(recent_conversationers) == 0:
-                    return [], 200
-                return recent_conversationers, 200
+            if len(recent_conversationers) == 0:
+                return [], 200
+            return recent_conversationers, 200
         except TypeError:
             abort(500, message='An error occurred in the server.')
         except Exception as E:
