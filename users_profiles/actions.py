@@ -110,7 +110,7 @@ def update_user_profile(authorized_username, bio, screen_name):
     return response
 
 
-def update_profile_picture(file, authorized_username):
+def update_profile_picture(file, authorized_username):  # pragma:no cover
     """
                     The function updates profile picture.
 
@@ -173,7 +173,7 @@ def delete_profile_picture(authorized_username):
         return response  # pragma:no cover
 
 
-def update_profile_banner(file, authorized_username):
+def update_profile_banner(file, authorized_username):  # pragma:no cover
     """
                         The function updates banner picture.
 

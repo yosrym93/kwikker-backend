@@ -3,8 +3,8 @@ import app
 from database_manager import db_manager
 import click
 
-all_modules = ['timelines_and_trends', 'authentication_and_registration', 'notifications',
-               'direct_messages', 'kweeks', 'users_profiles']
+all_modules = ['timelines_and_trends', 'users_profiles', 'authentication_and_registration', 'notifications',
+               'direct_messages', 'kweeks']
 
 
 @click.command()
@@ -37,7 +37,7 @@ def cli(module):
             failed = True
             final_exit_code = exit_code
 
-    # db_manager.execute_query_no_return('DELETE FROM USER_CREDENTIALS; DELETE FROM HASHTAG;')
+    db_manager.execute_query_no_return('DELETE FROM USER_CREDENTIALS; DELETE FROM HASHTAG;')
     raise SystemExit(final_exit_code)
 
 
