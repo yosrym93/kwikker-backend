@@ -16,16 +16,21 @@ def cli(module):
         modules = [module]
     else:
         print('Module does not exist.')
-        raise SystemExit(-1)
+        raise SystemExit(12)
 
-    app.initialize(env='test')
+    if not app.initialize(env='test'):
+        raise SystemExit(11)
 
     failed = False
     final_exit_code = 0
 
     for module in modules:
         db_manager.execute_query_no_return('DELETE FROM USER_CREDENTIALS; DELETE FROM HASHTAG;')
-        db_manager.execute_query_no_return(open(module + '/seed.sql', 'r').read())
+        response = db_manager.execute_query_no_return(open(module + '/seed.sql', 'r').read())
+        if response is not None:
+            print('Seed error:')
+            print(response)
+            raise SystemExit(10)
         exit_code = pytest.main(['--cov-report', 'term-missing', '--cov=' + module,
                                  module + '/test_actions.py'])
         if exit_code != 0 and not failed:
