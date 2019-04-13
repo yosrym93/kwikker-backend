@@ -1,18 +1,8 @@
 from . import actions
 import jwt
 from database_manager import db_manager
-# from app import secret_key, code
+from app import secret_key, code
 import pytest
-db_manager.initialize_connection('kwikker', 'postgres', '1')
-secret_key = 'kwikkerSecretKeyIsSALTS'
-code = 'kwikkerConfirmationCode'
-"""
-@pytest.mark.skip(reason="bla bla")  => to skip test
-command: pytest -v -rxs
-@pytest.mark.skipif(condition ,reason="bla bla")  => to skip test
-command: pytest -v -rxs
-pytest -v --capture=no => to see functions print for test cases
-"""
 
 
 def test_confirm_user():

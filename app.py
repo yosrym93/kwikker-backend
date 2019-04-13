@@ -95,6 +95,7 @@ def initialize(env):
         app.config.from_object(config.ProductionConfig)
     elif env == 'test':
         app.config.from_object(config.TestingConfig)
+        app.config.from_pyfile('config_local.py')
     else:
         app.config.from_object(config.DevelopmentConfig)
         app.config.from_pyfile('config_local.py')
@@ -115,4 +116,4 @@ def run(env):
             Attempts to initialize the app, and runs it if the initialization was successful.
     """
     if initialize(env):
-        app.run()
+            app.run(host='0.0.0.0')
