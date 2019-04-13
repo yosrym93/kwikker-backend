@@ -66,6 +66,7 @@ def get_messages(from_username, to_username, last_message_retrieved_id=None):
     if len(messages) == 0:
         return message_list
     for message in messages:
+        message['created_at'] = change_time(message['created_at'])
         message_list.append(DirectMessage(message))
     return message_list
 
