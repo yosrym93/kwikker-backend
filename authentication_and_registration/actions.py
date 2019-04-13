@@ -10,7 +10,7 @@ from flask_mail import Mail, Message
 from threading import Thread
 import bcrypt
 mail = Mail(app)
-root = 'kwikker.me'
+root = app.config['FRONT_END_ROOT']
 
 
 def get_user_by_email(email):
