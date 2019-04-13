@@ -1,4 +1,4 @@
-from flask_restplus import Resource, fields, abort
+from flask_restplus import Resource, abort
 from flask import request, send_from_directory
 from models import User, UserProfile, NullableString
 from app import create_model
@@ -62,7 +62,7 @@ class ProfileBanner(Resource):
     @user_api.response(code=404, description='Update failed.')
     @user_api.response(code=400, description='Parameters type does not match.')
     @user_api.response(code=401, description='Unauthorized access.')
-    @user_api.param(name='image_file', description='The new profile banner.', required=True, type='file')
+    @user_api.param(name='file', description='The new profile banner.', required=True, type='file')
     @user_api.doc(security='KwikkerKey')
     @authorize
     def put(self, authorized_username):
@@ -102,7 +102,7 @@ class ProfilePicture(Resource):
     @user_api.response(code=404, description='Update failed.')
     @user_api.response(code=400, description='Parameters type does not match.')
     @user_api.response(code=401, description='Unauthorized access.')
-    @user_api.param(name='image_file', description='The new profile picture.', required=True, type='file')
+    @user_api.param(name='file', description='The new profile picture.', required=True, type='file')
     @user_api.doc(security='KwikkerKey')
     @authorize
     def put(self, authorized_username):
