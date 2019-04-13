@@ -32,7 +32,7 @@ def cli(module):
             failed = True
             final_exit_code = exit_code
 
-    db_manager.execute_query_no_return('DELETE FROM USER_CREDENTIALS; DELETE FROM HASHTAG;')
+    # db_manager.execute_query_no_return('DELETE FROM USER_CREDENTIALS; DELETE FROM HASHTAG;')
     raise SystemExit(final_exit_code)
 
 
