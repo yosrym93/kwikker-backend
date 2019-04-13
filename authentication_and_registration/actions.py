@@ -10,7 +10,8 @@ from flask_mail import Mail, Message
 from threading import Thread
 import bcrypt
 mail = Mail(app)
-root = app.config['FRONT_END_ROOT']
+root = 'kwikker.me'
+# app.config['FRONT_END_ROOT']
 
 
 def get_user_by_email(email):
@@ -125,8 +126,7 @@ def confirm_user(username):
          -*True:* updated successfully.
          -*False:* error happened.
     """
-    query_factory.confirm_user(username)
-    pass
+    return query_factory.confirm_user(username)
 
 
 def update_user_username(username, new_username):
@@ -143,10 +143,7 @@ def update_user_username(username, new_username):
     """
     if query_factory.username_exists(new_username):
         return False
-    if not query_factory.username_exists(username):
-        return False
     else:
-        print('2')
         return query_factory.update_user_username(username, new_username)
 
 
@@ -163,8 +160,6 @@ def update_user_password(username, new_password):
          -*False:* error happened.
     """
     hashed = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
-    print(hashed)
-    print(new_password)
     return query_factory.update_user_password(username, hashed.decode('utf-8'))
 
 
@@ -180,7 +175,6 @@ def update_user_email(username, new_email):
          -*True:* updated successfully.
          -*False:* error happened.
     """
-    print(new_email)
     if query_factory.email_exists(new_email):
         return False
     else:
@@ -207,6 +201,7 @@ def create_token(username, password, secret=secret_key):
         'exp': exp
     }
     token = jwt.encode(payload, secret, algorithm='HS256')
+    print(token)
     return token
 
 
@@ -222,6 +217,9 @@ def get_user(codee):
         abort(404, message='An unconfirmed user with the given confirmation code does not exist.')
 
     #    print('TOKEN: {}'.format(token))
+    if user is None:
+        abort(404, message='An unconfirmed user with the given confirmation code does not exist.')
+
     if not query_factory.username_exists(user['username']):
         abort(404, message='An unconfirmed user with the given confirmation code does not exist.')
 
