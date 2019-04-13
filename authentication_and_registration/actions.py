@@ -14,22 +14,22 @@ root = app.config['FRONT_END_ROOT']
 
 
 def get_user_by_email(email):
-    '''
+    """
     search for user with the given email
 
     *Returns:*
         -the user.
-    '''
+    """
     return query_factory.get_user_by_email(email)
 
 
 def get_user_by_username(username):
-    '''
+    """
     search for user with the given username
 
     *Returns:*
         -the user.
-    '''
+    """
     return query_factory.get_user_by_username(username)
 
 
@@ -61,18 +61,18 @@ def add_user(username, password, email):
 
 
 def async_send_email(msg):
-    '''
+    """
     Sending emails Asynchronous
 
     *Parameters:*
         - *message(object)*: holds the message to be send.
-    '''
+    """
     with app.app_context():
         mail.send(msg)
 
 
 def send_email(email, username, password, subject, url, html, confirm):
-    '''
+    """
         Sending email
 
         *Parameters:*
@@ -83,7 +83,7 @@ def send_email(email, username, password, subject, url, html, confirm):
              - *url(string)*: holds the value of the url attached to the email.
              - *html(string)*: holds the value of the html statements that will be sent.
              - *confirm(bool)*: true if the email is an confirmation mail, false if its a reset password mail.
-        '''
+    """
     msg = Message(subject, sender='no-reply@kwikker.me', recipients=[email])
     if confirm:
         codee = create_token(username, password, code)
@@ -209,6 +209,7 @@ def create_token(username, password, secret=secret_key):
 
 
 def get_user(codee):
+    user = None
     try:
         user = jwt.decode(codee, code, algorithms=['HS256'])
 

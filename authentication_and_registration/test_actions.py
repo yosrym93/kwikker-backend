@@ -1,7 +1,7 @@
 from . import actions
 import jwt
 from database_manager import db_manager
-from app import secret_key,code
+from app import secret_key, code
 import pytest
 db_manager.initialize_connection('kwikker', 'postgres', '1')
 """

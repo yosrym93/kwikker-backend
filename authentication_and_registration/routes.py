@@ -5,6 +5,7 @@ import api_namespaces
 from authentication_and_registration.actions import authorize
 from . import actions
 account_api = api_namespaces.account_api
+user_api = api_namespaces.user_api
 
 
 @account_api.route('/login')
@@ -44,7 +45,7 @@ class Registration(Resource):
         'password': fields.String(description='The password of the new user.'),
         'email': fields.String(description='The email of the new user.'),
         'screen_name': fields.String(description='The screen name of the new user.'),
-        'birth_date': fields.String(description='The birthdate of the new user.')
+        'birth_date': fields.String(description='The birth-date of the new user.')
     }), validate=True)
     def post(self):
         """ Register a new user. The user then is required to confirm their email address. """
@@ -68,9 +69,7 @@ class RegistrationConfirmation(Resource):
     @account_api.expect(create_model('Confirmation Code', {
                                         'confirmation_code': fields.String('The confirmation code of the user.')
                                     }), validate=True)
-    @account_api.response(code=200, description='User confirmed.', model=create_model('Token', model={
-        'Token': fields.String(description='Access token.')
-    }))
+    @account_api.response(code=200, description='User confirmed.')
     @account_api.response(code=404,
                           description='An unconfirmed user with the given confirmation code does not exist.')
     def post(self):
@@ -78,9 +77,7 @@ class RegistrationConfirmation(Resource):
         data = request.get_json()
         username, password = actions.get_user(data['confirmation_code'])
         actions.confirm_user(username)
-        token = actions.create_token(username, password)
-        token = token.decode('utf-8')
-        return {'token': token}, 200
+        return  200
         pass
 
 
@@ -96,10 +93,10 @@ class RegistrationResendEmail(Resource):
         data = request.get_json()
         user = actions.get_user_by_email(data['email'])
         html = '<p>Confirming your account will give you </p> <b>full access to Kwikker</b>'
-        subject = 'Confirm your Kwikker account, ' + data['username']
+        subject = 'Confirm your Kwikker account, ' + user['username']
         actions.send_email(data['email'], user['username'], user['password'], subject,
                            '/confirm/', html, True)
-        return 201
+        return 200
         pass
 
 
@@ -115,14 +112,14 @@ class ForgetPassword(Resource):
         """ Sends email to the user which give him access to change the password. """
         data = request.get_json()
         user = actions.get_user_by_email(data['email'])
-        html = '<p>To reset your account </p>'
-        subject = 'Request for changing password, ' + data['username']
+        html = '<p>To reset your password </p>'
+        subject = 'Request for changing password, ' + user['username']
         actions.send_email(data['email'], user['username'], user['password'], subject,
                            '/reset_password/', html, False)
         pass
 
 
-@account_api.route('/update_profile/change_username')
+@user_api.route('/username')
 class UpdateUsername(Resource):
     @account_api.expect(create_model('Username update data', {
         'username': fields.String(description='The new username.'),
@@ -134,7 +131,7 @@ class UpdateUsername(Resource):
     @account_api.response(code=404, description='Username already exists')
     @account_api.doc(security='KwikkerKey')
     @authorize
-    def post(self, authorized_username):
+    def put(self, authorized_username):
         """ Updates the user's username. """
         data = request.get_json()
         is_updated = actions.update_user_username(authorized_username, data['username'])
@@ -147,21 +144,21 @@ class UpdateUsername(Resource):
         pass
 
 
-@account_api.route('/update_profile/change_password')
+@user_api.route('/password')
 class UpdatePassword(Resource):
-    @account_api.expect(create_model('Password update data', {
-        'password': fields.String(description='The new username.'),
+    @account_api.expect(create_model('New Password', {
+        'password': fields.String(description='The new password.'),
     }), validate=True)
     @account_api.response(code=200, description='Updated Successfully.', model=create_model('token', model={
         'token': fields.String(description='Access token.')
     }))
+    @user_api.response(code=401, description='Unauthorized access.')
+    @user_api.response(code=404, description='Update failed.')
     @account_api.doc(security='KwikkerKey')
     @authorize
-    def post(self, authorized_username):
+    def put(self, authorized_username):
         """ Updates the user's password. """
         data = request.get_json()
-        print('1'*10)
-        print(data['password'])
         is_updated = actions.update_user_password(authorized_username, data['password'])
         if is_updated:
             token = actions.create_token(authorized_username, data['password'])
@@ -172,16 +169,17 @@ class UpdatePassword(Resource):
         pass
 
 
-@account_api.route('/update_profile/change_email')
+@user_api.route('/email')
 class UpdateEmail(Resource):
-    @account_api.expect(create_model('Email update data', {
-        'email': fields.String(description='The new username.'),
+    @account_api.expect(create_model('New Email', {
+        'email': fields.String(description='The new email.'),
     }), validate=True)
-    @account_api.response(code=200, description='Updated Successfully.')
+    @account_api.response(code=200, description='Email updated.')
     @account_api.response(code=404, description='Email already exists.')
+    @user_api.response(code=401, description='Unauthorized access.')
     @account_api.doc(security='KwikkerKey')
     @authorize
-    def post(self, authorized_username):
+    def put(self, authorized_username):
         """ Updates the user's email."""
         data = request.get_json()
         print('1')
@@ -193,6 +191,7 @@ class UpdateEmail(Resource):
         pass
 
 
+"""
 @account_api.route('/test')
 class ExampleTest(Resource):
     @account_api.response(code=401, description='Signature expired. Please log in again.')
@@ -210,6 +209,8 @@ class ExampleTest(Resource):
         # (email, username, password, subject, url, html, confirm)
         html = '<p>Confirming your account will give you </p> <b>full access to Kwikker</b>'
         subject = 'Confirm your Kwikker account, Amr!'
-        actions.send_email('amr.ahmed.abdelbaqi@gmail.com', 'username', 'acm', subject, 'kwikker.me/registration/confirmation', html, True)
+        actions.send_email('amr.ahmed.abdelbaqi@gmail.com', 'username', 'acm', subject,
+                           'kwikker.me/registration/confirmation', html, True)
         print('after sending email')
         pass
+"""
