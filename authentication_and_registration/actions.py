@@ -52,7 +52,6 @@ def add_user(username, password, email):
     """
     username_bool = query_factory.username_exists(username)
     email_bool = query_factory.email_exists(email)
-    print(username_bool, email_bool)
     if username_bool or email_bool:
         return username_bool, email_bool
     # Hash a password for the first time, with a randomly-generated salt
@@ -201,7 +200,6 @@ def create_token(username, password, secret=secret_key):
         'exp': exp
     }
     token = jwt.encode(payload, secret, algorithm='HS256')
-    print(token)
     return token
 
 
