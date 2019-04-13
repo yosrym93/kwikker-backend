@@ -70,7 +70,7 @@ def get_messages(from_username, to_username, last_message_retrieved_id=None):
     return message_list
 
 
-def get_conversations(from_username, last_conversations_retrieved_id=None):
+def get_conversations(auth_username, last_conversations_retrieved_id=None):
     """
          This function get list of conversation between two users converting lists of dictionaries
          into lists of Conversation model, it calls function from query factory that returns lists of
@@ -78,21 +78,22 @@ def get_conversations(from_username, last_conversations_retrieved_id=None):
 
          *Parameter:*
 
-             - *from_username*: user who is send the message.
+             - *auth_username*: user who is logging in.
              - *last_conversations_retrieved_id*: id of last message retrieved
 
          *Returns:*
 
              - *models.Conversation object*
     """
+
     if last_conversations_retrieved_id is not None:
         try:
             last_conversations_retrieved_id = int(last_conversations_retrieved_id)
         except ValueError:
             raise
-    if actions.is_user(from_username) is False:
+    if actions.is_user(auth_username) is False:
         raise Exception('Username who sent this message does not exist.')
-    conversations = query_factory.get_conversations(from_username)
+    conversations = query_factory.get_conversations(auth_username)
     try:
         conversations = actions.paginate(dictionaries_list=conversations, required_size=20,
                                          start_after_key='id', start_after_value=last_conversations_retrieved_id)
@@ -100,13 +101,15 @@ def get_conversations(from_username, last_conversations_retrieved_id=None):
         raise
     if conversations is None:
         return None
+
     conversation_list = []
     if len(conversations) == 0:
         return conversation_list
     for conversation in conversations:
         to_username = conversation['to_username']
+        from_username = conversation['from_username']
         dictionary = {'id': conversation['id']}
-        temp = {'from_username': conversation['from_username']}
+        temp = {'from_username':from_username}
         dictionary.update(temp)
         temp = {'to_username': to_username}
         dictionary.update(temp)
@@ -119,21 +122,25 @@ def get_conversations(from_username, last_conversations_retrieved_id=None):
         dictionary.update(temp)
         direct_message = DirectMessage(dictionary)
         dic = {'last_message': direct_message}
-        dictionary = {'username': to_username}
+        if to_username == auth_username :
+            username = from_username
+        else:
+            username = to_username
+        dictionary = {'username': username}
         temp = {'screen_name': conversation['screen_name']}
         dictionary.update(temp)
         temp = {'profile_image_url': conversation['profile_image_url']}
         dictionary.update(temp)
-        flag = check_follow(from_username, to_username)
+        flag = check_follow(auth_username, username)
         temp = {'following': flag}
         dictionary.update(temp)
-        flag = check_follow(to_username, from_username)
+        flag = check_follow(username, auth_username)
         temp = {'follows_you': flag}
         dictionary.update(temp)
-        flag = check_block(from_username, to_username)
+        flag = check_block(auth_username, username)
         temp = {'blocked': flag}
         dictionary.update(temp)
-        flag = check_mute(from_username, to_username)
+        flag = check_mute(auth_username, username)
         temp = {'muted': flag}
         dictionary.update(temp)
         user = User(dictionary)
@@ -248,7 +255,7 @@ def get_recent_conversationers(from_username, last_conversationers_retrieved_use
     except TypeError:
         raise
     if conversationers is None:
-        return None
+        return []
     conversationer_list = []
     if len(conversationers) == 0:
         return conversationer_list

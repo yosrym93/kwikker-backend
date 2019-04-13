@@ -21,28 +21,20 @@ class DatabaseManager:
                 - *db_name*: The PostgreSQL database name.
                 - *db_username*: The database username.
                 - *db_password*: The database password.
+                - *host*: The database host name. Can be None.
+                - *port*: The used port. Can be None.
 
             *Returns:*
                 - *None*: If the database connection was successful.
                 - *Exception* object: The exception thrown by the database connector if the connection failed.
 
         """
-        params = {
-            'dbname': db_name,
-            'user': db_username,
-            'password': db_password
-        }
-        if host:
-            params.update({
-                'host': host
-            })
-        if port:
-            params.update({
-                'port': port
-            })
         # initialize connection to the database
+        connection_string = 'dbname=%s user=%s password=%s' % (db_name, db_username, db_password)
+        if host is not None:
+            connection_string += (' host=%s port=%s' % (host, port))
         try:
-            self.connection = psycopg2.connect(**params)
+            self.connection = psycopg2.connect(connection_string)
         except Exception as E:
             return E
         return None  # meaning everything was okay
