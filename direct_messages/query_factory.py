@@ -63,13 +63,13 @@ def get_messages(from_username, to_username):
     return response
 
 
-def get_conversations(from_username):
+def get_conversations(auth_username):
     """
              This function retrieve list of conversations with last message .
 
              *Parameter:*
 
-                 - *from_username*: user who is send the message.
+                 - *auth_username*: user who is send the message.
 
              *Returns:*
 
@@ -85,25 +85,59 @@ def get_conversations(from_username):
                                     | }
                  - *Exception object*: If the query produced an error.
     """
-
     query: str = """
-                    WITH GROUPS AS
-                    (
-                     SELECT SCREEN_NAME, PROFILE_IMAGE_URL, ID, FROM_USERNAME, TO_USERNAME , MESSAGE.CREATED_AT, TEXT, 
-                     MEDIA_URL, row_number() OVER (
-                                                    PARTITION BY TO_USERNAME 
-                                                    ORDER BY MESSAGE.CREATED_AT DESC
-                                                    ) AS TEMP
-                     FROM MESSAGE INNER JOIN PROFILE ON USERNAME=TO_USERNAME
-                     WHERE FROM_USERNAME  = %s
-                    )
+                    WITH OUTER_GROUP as(			
+                                    WITH INNER_GROUP AS(
+                                        SELECT SCREEN_NAME, PROFILE_IMAGE_URL, ID, FROM_USERNAME, TO_USERNAME , 
+                                        MESSAGE.CREATED_AT, TEXT, MEDIA_URL, 
+                                        REPLACE(CONCAT(FROM_USERNAME,TO_USERNAME),%s,'')AS T  
+                                        FROM MESSAGE INNER JOIN PROFILE ON USERNAME=TO_USERNAME
+                                        WHERE FROM_USERNAME=%s
+                                        AND TO_USERNAME IN
+                                        (
+                                            SELECT DISTINCT TO_USERNAME
+                                            FROM MESSAGE
+                                            WHERE FROM_USERNAME=%s
+                
+                                            UNION
+                
+                                            SELECT DISTINCT FROM_USERNAME
+                                            FROM MESSAGE
+                                            WHERE TO_USERNAME=%s
+                                        )
+                
+                                        UNION
+                
+                                        SELECT SCREEN_NAME, PROFILE_IMAGE_URL, ID, FROM_USERNAME, TO_USERNAME , 
+                                        MESSAGE.CREATED_AT, TEXT,  MEDIA_URL,
+                                        REPLACE(CONCAT(FROM_USERNAME,TO_USERNAME),%s,'')AS T
+                                        FROM MESSAGE INNER JOIN PROFILE ON USERNAME=FROM_USERNAME
+                                        WHERE TO_USERNAME=%s
+                                        AND FROM_USERNAME IN
+                                        (
+                                            SELECT DISTINCT TO_USERNAME
+                                            FROM MESSAGE
+                                            WHERE FROM_USERNAME=%s
+                
+                                            UNION
+                
+                                            SELECT DISTINCT FROM_USERNAME
+                                            FROM MESSAGE
+                                            WHERE TO_USERNAME=%s
+                                        )
+                                    )
+	
+                    SELECT *,ROW_NUMBER()OVER (PARTITION BY T ORDER BY CREATED_AT DESC) as TEMP
+                    FROM INNER_GROUP
+	        )
 
                     SELECT SCREEN_NAME, PROFILE_IMAGE_URL, ID, FROM_USERNAME, TO_USERNAME ,CREATED_AT, TEXT, MEDIA_URL
-                    FROM GROUPS
-                    WHERE GROUPS.TEMP=1
+                    FROM OUTER_GROUP
+                    WHERE OUTER_GROUP.TEMP=1
                     ORDER BY CREATED_AT DESC 
                  """
-    data = (from_username,)
+    data = (auth_username,auth_username,auth_username,auth_username,auth_username,
+            auth_username,auth_username,auth_username)
     response = db_manager.execute_query(query, data)
     return response
 
