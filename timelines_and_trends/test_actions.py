@@ -4,8 +4,6 @@ from database_manager import db_manager
 from models import User, Mention, Hashtag, Kweek, RekweekInfo
 from datetime import datetime
 
-db_manager.initialize_connection('kwikker', 'postgres', '')
-
 
 @pytest.mark.parametrize("authorized_username, required_username, expected_output",
                          [
@@ -238,36 +236,14 @@ def test_get_profile_kweeks():
     expected_kweeks = []
 
     query = """
-                       SELECT ID FROM KWEEK WHERE USERNAME = 'test_user1'
-                       AND TEXT = 'Test user 1, third kweek'
-                   """
+               SELECT ID FROM KWEEK WHERE USERNAME = 'test_user1'
+               AND TEXT = 'Test user 1, third kweek'
+           """
     kweek_id = db_manager.execute_query(query)[0]['id']
     expected_kweeks.append(Kweek({
         'id': kweek_id,
         'created_at': datetime.strptime('2016-01-01 00:00:00', '%Y-%m-%d %H:%M:%S'),
         'text': 'Test user 1, third kweek',
-        'media_url': None,
-        'user': actions.get_user('test_user2', 'test_user1'),
-        'mentions': actions.get_kweek_mentions(kweek_id),
-        'hashtags': actions.get_kweek_hashtags(kweek_id),
-        'number_of_likes': 0,
-        'number_of_rekweeks': 0,
-        'number_of_replies': 0,
-        'reply_to': None,
-        'rekweek_info': None,
-        'liked_by_user': False,
-        'rekweeked_by_user': False
-    }))
-
-    query = """
-                    SELECT ID FROM KWEEK WHERE USERNAME = 'test_user1'
-                    AND TEXT = 'Test user 1, second kweek'
-                """
-    kweek_id = db_manager.execute_query(query)[0]['id']
-    expected_kweeks.append(Kweek({
-        'id': kweek_id,
-        'created_at': datetime.strptime('2013-01-01 00:00:00', '%Y-%m-%d %H:%M:%S'),
-        'text': 'Test user 1, second kweek',
         'media_url': None,
         'user': actions.get_user('test_user2', 'test_user1'),
         'mentions': actions.get_kweek_mentions(kweek_id),
@@ -307,9 +283,31 @@ def test_get_profile_kweeks():
     }))
 
     query = """
-                    SELECT ID FROM KWEEK WHERE USERNAME = 'test_user1'
-                    AND TEXT = 'Test user 1, first kweek'
-                """
+                SELECT ID FROM KWEEK WHERE USERNAME = 'test_user1'
+                AND TEXT = 'Test user 1, second kweek'
+            """
+    kweek_id = db_manager.execute_query(query)[0]['id']
+    expected_kweeks.append(Kweek({
+        'id': kweek_id,
+        'created_at': datetime.strptime('2013-01-01 00:00:00', '%Y-%m-%d %H:%M:%S'),
+        'text': 'Test user 1, second kweek',
+        'media_url': None,
+        'user': actions.get_user('test_user2', 'test_user1'),
+        'mentions': actions.get_kweek_mentions(kweek_id),
+        'hashtags': actions.get_kweek_hashtags(kweek_id),
+        'number_of_likes': 0,
+        'number_of_rekweeks': 0,
+        'number_of_replies': 0,
+        'reply_to': None,
+        'rekweek_info': None,
+        'liked_by_user': False,
+        'rekweeked_by_user': False
+    }))
+
+    query = """
+                SELECT ID FROM KWEEK WHERE USERNAME = 'test_user1'
+                AND TEXT = 'Test user 1, first kweek'
+            """
     kweek_id = db_manager.execute_query(query)[0]['id']
     expected_kweeks.append(Kweek({
         'id': kweek_id,

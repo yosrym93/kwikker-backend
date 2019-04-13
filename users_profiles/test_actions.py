@@ -2,23 +2,10 @@ from datetime import date, datetime
 import pytest
 import os
 import shutil
-from database_manager import db_manager
 from models import UserProfile, User
 from . import actions
 
-Server_path = 'http://127.0.0.1:5000/'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
-"""
-    Your unit tests should reside here.
-"""
-"""
-some notes --------
-pytest -v ->>>>>>> run with some details if you want more pytest -vv
-pytest -k name -v ->>>>>>>>>> run only functions begin with name
-pytest -m name -v ->>>>>>>>>> run only functions marked with name using @pytest.mark.name
-"""
-
-db_manager.initialize_connection('kwikker', 'postgres', 'k')
 
 
 @pytest.mark.parametrize("test_authorized_username, test_username, expected_output",
