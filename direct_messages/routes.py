@@ -5,6 +5,8 @@ from app import create_model
 from . import actions
 import api_namespaces
 from authentication_and_registration.actions import authorize
+from users_profiles import actions as user_profile_actions
+from timelines_and_trends import actions as tre_time_actions
 messages_api = api_namespaces.messages_api
 
 
@@ -60,11 +62,11 @@ class DirectMessages(Resource):
     def post(self, authorized_username):
         """ Creates a New Direct Message. """
         data = request.get_json()
-        from_username = data['username']
+        to_username = data['username']
         text = data['text']
         media_url = data['media_url']
         try:
-            actions.create_message(authorized_username, from_username, text, media_url)
+            actions.create_message(authorized_username, to_username, text, media_url)
         except Exception as E:
             if str(E) == 'Username who want to receive this message does not exist.':
                 abort(404, message='Username who want to receive this message does not exist.')
@@ -111,11 +113,11 @@ class Conversations(Resource):
 
 @messages_api.route('/recent_conversationers')
 class RecentConversationers(Resource):
-    @messages_api.response(code=200, description='Conversations returned successfully.', model=[User.api_model])
+    @messages_api.response(code=200, description='Conversationers returned successfully.', model=[User.api_model])
     @messages_api.response(code=401, description='Unauthorized access.')
-    @messages_api.response(code=404, description='User or notification_id does not exist.')
+    @messages_api.response(code=404, description='User does not exist.')
     @messages_api.param(name='last_conversationers_retrieved_username', type="str",
-                        description='Nullable. Normally the request returns the first 20 conversations when null. '
+                        description='Nullable. Normally the request returns the first 20 conversationers when null. '
                                     'To retrieve more send the username of the last retrieved conversationers.')
     @messages_api.marshal_with(User.api_model, as_list=True)
     @messages_api.doc(security='KwikkerKey')
@@ -127,7 +129,7 @@ class RecentConversationers(Resource):
             recent_conversationers = actions.get_recent_conversationers(authorized_username,
                                                                         last_conversationers_retrieved_username)
             if recent_conversationers is None:
-                abort(404, message='A message with the provided ID does not exist.')
+                abort(404, message='A user does not exist.')
             else:
                 if len(recent_conversationers) == 0:
                     return [], 200
@@ -139,3 +141,32 @@ class RecentConversationers(Resource):
                 abort(404, message='Username sent this message does not exist.')
             elif str(E) == 'Username does not exist.':
                 abort(404, message='Username does not exist.')
+
+    @messages_api.response(code=200, description='Conversationers returned successfully.', model=[User.api_model])
+    @messages_api.response(code=401, description='Unauthorized access.')
+    @messages_api.response(code=404, description='User does not exist.')
+    @messages_api.param(name='last_conversationers_retrieved_username', type="str",
+                        description='Nullable. Normally the request returns the first 20 conversationers when null.'
+                                    'To retrieve more send the username of the last retrieved conversationers')
+    @messages_api.expect(create_model('Search Conversationer', model={
+        'search_user': fields.String(description='username to search for.')
+    }))
+    @messages_api.marshal_with(User.api_model, as_list=True)
+    @messages_api.doc(security='KwikkerKey')
+    @authorize
+    def post(self, authorized_username):
+        """ Retrieves a list of recent users done using search. """
+        data = request.get_json()
+        last_conversationers_retrieved_username = request.args.get('last_conversationers_retrieved_username')
+        if tre_time_actions.is_user(last_conversationers_retrieved_username)is False \
+                and last_conversationers_retrieved_username is not None:
+            abort(404, message='Username does not exist.')
+        search_user = data["search_user"]
+        try:
+            conversationers = user_profile_actions.search_user(
+                authorized_username, search_user, last_conversationers_retrieved_username)
+            if len(conversationers) == 0:
+                return [], 200
+            return conversationers, 200
+        except TypeError:
+            abort(500, message='An error occurred in the server.')
