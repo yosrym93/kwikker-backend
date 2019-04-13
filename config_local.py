@@ -1,4 +1,4 @@
-# SERVER_PATH = 'http://6d5bcddc.ngrok.io/'
+#SERVER_PATH = 'http://d413dec8.ngrok.io/'
 DATABASE_USERNAME = 'postgres'
-DATABASE_PASSWORD = '1'
+DATABASE_PASSWORD = 'k'
 
