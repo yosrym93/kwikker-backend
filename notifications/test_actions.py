@@ -14,7 +14,7 @@ def get_id(notified_username, involved_username, notif_type):
 @pytest.mark.parametrize("test_username, expected_output, last_notification_retrieved_id",
                          [
                              ('zamalek', 1, None),
-                             ('zamalek', 0, get_id('zamalek', 'kitchen', 'FOLLOW'))
+                             ('zamalek', 0, get_id('zamalek', 'degla', 'FOLLOW'))
                          ])
 def test_get_notifications(test_username, expected_output, last_notification_retrieved_id):
     """
@@ -88,8 +88,8 @@ def test_create_notifications_kweek_id_error():
 @pytest.mark.parametrize("involved_username , notified_username, type_notification,"
                          " expected_output, last_notification_retrieved_id",
                          [
-                             ('ahly', 'kitchen', "FOLLOW", True, None),
-                             ('ahly', 'kitchen', "FOLLOW", False, None)
+                             ('ahly', 'degla', "FOLLOW", True, None),
+                             ('ahly', 'degla', "FOLLOW", False, None)
                          ])
 def test_create_notifications(involved_username, notified_username, type_notification,
                               expected_output, last_notification_retrieved_id):
