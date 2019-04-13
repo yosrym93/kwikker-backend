@@ -10,26 +10,27 @@ from flask_mail import Mail, Message
 from threading import Thread
 import bcrypt
 mail = Mail(app)
-root = app.config['FRONT_END_ROOT']
+root = 'kwikker.me'
+# app.config['FRONT_END_ROOT']
 
 
 def get_user_by_email(email):
-    '''
+    """
     search for user with the given email
 
     *Returns:*
         -the user.
-    '''
+    """
     return query_factory.get_user_by_email(email)
 
 
 def get_user_by_username(username):
-    '''
+    """
     search for user with the given username
 
     *Returns:*
         -the user.
-    '''
+    """
     return query_factory.get_user_by_username(username)
 
 
@@ -51,7 +52,6 @@ def add_user(username, password, email):
     """
     username_bool = query_factory.username_exists(username)
     email_bool = query_factory.email_exists(email)
-    print(username_bool, email_bool)
     if username_bool or email_bool:
         return username_bool, email_bool
     # Hash a password for the first time, with a randomly-generated salt
@@ -61,18 +61,18 @@ def add_user(username, password, email):
 
 
 def async_send_email(msg):
-    '''
+    """
     Sending emails Asynchronous
 
     *Parameters:*
         - *message(object)*: holds the message to be send.
-    '''
+    """
     with app.app_context():
         mail.send(msg)
 
 
 def send_email(email, username, password, subject, url, html, confirm):
-    '''
+    """
         Sending email
 
         *Parameters:*
@@ -83,7 +83,7 @@ def send_email(email, username, password, subject, url, html, confirm):
              - *url(string)*: holds the value of the url attached to the email.
              - *html(string)*: holds the value of the html statements that will be sent.
              - *confirm(bool)*: true if the email is an confirmation mail, false if its a reset password mail.
-        '''
+    """
     msg = Message(subject, sender='no-reply@kwikker.me', recipients=[email])
     if confirm:
         codee = create_token(username, password, code)
@@ -91,7 +91,7 @@ def send_email(email, username, password, subject, url, html, confirm):
         codee = create_token(username, password)
     link = root+url+codee.decode('utf-8')
     msg.html = html
-    msg.html += '<a href="'+link+'">Click me</a>'
+    msg.html += '<a href="'+link+'">Here</a>'
     thr = Thread(target=async_send_email, args=[msg])
     thr.start()
 
@@ -125,8 +125,7 @@ def confirm_user(username):
          -*True:* updated successfully.
          -*False:* error happened.
     """
-    query_factory.confirm_user(username)
-    pass
+    return query_factory.confirm_user(username)
 
 
 def update_user_username(username, new_username):
@@ -144,7 +143,6 @@ def update_user_username(username, new_username):
     if query_factory.username_exists(new_username):
         return False
     else:
-        print('2')
         return query_factory.update_user_username(username, new_username)
 
 
@@ -161,8 +159,6 @@ def update_user_password(username, new_password):
          -*False:* error happened.
     """
     hashed = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
-    print(hashed)
-    print(new_password)
     return query_factory.update_user_password(username, hashed.decode('utf-8'))
 
 
@@ -178,7 +174,6 @@ def update_user_email(username, new_email):
          -*True:* updated successfully.
          -*False:* error happened.
     """
-    print(new_email)
     if query_factory.email_exists(new_email):
         return False
     else:
@@ -209,6 +204,7 @@ def create_token(username, password, secret=secret_key):
 
 
 def get_user(codee):
+    user = None
     try:
         user = jwt.decode(codee, code, algorithms=['HS256'])
 
@@ -219,6 +215,9 @@ def get_user(codee):
         abort(404, message='An unconfirmed user with the given confirmation code does not exist.')
 
     #    print('TOKEN: {}'.format(token))
+    if user is None:
+        abort(404, message='An unconfirmed user with the given confirmation code does not exist.')
+
     if not query_factory.username_exists(user['username']):
         abort(404, message='An unconfirmed user with the given confirmation code does not exist.')
 

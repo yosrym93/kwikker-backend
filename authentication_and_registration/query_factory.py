@@ -4,7 +4,7 @@ db_manager = database_manager.db_manager
 
 
 def get_user_by_email(email):
-    '''
+    """
         get specific user by his/her email.
 
         *Parameters: *
@@ -14,7 +14,7 @@ def get_user_by_email(email):
         *Returns: *
             - * user: *if it was found.
             - * False: *if not found.
-    '''
+    """
     query: str = """
                 SELECT * FROM USER_CREDENTIALS WHERE EMAIL = %s
                  """
@@ -27,7 +27,7 @@ def get_user_by_email(email):
 
 
 def get_user_by_username(username):
-    '''
+    """
         get specific user by his/her username.
 
         *Parameters: *
@@ -37,7 +37,7 @@ def get_user_by_username(username):
         *Returns: *
             - * user: *if it was found.
             - * False: *if not found.
-    '''
+    """
     query: str = """
                 SELECT * FROM USER_CREDENTIALS WHERE USERNAME = %s
                  """
@@ -50,7 +50,7 @@ def get_user_by_username(username):
 
 
 def username_exists(username):
-    '''
+    """
         check if the username is on the system.
 
         *Parameters: *
@@ -60,7 +60,7 @@ def username_exists(username):
         *Returns: *
             - * True: *if it was found.
             - * False: *if not found.
-    '''
+    """
     query: str = """
                 SELECT USERNAME FROM USER_CREDENTIALS WHERE USERNAME = %s
                  """
@@ -162,10 +162,8 @@ def update_user_username(username, new_username):
     data = (new_username, username)
     response = db_manager.execute_query_no_return(query, data)
     if type(response) == Exception:
-        print('false')
         return False
     else:
-        print('true')
         return True
 
 
@@ -214,10 +212,7 @@ def confirm_user(username):
     response = db_manager.execute_query_no_return(query, data)
     if type(response) == Exception:
         return False
-    else:
-        return True
-    if response is None:
-        return true
+    return True
 
 
 def is_user(username, password):
@@ -246,4 +241,3 @@ def is_user(username, password):
             return False
         return True
     return False
-
