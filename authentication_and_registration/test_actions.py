@@ -72,3 +72,14 @@ def test_add_user(test_username, test_password, test_email, expected_output_user
 def test_verify(test_username, test_password, expected_output):
     answer = actions.verify(test_username, test_password)
     assert answer is expected_output
+
+
+@pytest.mark.parametrize("test_username, test_new_username, expected_output",
+                         [
+                             ('milan', 'milan', False),
+                             ('mil', 'acm', False),
+                             ('milan', 'milann', )
+                         ]
+                         )
+def test_update_user_username():
+    pass

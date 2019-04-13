@@ -91,7 +91,7 @@ def send_email(email, username, password, subject, url, html, confirm):
         codee = create_token(username, password)
     link = root+url+codee.decode('utf-8')
     msg.html = html
-    msg.html += '<a href="'+link+'">Click me</a>'
+    msg.html += '<a href="'+link+'">Here</a>'
     thr = Thread(target=async_send_email, args=[msg])
     thr.start()
 
@@ -142,6 +142,8 @@ def update_user_username(username, new_username):
          -*False:* error happened.
     """
     if query_factory.username_exists(new_username):
+        return False
+    if not query_factory.username_exists(username):
         return False
     else:
         print('2')
