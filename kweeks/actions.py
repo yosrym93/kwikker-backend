@@ -28,7 +28,7 @@ def create_kweek(request, authorized_username):
     """
     data = {}
     reply_to = request["reply_to"]
-    if reply_to is not None :
+    if reply_to is not None:
         if len(reply_to) == 0 or (reply_to.isspace()):
             return False, 'No reply body found'
         if not reply_to.isdigit():
@@ -280,12 +280,9 @@ def get_kweek(kid, authorized_username, replies_only):
             mention = Mention(ment_dic)
             mentions_list.append(mention)
 
-    if not user:
-        return False, 'not a valid user', None, None
-    else:
         user = user[0]
         extrauser = {}
-        me = authorized_username  # should be replaced by the function getting the current user
+        me = authorized_username
         check = check_following(me, user['username'])
         if check:
             extrauser['following'] = True
@@ -371,11 +368,8 @@ def get_kweek_with_replies(kid, authorized_username, replies_only):
             for reply in replies_list_dics:
                 relpy_id = reply['id']
                 check_replies, message, k, r = get_kweek(relpy_id, authorized_username, False)
-                if check_replies:
-                    replies_list_obj.append(k)
-                else:
-                    message = 'db failed'
-                    return check_replies, message, None, None
+                replies_list_obj.append(k)
+
     return check, message, kweekobj, replies_list_obj
 ########################################################################################################################
 

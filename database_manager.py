@@ -58,6 +58,7 @@ class DatabaseManager:
 
             *Parameters:*
                 - *query*: The SQL query.
+
                 - *data*: Optional. The parameters of the query. Default: *None*
 
             *Returns:*
@@ -98,6 +99,7 @@ class DatabaseManager:
                 - *Exception* object: If the query produced an error.
 
         """
+        print(self.connection)
         with self.connection.cursor(cursor_factory=RealDictCursor) as cursor:
             try:
                 if data is not None:
