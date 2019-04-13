@@ -34,7 +34,8 @@ def get_notifications(involved_username):
                         
                       
                      WHERE NOTIFIED_USERNAME = %s
-                      
+                     AND TYPE <> 'MENTION'
+                     AND TYPE <> 'REPLY'
                      ORDER BY NOTIFICATION.CREATED_AT DESC
                       
                  """
