@@ -1,6 +1,7 @@
 from . import actions
 from database_manager import db_manager
 import pytest
+#db_manager.initialize_connection('kwikker', 'postgres', '')
 
 
 def get_id(notified_username, involved_username, notif_type):
