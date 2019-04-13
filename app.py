@@ -6,7 +6,16 @@ import database_manager
 import config
 
 app = Flask(__name__)
-
+app.config.update(dict(
+    DEBUG=True,
+    MAIL_SERVER='smtp.zoho.com',
+    MAIL_PORT=587,
+    MAIL_USE_TLS=True,
+    MAIL_USE_SSL=False,
+    MAIL_USERNAME='no-reply@kwikker.me',
+    MAIL_PASSWORD='Kwikker1!',
+))
+app.config.from_object('config.DevelopmentConfig')
 authorizations = {
     'KwikkerKey': {
         'type': 'apiKey',
@@ -17,6 +26,8 @@ authorizations = {
 api = Api(app, authorizations=authorizations, doc='/api/doc', title='Kwikker API', version='1.0')
 create_model = api.model
 secret_key = None
+secret_key = app.config['SECRET_KEY']
+code = app.config['CODE_KEY']
 
 
 def initialize_database():

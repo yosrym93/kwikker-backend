@@ -9,6 +9,7 @@ class BaseConfig:
     SWAGGER_UI_DOC_EXPANSION = 'list'
     DEBUG = True
     SECRET_KEY = 'kwikkerSecretKeyIsSALTS'
+    CODE_KEY = 'kwikkerConfirmationCode'
     ERROR_404_HELP = False
     TESTING = False
     DATABASE_NAME = 'kwikker'
