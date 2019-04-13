@@ -87,7 +87,9 @@ def insert_kweek(kweek: Kweek):
 
     """
     add_kweek(kweek)
-    kid = get_kweek_id()[0]['id']
+    kweekid = get_kweek_id()
+    print(kweekid)
+    kid = kweekid[0]['id']
     for hash_obj in kweek.hashtags:
         test = check_existing_hashtag(hash_obj)
         if not test:  # then it is a new hashtag
