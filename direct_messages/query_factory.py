@@ -56,9 +56,17 @@ def get_messages(from_username, to_username):
                     FROM MESSAGE
                     WHERE FROM_USERNAME = %s
                     AND   TO_USERNAME = %s
+                    
+                    UNION
+                    
+                    SELECT ID, FROM_USERNAME, TO_USERNAME, CREATED_AT, TEXT, MEDIA_URL
+                    FROM MESSAGE
+                    WHERE FROM_USERNAME = %s
+                    AND   TO_USERNAME = %s
+                    
                     ORDER BY CREATED_AT DESC 
                  """
-    data = (from_username, to_username)
+    data = (from_username, to_username, to_username, from_username)
     response = db_manager.execute_query(query, data)
     return response
 
