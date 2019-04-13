@@ -432,6 +432,7 @@ def get_trend_kweeks(trend_id):
     query = """
                 SELECT K.* FROM KWEEK K JOIN KWEEK_HASHTAG KH ON K.ID = KH.KWEEK_ID
                 WHERE HASHTAG_ID = %s
+                ORDER BY CREATED_AT DESC
             """
     data = (trend_id,)
     return db_manager.execute_query(query, data)

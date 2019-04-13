@@ -7,3 +7,4 @@ exclude_lines =
     pragma:no cover
     import
     except TypeError
+    db_manager = database_manager.db_manager

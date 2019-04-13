@@ -10,8 +10,7 @@ from flask_mail import Mail, Message
 from threading import Thread
 import bcrypt
 mail = Mail(app)
-root = 'kwikker.me'
-# app.config['FRONT_END_ROOT']
+root = app.config['FRONT_END_ROOT']
 
 
 def get_user_by_email(email):
@@ -60,7 +59,7 @@ def add_user(username, password, email):
     return username_bool, email_bool
 
 
-def async_send_email(msg):
+def async_send_email(msg):  # pragma:no cover
     """
     Sending emails Asynchronous
 
@@ -71,7 +70,7 @@ def async_send_email(msg):
         mail.send(msg)
 
 
-def send_email(email, username, password, subject, url, html, confirm):
+def send_email(email, username, password, subject, url, html, confirm):  # pragma:no cover
     """
         Sending email
 
@@ -203,7 +202,7 @@ def create_token(username, password, secret=secret_key):
     return token
 
 
-def get_user(codee):
+def get_user(codee):  # pragma:no cover
     user = None
     try:
         user = jwt.decode(codee, code, algorithms=['HS256'])
