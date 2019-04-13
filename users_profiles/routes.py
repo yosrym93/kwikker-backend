@@ -120,7 +120,7 @@ class ProfilePicture(Resource):
         return response, 200
 
 
-@user_api.route('/upload/picture/<filename>')
+@user_api.route('/upload/picture/<filename>', doc=False)
 class PhotoUploadP(Resource):
     @staticmethod
     def get(filename):
@@ -128,7 +128,7 @@ class PhotoUploadP(Resource):
         return send_from_directory('images\profile', filename)
 
 
-@user_api.route('/upload/banner/<filename>')
+@user_api.route('/upload/banner/<filename>', doc=False)
 class PhotoUploadB (Resource):
     @staticmethod
     def get(filename):
