@@ -2,11 +2,12 @@ from . import query_factory
 from timelines_and_trends import actions
 from models import UserProfile, User
 import datetime
+from app import app
 import os
 
 APP_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
-Server_path = 'http://127.0.0.1:5000/'
+Server_path = app.config['SERVER_PATH']
 size = 5
 
 
@@ -188,7 +189,7 @@ def update_profile_banner(file, authorized_username):
         images = os.path.join(APP_ROOT, 'images/')
         if not os.path.isdir(images):
             os.mkdir(images)
-        target = os.path.join(APP_ROOT, 'images\ banner/')
+        target = os.path.join(APP_ROOT, 'images\banner/')
 
         if not os.path.isdir(target):
             os.mkdir(target)
@@ -220,7 +221,7 @@ def delete_banner_picture(authorized_username):
     filename = query_factory.get_user_banner_picture(authorized_username)['profile_banner_url']
     if filename == default_filename:
         return 'default image'
-    path = APP_ROOT + '\images\ banner'
+    path = APP_ROOT + '\images\banner'
     response = query_factory.update_user_banner_picture(authorized_username, default_filename)
     if response is None:
         os.chdir(path)

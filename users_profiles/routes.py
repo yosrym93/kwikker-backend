@@ -107,6 +107,8 @@ class ProfilePicture(Resource):
     @authorize
     def put(self, authorized_username):
         """ Update a profile picture given the new picture. """
+        print('request files:')
+        print(request.files)
         if 'file' not in request.files:
             return abort(404, message='No image part')
         file = request.files['file']
@@ -133,7 +135,7 @@ class PhotoUploadB (Resource):
     @staticmethod
     def get(filename):
         os.chdir(os.path.dirname(APP_ROOT))
-        return send_from_directory('images\ banner', filename)
+        return send_from_directory('images\\banner', filename)
 
 
 @user_api.route('/profile')

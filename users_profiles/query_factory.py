@@ -181,12 +181,12 @@ def get_user_profile_picture(username):
 
 def get_user_banner_picture(username):
     """
-                                            Query to get name of  banner picture.
+                                            Query to get name of banner picture.
 
                                             *Parameters*:
                                                 - *username (string)*: The username attribute in user_profile table .
                                             *Returns*:
-                                                - *response*: The name of  banner picture.
+                                                - *response*: The name of banner picture.
     """
     query: str = """
                                 select profile_banner_url from profile where username = %s

@@ -342,8 +342,8 @@ class Trend:
     })
 
     def __init__(self, json):
-        self.id = json['id'],
-        self.text = json['text'],
+        self.id = json['id']
+        self.text = json['text']
         self.number_of_kweeks = json['number_of_kweeks']
 
     def to_json(self):

@@ -1,11 +1,12 @@
 from flask import Flask
 from flask_restplus import Api
+from database_migration.migration import migrate_non_cli
 import api_namespaces
 import database_manager
-
+import config
 
 app = Flask(__name__)
-app.config.from_object('config.DevelopmentConfig')
+
 authorizations = {
     'KwikkerKey': {
         'type': 'apiKey',
@@ -15,7 +16,8 @@ authorizations = {
 }
 api = Api(app, authorizations=authorizations, doc='/api/doc', title='Kwikker API', version='1.0')
 create_model = api.model
-secret_key = app.config['SECRET_KEY']
+secret_key = None
+code = None
 
 
 def initialize_database():
@@ -32,16 +34,31 @@ def initialize_database():
     db_name = app.config['DATABASE_NAME']
     db_username = app.config['DATABASE_USERNAME']
     db_password = app.config['DATABASE_PASSWORD']
+    db_host = app.config['DATABASE_HOST']
+    db_port = app.config['DATABASE_PORT']
+    migrations_db_name = app.config['MIGRATIONS_DATABASE_NAME']
 
-    response = database_manager.db_manager.initialize_connection(db_name=db_name, db_username=db_username,
-                                                                 db_password=db_password)
+    if migrate_non_cli(_db_name=db_name,
+                       _db_username=db_username,
+                       _db_password=db_password,
+                       _db_host=db_host,
+                       _db_port=db_port,
+                       _migrations_db_name=migrations_db_name,
+                       _db_manager=database_manager.db_manager):
+        response = database_manager.db_manager.initialize_connection(db_name=db_name,
+                                                                     db_username=db_username,
+                                                                     db_password=db_password,
+                                                                     host=db_host,
+                                                                     port=db_port)
 
-    if response is None:
-        print('Connected to the database successfully.')
-        return True
+        if response is None:
+            print('Connected to the database successfully.')
+            return True
+        else:
+            print('Could not connect to the database.')
+            print(response)
+            return False
     else:
-        print('Could not connect to the database.')
-        print(response)
         return False
 
 
@@ -61,7 +78,7 @@ def import_routes():
     import media.routes
 
 
-def initialize():
+def initialize(env):
     """
         Loads the app configuration from the config.py, registers the api namespaces,
         and initializes the database.
@@ -71,15 +88,27 @@ def initialize():
             - *True*: If the database connection was successful.
             - *False*: Otherwise. The response of the database connection attempt is also printed.
     """
-    app.config.from_object('config.DevelopmentConfig')
+    # Initializing configuration
+    if env == 'production':
+        app.config.from_object(config.ProductionConfig)
+    elif env == 'test':
+        app.config.from_object(config.TestingConfig)
+    else:
+        app.config.from_object(config.DevelopmentConfig)
+    app.config.from_pyfile('config_local.py')
+
+    global secret_key
+    global code
+    secret_key = app.config['SECRET_KEY']
+    code = app.config['CODE_KEY']
     api_namespaces.initialize_api_namespaces(api=api)
     import_routes()
     return initialize_database()
 
 
-def run():
+def run(env):
     """
             Attempts to initialize the app, and runs it if the initialization was successful.
     """
-    if initialize():
+    if initialize(env):
         app.run()
