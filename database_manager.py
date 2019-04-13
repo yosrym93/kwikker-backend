@@ -21,6 +21,8 @@ class DatabaseManager:
                 - *db_name*: The PostgreSQL database name.
                 - *db_username*: The database username.
                 - *db_password*: The database password.
+                - *host*: The database host name. Can be None.
+                - *port*: The used port. Can be None.
 
             *Returns:*
                 - *None*: If the database connection was successful.
