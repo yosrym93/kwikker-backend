@@ -12,7 +12,7 @@ class DatabaseManager:
     def __init__(self):
         self.connection = None
 
-    def initialize_connection(self, db_name, db_username, db_password, host, port):
+    def initialize_connection(self, db_name, db_username, db_password, host=None, port=None):
         """
             Initializes the connection to the database.
 
@@ -30,12 +30,15 @@ class DatabaseManager:
         params = {
             'dbname': db_name,
             'user': db_username,
-            'password': db_password,
-            'port': port
+            'password': db_password
         }
         if host:
             params.update({
                 'host': host
+            })
+        if port:
+            params.update({
+                'port': port
             })
         # initialize connection to the database
         try:

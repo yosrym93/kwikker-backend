@@ -365,3 +365,26 @@ def is_user(username):
         return False
     else:
         return True
+
+
+def get_all_trends():
+    """
+        Returns a list of all hashtags.
+
+
+        *Parameters:*
+            - None.
+
+        *Returns:*
+            - *List of dictionaries*: {
+                                | *id (int)*: The id of the hashtag.,
+                                | *text (string)*: The text of the hashtag,
+                                | *number_of_kweeks(int)*: The number of kweeks in a trend.
+                                | }
+    """
+    query = """
+                SELECT ID, TEXT, COUNT(KWEEK_ID) AS NUMBER_OF_KWEEKS
+                FROM HASHTAG H JOIN KWEEK_HASHTAG KH ON H.ID = KH.HASHTAG_ID
+                GROUP BY ID, TEXT
+            """
+    return db_manager.execute_query(query)

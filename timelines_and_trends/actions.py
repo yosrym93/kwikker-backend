@@ -1,5 +1,5 @@
 from . import query_factory
-from models import User, Mention, Hashtag, Kweek, RekweekInfo
+from models import User, Mention, Hashtag, Kweek, RekweekInfo, Trend
 
 
 def get_friendship(authorized_username, required_username):
@@ -104,6 +104,43 @@ def get_kweek_hashtags(kweek_id):
     return hashtags
 
 
+def get_all_trends(last_retrieved_trend_id):
+    """
+        Gets all the hashtags.
+
+
+        *Parameters:*
+            - *last_retrieved_kweek_id (string)*: The id of the last retrieved trend (used to fetch more). Nullable.
+
+        *Returns:*
+            - *List of models.Hashtag objects*
+    """
+    if last_retrieved_trend_id is not None:
+        try:
+            last_retrieved_kweek_id = int(last_retrieved_trend_id)
+        except ValueError:
+            raise
+    database_trends = query_factory.get_all_trends()
+    # Paginate the results
+    try:
+        database_trends = paginate(dictionaries_list=database_trends, required_size=20,
+                                   start_after_key='id', start_after_value=last_retrieved_trend_id)
+    except TypeError as E:
+        print(E)
+        raise
+    if database_trends is None:
+        return None
+    trends = []
+    for database_trend in database_trends:
+        trend = {
+            'id': database_trend['id'],
+            'text': database_trend['text'],
+            'number_of_kweeks': database_trend['number_of_kweeks']
+        }
+        trends.append(Trend(trend))
+    return trends
+
+
 def get_profile_kweeks(authorized_username, required_username, last_retrieved_kweek_id):
     """
         Gets the kweeks that should appear on a specific user profile.
@@ -112,6 +149,7 @@ def get_profile_kweeks(authorized_username, required_username, last_retrieved_kw
         *Parameters:*
             - *authorized_username (string)*: The username of the authorized user.
             - *required_username (string)*: The username of the user whose profile kweeks are required.
+            - *last_retrieved_kweek_id (string)*: The id of the last retrieved kweek (used to fetch more). Nullable.
 
         *Returns:*
             - *List of models.Kweek objects*
@@ -171,6 +209,7 @@ def get_home_kweeks(authorized_username, last_retrieved_kweek_id):
 
         *Parameters:*
             - *authorized_username (string)*: The username of the authorized user.
+            - *last_retrieved_kweek_id (string)*: The id of the last retrieved kweek (used to fetch more). Nullable.
 
         *Returns:*
             - *List of models.Kweek objects*
@@ -228,6 +267,7 @@ def get_user_liked_kweeks(authorized_username, required_username, last_retrieved
         *Parameters:*
             - *authorized_username (string)*: The username of the authorized user.
             - *required_username (string)*: The username of the user whose liked kweeks are required.
+            - *last_retrieved_kweek_id (string)*: The id of the last retrieved kweek (used to fetch more). Nullable.
 
         *Returns:*
             - *List of models.Kweek objects*

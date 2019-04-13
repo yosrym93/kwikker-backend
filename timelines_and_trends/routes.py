@@ -99,10 +99,10 @@ class UserLikedTweets(Resource):
                       description="The username of the user whose liked kweeks are requested.")
     @kweeks_api.response(code=200, description='Kweeks returned successfully.', model=[Kweek.api_model])
     @kweeks_api.response(code=401, description='Unauthorized access.')
-    @timelines_api.response(code=404, description='Username or kweek id does not exist.')
-    @timelines_api.response(code=500, description='An error occurred in the server.')
-    @timelines_api.response(code=400, description='Invalid ID provided.')
-    @timelines_api.marshal_with(Kweek.api_model, as_list=True)
+    @kweeks_api.response(code=404, description='Username or kweek id does not exist.')
+    @kweeks_api.response(code=500, description='An error occurred in the server.')
+    @kweeks_api.response(code=400, description='Invalid ID provided.')
+    @kweeks_api.marshal_with(Kweek.api_model, as_list=True)
     @kweeks_api.doc(security='KwikkerKey')
     @authorize
     def get(self, authorized_username):
@@ -153,15 +153,28 @@ class Trends(Resource):
                                   "To retrieve more send the id of the last trend retrieved.")
     @trends_api.response(code=200, description='Trends returned successfully.', model=[Trend.api_model])
     @trends_api.response(code=401, description='Unauthorized access.')
+    @trends_api.response(code=404, description='Username or trend id does not exist.')
+    @trends_api.response(code=500, description='An error occurred in the server.')
+    @trends_api.response(code=400, description='Invalid ID provided.')
+    @trends_api.marshal_with(Trend.api_model, as_list=True)
     @trends_api.doc(security='KwikkerKey')
     @authorize
     def get(self, authorized_username):
         """ Retrieves a list of available trends. """
-        pass
+        last_retrieved_trend_id = request.args.get('last_retrieved_trend_id')
+        try:
+            trends = actions.get_all_trends(last_retrieved_trend_id=last_retrieved_trend_id)
+            if trends is None:
+                abort(404, message='A trend with the provided ID does not exist.')
+            return trends, 200
+        except TypeError:
+            abort(500, message='An error occurred in the server.')
+        except ValueError:
+            abort(400, 'Invalid ID provided.')
 
 
 @trends_api.route('/kweeks')
-class Trends(Resource):
+class TrendsKweeks(Resource):
     @trends_api.param(name='trend_id', type='str',
                       description='The id of the trend.', required=True)
     @trends_api.param(name='last_retrieved_kweek_id', type='str',
