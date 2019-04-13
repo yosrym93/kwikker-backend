@@ -1,10 +1,10 @@
 from . import actions
 from database_manager import db_manager
 import pytest
-
+#db_manager.initialize_connection('kwikker', 'postgres', '')
 
 def get_id(from_username, to_username):
-    query = """SELECT ID, FROM_USERNAME, TO_USERNAME, CREATED_AT, TEXT, MEDIA_URL
+    query = """     SELECT ID, FROM_USERNAME, TO_USERNAME, CREATED_AT, TEXT, MEDIA_URL
                     FROM MESSAGE
                     WHERE FROM_USERNAME = %s
                     AND   TO_USERNAME = %s

@@ -1,4 +1,4 @@
-INSERT INTO USER_CREDENTIALS
+INSERT INTO public.USER_CREDENTIALS
     (USERNAME, PASSWORD, EMAIL, IS_CONFIRMED)
     VALUES ('ahly', '$2b$12$2Pz5Czsrn0MXX/BEqwDgteW8guZgDnB75Ho4rWtfquttl1GMWR2vS', 'ahly@test.com', TRUE),
            ('zamalek', '$2b$12$REZtbFGM6vAq2kIlACyefum2lYtkxkpuE1/Ex68qAk..fqFbeB3pa', 'zamalek@test.com', TRUE),
