@@ -4,6 +4,7 @@ from database_migration.migration import migrate_non_cli
 import api_namespaces
 import database_manager
 import config
+import patch
 
 app = Flask(__name__)
 
@@ -14,7 +15,8 @@ authorizations = {
         'name': 'TOKEN'
     }
 }
-api = Api(app, authorizations=authorizations, doc='/api/doc', title='Kwikker API', version='1.0')
+api = Api(app, authorizations=authorizations, doc='/api/doc', title='Kwikker API', version='1.0',
+          validate=True)
 create_model = api.model
 secret_key = None
 code = None
@@ -95,12 +97,14 @@ def initialize(env):
         app.config.from_object(config.TestingConfig)
     else:
         app.config.from_object(config.DevelopmentConfig)
-    app.config.from_pyfile('config_local.py')
+        app.config.from_pyfile('config_local.py')
 
     global secret_key
     global code
     secret_key = app.config['SECRET_KEY']
     code = app.config['CODE_KEY']
+    # Apply monkey patches
+    patch.patch_flask_restplus_fields()
     api_namespaces.initialize_api_namespaces(api=api)
     import_routes()
     return initialize_database()

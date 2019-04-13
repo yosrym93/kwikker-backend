@@ -16,8 +16,8 @@ class Kweeks(Resource):
         'text': fields.String,
         'reply_to': NullableString(description='The id of the kweek that this kweek '
                                                'is a reply to. Null if the kweek is not'
-                                               ' a reply.', validate=True)
-    }))
+                                               ' a reply.')
+    }), validate=True)
     @kweeks_api.response(code=401, description='Unauthorized access.')
     @kweeks_api.response(code=201, description='Kweek created successfully.')
     @kweeks_api.doc(security='KwikkerKey')
@@ -111,8 +111,8 @@ class KweekReplies(Resource):
 @kweeks_api.route('/rekweek')
 class Rekweek(Resource):
     @kweeks_api.expect(create_model('Kweek ID', {
-        'id': fields.String(description='The id of the kweek to be rekweeked.', validate=True)
-    }))
+        'id': fields.String(description='The id of the kweek to be rekweeked.')
+    }), validate=True)
     @kweeks_api.response(code=401, description='Unauthorized access.')
     @kweeks_api.response(code=201, description='Reweek created successfully')
     @kweeks_api.response(code=404, description='Kweek does not exist.')
@@ -154,7 +154,7 @@ class Like(Resource):
     @kweeks_api.response(code=401, description='Unauthorized access.')
     @kweeks_api.expect(create_model('Kweek ID', {
         'id': fields.String(description='The id of the kweek to be liked.')
-    }))
+    }), validate=True)
     @kweeks_api.doc(security='KwikkerKey')
     @authorize
     def post(self, authorized_username):
