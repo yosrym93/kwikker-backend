@@ -117,7 +117,7 @@ def get_all_trends(last_retrieved_trend_id):
     """
     if last_retrieved_trend_id is not None:
         try:
-            last_retrieved_kweek_id = int(last_retrieved_trend_id)
+            last_retrieved_trend_id = int(last_retrieved_trend_id)
         except ValueError:
             raise
     database_trends = query_factory.get_all_trends()

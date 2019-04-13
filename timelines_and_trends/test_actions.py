@@ -62,7 +62,7 @@ def test_get_friendship(authorized_username, required_username, expected_output)
                              ('test_user1', 'test_user2', User({
                                  'username': 'test_user2',
                                  'screen_name': 'test2',
-                                 'profile_image_url': 'image_url',
+                                 'profile_image_url': 'profile.jpg',
                                  'following': False,
                                  'follows_you': False,
                                  'muted': False,
