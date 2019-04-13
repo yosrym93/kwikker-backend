@@ -1,4 +1,3 @@
-
 from datetime import datetime
 from models import Kweek, Hashtag, Mention, User
 from kweeks.query_factory import add_kweek, delete_main_kweek, retrieve_hashtags, retrieve_mentions, retrieve_replies,\
@@ -7,7 +6,6 @@ from kweeks.query_factory import add_kweek, delete_main_kweek, retrieve_hashtags
     get_kweek_id, update_hashtag, validate_id, check_kweek_writer, check_kweek_mention, check_kweek_owner, add_rekweek,\
     delete_rekweeks, check_kweek_rekweeker, add_like, delete_like
 from notifications.actions import create_notifications
-
 
 
 def create_kweek(request, authorized_username):
@@ -41,7 +39,6 @@ def create_kweek(request, authorized_username):
         return False, 'No text body found'
 
     # check if str and have a length of minimum one char and is not fully  white space
-
     hashtags, mentions = extract_mentions_hashtags(text)  # two lists of objects
     partial_user = get_user(authorized_username)
     if len(partial_user) == 0:
@@ -87,9 +84,9 @@ def insert_kweek(kweek: Kweek):
 
     """
     add_kweek(kweek)
-    kweekid = get_kweek_id()
-    print(kweekid)
-    kid = kweekid[0]['id']
+    kid = get_kweek_id()[0]['id']
+    notified_user = retrieve_user(kweek.reply_to, 1)[0]['username']
+    create_notifications(kweek.user.username, notified_user, 'REPLY', kid)
     for hash_obj in kweek.hashtags:
         test = check_existing_hashtag(hash_obj)
         if not test:  # then it is a new hashtag
@@ -106,6 +103,9 @@ def insert_kweek(kweek: Kweek):
         response = create_mention(kid, ment)
         if response is not None:
             return False, 'the user mentioned does not exist in the database'
+        notified_user = ment.username
+        create_notifications(kweek.user.username, notified_user, 'MENTION', kid)
+   
     return True, 'success'
 
 
@@ -282,9 +282,12 @@ def get_kweek(kid, authorized_username, replies_only):
             mention = Mention(ment_dic)
             mentions_list.append(mention)
 
+    if not user:
+        return False, 'not a valid user', None, None
+    else:
         user = user[0]
         extrauser = {}
-        me = authorized_username
+        me = authorized_username  # should be replaced by the function getting the current user
         check = check_following(me, user['username'])
         if check:
             extrauser['following'] = True
@@ -370,8 +373,11 @@ def get_kweek_with_replies(kid, authorized_username, replies_only):
             for reply in replies_list_dics:
                 relpy_id = reply['id']
                 check_replies, message, k, r = get_kweek(relpy_id, authorized_username, False)
-                replies_list_obj.append(k)
-
+                if check_replies:
+                    replies_list_obj.append(k)
+                else:
+                    message = 'db failed'
+                    return check_replies, message, None, None
     return check, message, kweekobj, replies_list_obj
 ########################################################################################################################
 

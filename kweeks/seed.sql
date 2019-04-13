@@ -24,5 +24,5 @@ INSERT INTO BLOCK VALUES
 ('user2', 'user1');
 
 INSERT INTO KWEEK(CREATED_AT, TEXT, USERNAME, REPLY_TO) VALUES
-('01-01-2010', 'spare test', 'user1', null),
+('01-01-2010', 'spare test', 'user1', null)
 
