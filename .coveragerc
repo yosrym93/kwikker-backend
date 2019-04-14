@@ -1,3 +1,10 @@
 [run]
 omit = */routes.py
        */test_actions.py
+
+[report]
+exclude_lines =
+    pragma:no cover
+    import
+    except TypeError
+    db_manager = database_manager.db_manager

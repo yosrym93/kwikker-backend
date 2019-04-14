@@ -1,5 +1,5 @@
 import database_manager
-db_manager = database_manager.db_manager
+db_manager = database_manager.db_manager  # pragma:no cover
 
 
 def get_notifications(involved_username):
@@ -34,7 +34,8 @@ def get_notifications(involved_username):
                         
                       
                      WHERE NOTIFIED_USERNAME = %s
-                      
+                     AND TYPE <> 'MENTION'
+                     AND TYPE <> 'REPLY'
                      ORDER BY NOTIFICATION.CREATED_AT DESC
                       
                  """
@@ -44,7 +45,7 @@ def get_notifications(involved_username):
     return response
 
 
-def create_notifications(involved_username, notified_username, type_notification, kweek_id, created_at):
+def create_notifications(involved_username, notified_username, type_notification, kweek_id, created_at, is_seen):
     """
          This function create a notification in the database.
 
@@ -69,7 +70,7 @@ def create_notifications(involved_username, notified_username, type_notification
                     VALUES (DEFAULT, %s, %s, %s, %s, %s, %s)
                  """
 
-    data = (created_at, notified_username, involved_username, type_notification, kweek_id, False)
+    data = (created_at, notified_username, involved_username, type_notification, kweek_id, is_seen)
     response = db_manager.execute_query_no_return(query, data)
     return response
 
@@ -156,4 +157,3 @@ def is_notification(involved_username, notified_username, type_notification, kwe
                 """
     data = (involved_username, notified_username, type_notification, kweek_id)
     return db_manager.execute_query(query, data)
-

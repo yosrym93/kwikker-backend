@@ -1,11 +1,14 @@
 from . import query_factory
 from timelines_and_trends import actions
-from models import UserProfile
+from models import UserProfile, User
+import datetime
+from app import app
 import os
 
 APP_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
-Server_path = 'http://127.0.0.1:5000/'
+Server_path = app.config['SERVER_PATH']
+size = 5
 
 
 def create_url(upload_type, filename):
@@ -64,6 +67,30 @@ def get_user_profile(authorized_username, username):
     return UserProfile(profile)
 
 
+def create_profile(username, screen_name, birth_date):
+    """
+                The function creates new profile in database.
+
+                *Parameters*:
+                    - *username (string)*: The username .
+                    - *screen_name*: screen_name.
+                    -*birth_date*: date of birth.
+                *Returns*:
+                    - *True*: profile created successfully.
+                    - *False*: if profile is already created or database error .
+    """
+    if username is None or username == "":
+        return False
+    check_user = actions.is_user(username)
+    if not check_user:
+        return False
+    time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    response = query_factory.create_profile(username, screen_name, birth_date, time)
+    if response is None:
+        return True
+    return False
+
+
 def update_user_profile(authorized_username, bio, screen_name):
     """
                 The function updates bio and screen name in user profile.
@@ -83,7 +110,7 @@ def update_user_profile(authorized_username, bio, screen_name):
     return response
 
 
-def update_profile_picture(file, authorized_username):
+def update_profile_picture(file, authorized_username):  # pragma:no cover
     """
                     The function updates profile picture.
 
@@ -146,7 +173,7 @@ def delete_profile_picture(authorized_username):
         return response  # pragma:no cover
 
 
-def update_profile_banner(file, authorized_username):
+def update_profile_banner(file, authorized_username):  # pragma:no cover
     """
                         The function updates banner picture.
 
@@ -162,7 +189,7 @@ def update_profile_banner(file, authorized_username):
         images = os.path.join(APP_ROOT, 'images/')
         if not os.path.isdir(images):
             os.mkdir(images)
-        target = os.path.join(APP_ROOT, 'images\ banner/')
+        target = os.path.join(APP_ROOT, 'images\\banner/')
 
         if not os.path.isdir(target):
             os.mkdir(target)
@@ -194,7 +221,7 @@ def delete_banner_picture(authorized_username):
     filename = query_factory.get_user_banner_picture(authorized_username)['profile_banner_url']
     if filename == default_filename:
         return 'default image'
-    path = APP_ROOT + '\images\ banner'
+    path = APP_ROOT + '\images\\banner'
     response = query_factory.update_user_banner_picture(authorized_username, default_filename)
     if response is None:
         os.chdir(path)
@@ -205,3 +232,35 @@ def delete_banner_picture(authorized_username):
             return 'file does not exist'
     else:
         return response  # pragma:no cover
+
+
+def search_user(authorized_username, search_key, username):
+    """
+                The function returns a list of users searched by search_key.
+
+                *Parameters*:
+                    - *authorized_username (string)*: The user that is logged in now.
+                    - *search_key (string)*: The keyword used to get best match users.
+
+                *Returns*:
+                    - *User_list*: a list of objects of user.
+    """
+    if search_key == "":
+        return []
+    results = query_factory.search_user(search_key)
+    try:
+        results = actions.paginate(dictionaries_list=results, required_size=size, start_after_key='username', start_after_value=username)
+    except TypeError as E:
+        print(E)
+        raise
+    if results is None:
+        return None
+    user_list = []
+    for result in results:
+        # print(result['username'])
+        result["profile_image_url"] = create_url('picture', result[
+            "profile_image_url"])
+        friendship = actions.get_friendship(authorized_username, result['username'])
+        result.update(friendship)
+        user_list.append(User(result))
+    return user_list

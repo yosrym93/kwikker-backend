@@ -1,0 +1,31 @@
+sudo: required
+services:
+  - docker
+
+before_install:
+  - docker build -t ajammil/kwikkerbackend:latest .
+
+
+script:
+#tests will be here
+  - gem install bundler
+
+after_success:
+  #Log in to docker hub
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  #Push image to docker hub
+  - docker push ajammil/kwikkerbackend:latest
+
+deploy:
+  provider: elasticbeanstalk
+  region: eu-central-1
+  app: Kwikker backend
+  env: KwikkerBackend-env
+  bucket_name: elasticbeanstalk-eu-central-1-911980560928
+  bucket_path: backend-kwikker
+  on:
+    branch: master
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key:
+    secure: "$AWS_SECRET_KEY"
+  

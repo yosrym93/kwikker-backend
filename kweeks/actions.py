@@ -2,35 +2,37 @@
 from datetime import datetime
 from models import Kweek, Hashtag, Mention, User
 from kweeks.query_factory import add_kweek, delete_main_kweek, retrieve_hashtags, retrieve_mentions, retrieve_replies,\
-    retrieve_rekweeks, retrieve_user, retrieve_likers, check_following, check_blocked,\
+    retrieve_user, check_following, check_blocked,\
     check_muted, retrieve_kweek, get_user, add_kweek_hashtag, create_mention, create_hashtag, check_existing_hashtag, \
-    get_kweek_id, update_hashtag, validate_id, check_kweek_writer, check_kweek_mention, check_kweek_owner
+    get_kweek_id, update_hashtag, validate_id, check_kweek_writer, check_kweek_mention, check_kweek_owner, add_rekweek,\
+    delete_rekweeks, check_kweek_rekweeker, add_like, delete_like
+from notifications.actions import create_notifications
+
 
 
 def create_kweek(request, authorized_username):
     """
-                Set the data needed to be assigned to the kweek object to later be inserted in the data base
+            Set the data needed to be assigned to the kweek object to later be inserted in the data base
 
 
-                *Parameters:*
-                    - *request*: the body of The kweek creation request sent from the user.
-                    - *authorized_username*: The name of the authorized user who sent the request.
+            *Parameters:*
+                - *request*: the body of The kweek creation request sent from the user.
+                - *authorized_username*: The name of the authorized user who sent the request.
 
 
-                *Returns:*
-                   -*Tuple*: {
-                                | *bool*: To indicate whether kweek credentials creation was successful or not.,
-                                | *message (str)*: To specify the reason of failure if detected.
-                                | }
-         """
+            *Returns:*
+               -*Tuple*: {
+                            | *bool*: To indicate whether kweek credentials creation was successful or not.,
+                            | *message (str)*: To specify the reason of failure if detected.
+                            | }
+    """
     data = {}
     reply_to = request["reply_to"]
-    if reply_to is not None or reply_to == 0:
-        if reply_to != 0:
-            if len(reply_to) == 0 or (reply_to.isspace()):
-                return False, 'No reply body found'
-            if not reply_to.isdigit():
-                return False, 'Not valid id'
+    if reply_to is not None:
+        if len(reply_to) == 0 or (reply_to.isspace()):
+            return False, 'No reply body found'
+        if not reply_to.isdigit():
+            return False, 'Not valid id'
         check = validate_id(reply_to)
         if len(check) == 0:
             return False, 'Kweek does not exist '
@@ -39,12 +41,6 @@ def create_kweek(request, authorized_username):
         return False, 'No text body found'
 
     # check if str and have a length of minimum one char and is not fully  white space
-
-    reply_to = request["reply_to"]
-    if reply_to or reply_to == 0:
-        check = validate_id(reply_to)
-        if len(check) == 0:
-            return False, 'Kweek does not exist '
 
     hashtags, mentions = extract_mentions_hashtags(text)  # two lists of objects
     partial_user = get_user(authorized_username)
@@ -89,10 +85,11 @@ def insert_kweek(kweek: Kweek):
                                 | *message (str)*: To specify the reason of failure if detected.
                                 | }
 
-
-     """
+    """
     add_kweek(kweek)
-    kid = get_kweek_id()[0]['id']
+    kweekid = get_kweek_id()
+    print(kweekid)
+    kid = kweekid[0]['id']
     for hash_obj in kweek.hashtags:
         test = check_existing_hashtag(hash_obj)
         if not test:  # then it is a new hashtag
@@ -108,7 +105,7 @@ def insert_kweek(kweek: Kweek):
             return False, 'Repeated mention in the same kweek'
         response = create_mention(kid, ment)
         if response is not None:
-            return False, 'the user mentioned does not exist in the database '
+            return False, 'the user mentioned does not exist in the database'
     return True, 'success'
 
 
@@ -125,6 +122,7 @@ def extract_mentions_hashtags(text):
                                 | *hashtags (hashtag object )*: The list of kweek hashtags,
                                 | *mention (mention object )*: The list of kweek mentions.
                                 | }
+
     """
     hashtags = []
     mentions = []
@@ -170,20 +168,19 @@ def extract_mentions_hashtags(text):
 
 def delete_kweek(kid, authorized_username):
     """
-               Delete kweek with its credentials.
+           Delete kweek with its credentials.
 
 
-               *Parameters:*
-                   - *kid*: The kweek id to be deleted   .
-
-               *Returns:*
-                   -*Tuple*: {
-                                | *check (bool)*: To indicate whether kweek deletion was successful or not.,
-                                | *message (str)*: To specify the reason of failure if detected.
-                                | }
+           *Parameters:*
+               - *kid*: The kweek id to be deleted.
+               - *authorized_username(string)*: The user currently logged in.
 
 
-
+           *Returns:*
+               -*Tuple*: {
+                            | *check (bool)*: To indicate whether kweek deletion was successful or not.,
+                            | *message (str)*: To specify the reason of failure if detected.
+                            | }
 
     """
     check, message = validate_request(kid)
@@ -203,20 +200,20 @@ def delete_kweek(kid, authorized_username):
 
 def validate_request(kid):
     """
-                       Validate the request parametar.
+           Validate the request parametar.
 
 
-                       *Parameters:*
-                           - *kid*: The kweek id to be Validate.
+           *Parameters:*
+               - *kid*: The kweek id to be Validate.
 
 
-                       *Returns:*
-                           -*Tuple*: {
-                                    | *check (bool)*: To indicate whether kweek is valid or not .,
-                                    | *message (str)*: To specify  the resaon of error .
-                                    | }
+           *Returns:*
+               -*Tuple*: {
+                        | *check (bool)*: To indicate whether kweek is valid or not .,
+                        | *message (str)*: To specify  the resaon of error .
+                        | }
 
-        """
+    """
     try:
         int(kid)
         check = validate_id(kid)
@@ -226,36 +223,41 @@ def validate_request(kid):
         else:
             return True, 'success'
     except ValueError:
-        return False, 'Invalid data type type'
+        return False, 'Invalid data type'
 
 
-def get_kweek(kid, authorized_username):
+def get_kweek(kid, authorized_username, replies_only):
     """
-                   Get the requested kweek with its credentials.
+           Get the requested kweek with its credentials.
 
 
-                   *Parameters:*
-                       - *kid*: The id of the kweek to be retrieved  .
+           *Parameters:*
+               - *kid*: The id of the kweek to be retrieved.
+               - *authorized_username(string)*: The user currently logged in.
+               - *replies_only (bool)*: To indicate whether the kweek with its replies
+                  is to be retrieved or the replies only
 
-                   *Returns:*
-                       -*Tuple*: {
-                                    | *check (bool)*: To indicate whether kweek credentials creation
-                                    | was successful or not.,
-                                    | *message (str)*: To specify the reason of failure if detected.
-                                    | *kweekobj (kweek object )*: the kweek to be retrieved,
-                                    | *replies (list of int )*: Ids of  the replies to the retrieved kweek .
-                                    | }
+           *Returns:*
+               -*Tuple*: {
+                            | *check (bool)*: To indicate whether kweek credentials creation
+                            | was successful or not.,
+                            | *message (str)*: To specify the reason of failure if detected.
+                            | *kweekobj (kweek object )*: the kweek to be retrieved,
+                            | *replies (list of int )*: Ids of  the replies to the retrieved kweek .
+                            | }
 
     """
     check, message = validate_request(kid)
     if not check:
         return check, message, None, None
+    replies = retrieve_replies(kid)  # rows of kweek table who is set as a reply to the retrieved kweek (ids)
+    if replies_only:
+        return True, message, None, replies
     hashtags = retrieve_hashtags(kid)  # rows of hahstag-kweek table (*)
     mentions = retrieve_mentions(kid)  # rows of mention table (*)
-    replies = retrieve_replies(kid)  # rows of kweek table who is set as a reply yo the retrieved kweek (ids)
-    rekweeks = retrieve_rekweeks(kid)  # rows of rekweeker table for those who rekweek the kweek (usernames)
-    likers = retrieve_likers(kid)  # rows of likers table for those who liked the kweek (usernames)
-    user = retrieve_user(kid)  # row of user profile table fo the user who wrote the kweek (*)
+    rekweeks = retrieve_user(kid, 3)
+    likers = retrieve_user(kid, 2)  # rows of likers table for those who liked the kweek (usernames)
+    user = retrieve_user(kid, 1)  # row of user profile table fo the user who wrote the kweek (*)
     hashtags_list = []  # list of hashtag objects
     mentions_list = []  # list of mention objects
 
@@ -280,35 +282,32 @@ def get_kweek(kid, authorized_username):
             mention = Mention(ment_dic)
             mentions_list.append(mention)
 
-    if not user:
-        return False, 'not a valid user', None, None  # a message may be added or something
+    user = user[0]
+    extrauser = {}
+    me = authorized_username
+    check = check_following(me, user['username'])
+    if check:
+        extrauser['following'] = True
     else:
-        user = user[0]
-        extrauser = {}
-        me = authorized_username  # should be replaced by the function getting the current user
-        check = check_following(me, user['username'])
-        if check:
-            extrauser['following'] = True
-        else:
-            extrauser['following'] = False
+        extrauser['following'] = False
 
-        check = check_following(user['username'], me)
-        if check:
-            extrauser['follows_you'] = True
-        else:
-            extrauser['follows_you'] = False
+    check = check_following(user['username'], me)
+    if check:
+        extrauser['follows_you'] = True
+    else:
+        extrauser['follows_you'] = False
 
-        check = check_blocked(me, user['username'])
-        if check:
-            extrauser['blocked'] = True
-        else:
-            extrauser['blocked'] = False
-        check = check_muted(me, user['username'])
-        if check:
-            extrauser['muted'] = True
-        else:
-            extrauser['muted'] = False
-        extrauser.update(user)
+    check = check_blocked(user['username'], me)
+    if check:
+        extrauser['blocked'] = True
+    else:
+        extrauser['blocked'] = False
+    check = check_muted(user['username'], me)
+    if check:
+        extrauser['muted'] = True
+    else:
+        extrauser['muted'] = False
+    extrauser.update(user)
 
     userobj = User(extrauser)
 
@@ -331,10 +330,9 @@ def get_kweek(kid, authorized_username):
         num_of_rekweeks = 0
         rekweeked_by_user = False
 
-    rekweek_info = None
     kweekdic = {'hashtags': hashtags_list, 'mentions': mentions_list, 'number_of_likes': num_of_likes,
                 'number_of_rekweeks': num_of_rekweeks, 'number_of_replies': num_of_replies,
-                'rekweek_info': rekweek_info,
+                'rekweek_info': None,
                 'liked_by_user': liked_by_user, 'rekweeked_by_user': rekweeked_by_user, 'user': userobj}
     kweek = retrieve_kweek(kid)  # a row of kweek table
     kweek = kweek[0]
@@ -343,35 +341,220 @@ def get_kweek(kid, authorized_username):
     return True, message, kweekobj, replies
 
 
-def get_kweek_with_replies(kid, username):
+def get_kweek_with_replies(kid, authorized_username, replies_only):
     """
-                       Get the credentials of both requested kweek and its replies.
+           Get the credentials of both requested kweek and its replies.
 
 
-                       *Parameters:*
-                           - *kid*: The id of the kweek to be retrieved   .
+           *Parameters:*
+               - *kid*: The id of the kweek to be retrieved.
+               - *authorized_username(string)*: The user currently logged in.
+               - *replies_only (bool)*: To indicate whether the kweek with its replies
+                is to be retrieved or the replies only
 
-                       *Returns:*
-                           -*Tuple*: {
-                                    | *check (bool)*: To indicate whether kweek credentials creation was
-                                    | successful or not.,
-                                    | *message (str)*: To specify the reason of failure if detected.
-                                    | *kweekobj (kweek object )*: the kweek to be retrieved,
-                                    | *replies (list of kweek objects )*: replies of the retrieved kweek .
-                                    | }
+
+           *Returns:*
+               -*Tuple*: {
+                        | *check (bool)*: To indicate whether kweek credentials creation was
+                        | successful or not.,
+                        | *message (str)*: To specify the reason of failure if detected.
+                        | *kweekobj (kweek object )*: the kweek to be retrieved,
+                        | *replies (list of kweek objects )*: replies of the retrieved kweek .
+                        | }
 
     """
     replies_list_obj = []
-    check, message, kweekobj, replies_list_dics = get_kweek(kid, username)
+    check, message, kweekobj, replies_list_dics = get_kweek(kid, authorized_username, replies_only)
     if check:
-        
         if replies_list_dics:
             for reply in replies_list_dics:
                 relpy_id = reply['id']
-                check_replies, message, k, r = get_kweek(relpy_id, username)
-                if check_replies:
-                    replies_list_obj.append(k)
-                else:
-                    message = 'db failed'
-                    return check_replies, message, None, None
+                check_replies, message, k, r = get_kweek(relpy_id, authorized_username, False)
+                replies_list_obj.append(k)
+
     return check, message, kweekobj, replies_list_obj
+########################################################################################################################
+
+
+def create_rekweek(request, authorized_username):
+    """
+            Insert a rekweek in the data base.
+
+
+            *Parameters:*
+                - *request*: the request which contains the id of th kweek to be rekweeked.
+
+            *Returns:*
+                   -*Tuple*: {
+                                | *bool*: To indicate whether kweek credentials creation was successful or not.,
+                                | *message (str)*: To specify the reason of failure if detected.
+                                | }
+
+    """
+    rekweek_id = request["id"]
+    if id is not None:
+        if len(rekweek_id) == 0 or (rekweek_id.isspace()):
+            return False, 'No id found'
+        if not rekweek_id.isdigit():
+            return False, 'Not valid id'
+        check = validate_id(rekweek_id)
+        if len(check) == 0:
+            return False, 'Kweek does not exist '
+    else:
+        return False, 'No id found'
+    partial_user = get_user(authorized_username)
+    if len(partial_user) == 0:
+        message = 'The authorized user does not exist in the data base'
+        return False, message
+    add_rekweek(rekweek_id, authorized_username)
+    notified_user = retrieve_user(rekweek_id, 1)[0]['username']
+    create_notifications(authorized_username, notified_user, 'REKWEEK', rekweek_id)
+    return True, 'success '
+
+
+def delete_rekweek(kweek_id, authorized_username):
+    """
+           Delete a rekweek .
+
+
+           *Parameters:*
+               - *kweek_id*: The id of the kweek to be deleted.
+               - *authorized_username(string)*: The user currently logged in.
+
+
+           *Returns:*
+               -*Tuple*: {
+                            | *check (bool)*: To indicate whether kweek deletion was successful or not.,
+                            | *message (str)*: To specify the reason of failure if detected.
+                            | }
+
+    """
+    check, message = validate_request(kweek_id)
+    if not check:
+        return check, message
+    check = check_kweek_rekweeker(kweek_id, authorized_username)
+    if not check:
+        return False, 'Deletion is not allowed'
+    delete_rekweeks(kweek_id)
+    return True, 'success '
+
+
+def like_kweek(request, authorized_username):
+    """
+            To like a kweek.
+
+
+            *Parameters:*
+                - *request*: Request which contains the id of th kweek to be liked.
+                - *authorized_username(string)*: The user currently logged in.
+
+            *Returns:*
+                   -*Tuple*: {
+                                | *bool*: To indicate whether kweek credentials creation was successful or not.,
+                                | *message (str)*: To specify the reason of failure if detected.
+                                | }
+
+        """
+    kweek_id = request['id']
+    if id is not None:
+        if len(kweek_id) == 0 or (kweek_id.isspace()):
+            return False, 'No id found'
+        if not kweek_id.isdigit():
+            return False, 'Not valid id'
+        check = validate_id(kweek_id)
+        if len(check) == 0:
+            return False, 'Kweek does not exist '
+    else:
+        return False, 'No id found'
+    add_like(kweek_id, authorized_username)
+    notified_user = retrieve_user(kweek_id, 1)[0]['username']
+    create_notifications(authorized_username, notified_user, 'LIKE', kweek_id)
+    return True, 'success '
+
+
+def dislike_kweek(kweek_id, authorized_username):
+    """
+           Dislike a kweek .
+
+
+           *Parameters:*
+               - *kweek_id*: The id of the kweek to be disliked.
+               - *authorized_username(string)*: The user currently logged in.
+
+
+           *Returns:*
+               -*Tuple*: {
+                            | *check (bool)*: To indicate whether like deletion was successful or not.
+                            | *message (str)*: To specify the reason of failure if detected.
+                            | }
+
+    """
+    check, message = validate_request(kweek_id)
+    if not check:
+        return check, message
+    delete_like(kweek_id, authorized_username)
+    return True, None
+
+
+def get_likers(kweek_id, authorized_username):
+    check, message = validate_request(kweek_id)
+    if not check:
+        print('here0')
+        return check, message, None
+    likers = retrieve_user(kweek_id, 2)
+    if likers:
+        print('here1')
+        retrieve_users(authorized_username, likers)
+    else:
+        print('here2')
+        return False, 'The kweek has no likers', None
+
+
+def get_rekweekers(kweek_id, authorized_username):
+    check, message = validate_request(kweek_id)
+    if not check:
+        print('here0')
+        return check, message, None
+    rekweekers = retrieve_user(kweek_id, 3)
+    if rekweekers:
+        print('here1')
+        print(rekweekers)
+        retrieve_users(authorized_username, rekweekers)
+    else:
+        print('here2')
+        return False, 'The kweek has no rekweekers', None
+
+
+def retrieve_users(authorized_username, user_list):
+    users_list = []
+    me = authorized_username
+    for user in user_list:
+        extrauser = {}
+        check = check_following(me, user['username'])
+        if check:
+            extrauser['following'] = True
+        else:
+            extrauser['following'] = False
+
+        check = check_following(user['username'], me)
+        if check:
+            extrauser['follows_you'] = True
+        else:
+            extrauser['follows_you'] = False
+
+        check = check_blocked(user['username'], me)
+        if check:
+            extrauser['blocked'] = True
+        else:
+            extrauser['blocked'] = False
+        check = check_muted(user['username'], me)
+        if check:
+            extrauser['muted'] = True
+        else:
+            extrauser['muted'] = False
+        user.update(extrauser)
+        userobj = User(user)
+        users_list.append(userobj)
+    print(users_list)
+    return True, 'success', users_list
+

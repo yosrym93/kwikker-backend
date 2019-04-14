@@ -252,7 +252,7 @@ class Kweek:
 class Notification:
     api_model = create_model('Notification', {
         'id': fields.String(description='A unique string representing the notification.'),
-        'created_at': fields.DateTime(description='The utc datetime of the notification when created.'),
+        'created_at': fields.String(description='The utc datetime of the notification when created.'),
         'type': fields.String(description='Type of the notification [possible values:follow,rekweek,like,reply, '
                                           'mentions].'),
         'username': fields.String(description='Username of the notification.'),  # involved_username
@@ -289,19 +289,28 @@ class Notification:
 
 class DirectMessage:
     api_model = create_model('Direct Message', {
-        'created_at': fields.DateTime(description='The utc datetime of the message when created.'),
+        'id': fields.String(description='A unique string representing the message.'),
+        'from_username': fields.String(description='username who sent the message.'),
+        'to_username': fields.String(description='username who wants to receive that message.'),
+        'created_at': fields.String(description='The utc datetime of the message when created.'),
         'text': fields.String(description='The content of the message.'),
-        'media_url': fields.String(description='Nullable, The url pointing directly to the message.',
+        'media_url': fields.String(description='Nullable. The url of the media.',
                                    nullable=True)  # Nullable
     })
 
     def __init__(self, json):
+        self.id = json['id']
+        self.from_username = json['from_username']
+        self.to_username = json['to_username']
         self.created_at = json['created_at']
         self.text = json['text']
         self.media_url = json['media_url']
 
     def to_json(self):
         return{
+            'id': self.id,
+            'from_username': self.from_username,
+            'to_username': self.to_username,
             'created_at': self.created_at,
             'text': self.text,
             'media_url': self.media_url
@@ -320,7 +329,7 @@ class Conversation:
 
     def to_json(self):
         return {
-            'user': self.user,
+            'user': self.user[0],
             'last_message': self.last_message
         }
 
@@ -333,8 +342,8 @@ class Trend:
     })
 
     def __init__(self, json):
-        self.id = json['id'],
-        self.text = json['text'],
+        self.id = json['id']
+        self.text = json['text']
         self.number_of_kweeks = json['number_of_kweeks']
 
     def to_json(self):

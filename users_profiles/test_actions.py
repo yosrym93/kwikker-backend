@@ -2,23 +2,10 @@ from datetime import date, datetime
 import pytest
 import os
 import shutil
-from database_manager import db_manager
-from models import UserProfile
+from models import UserProfile, User
 from . import actions
 
-Server_path = 'http://127.0.0.1:5000/'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
-"""
-    Your unit tests should reside here.
-"""
-"""
-some notes --------
-pytest -v ->>>>>>> run with some details if you want more pytest -vv
-pytest -k name -v ->>>>>>>>>> run only functions begin with name
-pytest -m name -v ->>>>>>>>>> run only functions marked with name using @pytest.mark.name
-"""
-
-db_manager.initialize_connection('kwikker', 'postgres', 'k')
 
 
 @pytest.mark.parametrize("test_authorized_username, test_username, expected_output",
@@ -143,7 +130,7 @@ def test_delete_profile_banner(test_authorized_username, expected_output):
     if test_authorized_username == 'khaled':
         path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         source_banner = path + '/images/test/khaledbanner.jpg'
-        destination_banner = path + '/images/ banner'
+        destination_banner = path + '/images/banner'
         os.chdir(os.path.dirname(path))
         shutil.copy(source_banner, destination_banner)
     output = actions.delete_banner_picture(test_authorized_username)
@@ -179,3 +166,102 @@ def test_create_url(test_upload_type, test_filename, expected_output):
 def test_allowed_file(test_filename, expected_output):
     output = actions.allowed_file(test_filename)
     assert output == expected_output
+
+
+@pytest.mark.parametrize("test_username, test_screen_name, test_birth_date, expected_output",
+                         [
+                             ('khaled', 'khaled', '2001-03-12', False),
+                             ('', 'med7at', '2001-03-12', False),
+                             ('ahmed', 'a7med', '2001-03-12', True),
+                             ('yosry', 'Yosry86', '2001-03-12', True),
+                         ])
+def test_create_profile(test_username, test_screen_name, test_birth_date, expected_output):
+    output = actions.create_profile(test_username, test_screen_name, test_birth_date)
+    assert output == expected_output
+
+
+@pytest.mark.parametrize("test_authorized_username, test_search_key, test_username, expected_output",
+                         [
+                             ('khaled', 'KhAlEd', None, [
+                                 User({"username": "khaled ahmed",
+                                       "screen_name": "screen_name1",
+                                       "profile_image_url": "http://127.0.0.1:5000/user/upload/picture/profile.jpg",
+                                       "following": False,
+                                       "follows_you": False,
+                                       "blocked": False,
+                                       "muted": False
+                                       }),
+                                 User({"username": "khaled mohamed",
+                                       "screen_name": "screen_name1",
+                                       "profile_image_url": "http://127.0.0.1:5000/user/upload/picture/profile.jpg",
+                                       "following": False,
+                                       "follows_you": False,
+                                       "blocked": False,
+                                       "muted": False
+                                       }),
+                                 User({"username": "mohamed khaled",
+                                       "screen_name": "screen_name1",
+                                       "profile_image_url": "http://127.0.0.1:5000/user/upload/picture/profile.jpg",
+                                       "following": False,
+                                       "follows_you": False,
+                                       "blocked": False,
+                                       "muted": False
+                                       }),
+                                 User({"username": "KHALED_AMR",
+                                       "screen_name": "screen_name1",
+                                       "profile_image_url": "http://127.0.0.1:5000/user/upload/picture/profile.jpg",
+                                       "following": False,
+                                       "follows_you": False,
+                                       "blocked": False,
+                                       "muted": False
+                                       }),
+                                 User({"username": "omar_khaled",
+                                       "screen_name": "screen_name1",
+                                       "profile_image_url": "http://127.0.0.1:5000/user/upload/picture/profile.jpg",
+                                       "following": False,
+                                       "follows_you": False,
+                                       "blocked": False,
+                                       "muted": False
+                                       }),
+                             ]),
+
+                             ('khaled', 'KhaLeD', 'amykhaledradawn', [
+                                User({"username": "ramy_khaled_amr",
+                                      "screen_name": "screen_name1",
+                                      "profile_image_url": "http://127.0.0.1:5000/user/upload/picture/profile.jpg",
+                                      "following": False,
+                                      "follows_you": False,
+                                      "blocked": False,
+                                      "muted": False
+                                      }),
+                                User({"username": "ahmed_khaled",
+                                      "screen_name": "screen_name1",
+                                      "profile_image_url": "http://127.0.0.1:5000/user/upload/picture/profile.jpg",
+                                      "following": False,
+                                      "follows_you": False,
+                                      "blocked": False,
+                                      "muted": False
+                                      }),
+                                User({"username": "khaled",
+                                      "screen_name": "test screen_name2",
+                                      "profile_image_url": "http://127.0.0.1:5000/user/upload/picture/profile.jpg",
+                                      "following": None,
+                                      "follows_you": None,
+                                      "blocked": None,
+                                      "muted": None
+                                      }),
+                             ]),
+                             ('khaled', '', 'sss', []),
+                             ('khaled', 'amr', 'ramy_khaled_amr', []),
+                         ])
+def test_search_user(test_authorized_username, test_search_key, test_username, expected_output):
+    output = actions.search_user(test_authorized_username, test_search_key, test_username)
+    new_output = []
+    new_expected_output = []
+    for x in output:
+        z = x.to_json()
+        new_output.append(z)
+    for x in expected_output:
+        z = x.to_json()
+        new_expected_output.append(z)
+    assert new_output == new_expected_output

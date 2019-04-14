@@ -1,4 +1,4 @@
-from flask_restplus import Resource, fields, abort
+from flask_restplus import Resource, abort
 from flask import request, send_from_directory
 from models import User, UserProfile, NullableString
 from app import create_model
@@ -21,11 +21,23 @@ class UsersSearch(Resource):
     @search_api.param(name='last_retrieved_username', type='str',
                       description="Nullable. Normally the request returns the first 20 users when null."
                                   "To retrieve more send the username of the last user retrieved.")
+    @search_api.marshal_with(User.api_model, as_list=True)
     @search_api.doc(security='KwikkerKey')
     @authorize
     def get(self, authorized_username):
         """ Search for matching users using their username or screen name (or part of them). """
-        pass
+        search_key = request.args.get('search_text')
+        username = request.args.get('last_retrieved_username')
+
+        try:
+            response = actions.search_user(authorized_username, search_key, username)
+            if response is None:
+                abort(404, message='A user with the provided username does not exist.')
+            return response, 200
+        except TypeError:
+            abort(500, message='An error occurred in the server.')
+        except ValueError:
+            abort(400, 'Invalid Username provided.')
 
 
 @user_api.route('/profile_banner')
@@ -50,7 +62,7 @@ class ProfileBanner(Resource):
     @user_api.response(code=404, description='Update failed.')
     @user_api.response(code=400, description='Parameters type does not match.')
     @user_api.response(code=401, description='Unauthorized access.')
-    @user_api.param(name='image_file', description='The new profile banner.', required=True, type='file')
+    @user_api.param(name='file', description='The new profile banner.', required=True, type='file')
     @user_api.doc(security='KwikkerKey')
     @authorize
     def put(self, authorized_username):
@@ -90,7 +102,7 @@ class ProfilePicture(Resource):
     @user_api.response(code=404, description='Update failed.')
     @user_api.response(code=400, description='Parameters type does not match.')
     @user_api.response(code=401, description='Unauthorized access.')
-    @user_api.param(name='image_file', description='The new profile picture.', required=True, type='file')
+    @user_api.param(name='file', description='The new profile picture.', required=True, type='file')
     @user_api.doc(security='KwikkerKey')
     @authorize
     def put(self, authorized_username):
@@ -108,7 +120,7 @@ class ProfilePicture(Resource):
         return response, 200
 
 
-@user_api.route('/upload/picture/<filename>')
+@user_api.route('/upload/picture/<filename>', doc=False)
 class PhotoUploadP(Resource):
     @staticmethod
     def get(filename):
@@ -116,12 +128,12 @@ class PhotoUploadP(Resource):
         return send_from_directory('images\profile', filename)
 
 
-@user_api.route('/upload/banner/<filename>')
+@user_api.route('/upload/banner/<filename>', doc=False)
 class PhotoUploadB (Resource):
     @staticmethod
     def get(filename):
         os.chdir(os.path.dirname(APP_ROOT))
-        return send_from_directory('images\ banner', filename)
+        return send_from_directory('images\\banner', filename)
 
 
 @user_api.route('/profile')
@@ -164,45 +176,3 @@ class UserProfile(Resource):
         if response == Exception:
             return abort(409, message='conflict happened.')
         return response, 200
-
-
-@user_api.route('/email')
-class ChangeEmail(Resource):
-    @user_api.response(code=200, description='Email updated.')
-    @user_api.response(code=404, description='Update failed.')
-    @user_api.response(code=401, description='Unauthorized access.')
-    @user_api.expect(create_model('New Email', model={
-     'email': fields.String(description="User's new email.")}))
-    @user_api.doc(security='KwikkerKey')
-    @authorize
-    def put(self, authorized_username):
-        """ Update email of the authorized user. """
-        pass
-
-
-@user_api.route('/username')
-class ChangeUsername(Resource):
-    @user_api.response(code=200, description='Username updated.')
-    @user_api.response(code=404, description='Update failed')
-    @user_api.response(code=401, description='Unauthorized access.')
-    @user_api.expect(create_model('New Username', model={
-        'username': fields.String(description="User's new username")}))
-    @user_api.doc(security='KwikkerKey')
-    @authorize
-    def put(self, authorized_username):
-        """ Update username of the authorized user. """
-        pass
-
-
-@user_api.route('/password')
-class ChangePassword(Resource):
-    @user_api.response(code=200, description='Password updated.')
-    @user_api.response(code=404, description='Update failed.')
-    @user_api.response(code=401, description='Unauthorized access.')
-    @user_api.expect(create_model('New Password', model={
-        'password': fields.String(description="User's new password.")}))
-    @user_api.doc(security='KwikkerKey')
-    @authorize
-    def put(self, authorized_username):
-        """ Update password of the authorized user. """
-        pass
