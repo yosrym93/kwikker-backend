@@ -1,5 +1,5 @@
 from flask_restplus import Resource, fields
-from models import User
+from models import User, UserProfile
 from app import create_model
 import api_namespaces
 
@@ -8,16 +8,18 @@ interactions_api = api_namespaces.interactions_api
 
 @interactions_api.route('/followers')
 class Followers(Resource):
-    @interactions_api.response(code=200, description='Followers returned successfully.', model=[User.api_model])
+    @interactions_api.response(code=200, description='Followers returned successfully.', model=[UserProfile.api_model])
     @interactions_api.response(code=401, description='Unauthorized access.')
+    @interactions_api.param(name='username', type='str', required=True, description='The username.')
     def get(self):
         """ Retrieve a list of users that follow the authorized user. """
 
 
 @interactions_api.route('/following')
 class Following(Resource):
-    @interactions_api.response(code=200, description='Followed users returned successfully.', model=[User.api_model])
+    @interactions_api.response(code=200, description='Followed users returned successfully.', model=[UserProfile.api_model])
     @interactions_api.response(code=401, description='Unauthorized access.')
+    @interactions_api.param(name='username', type='str', required=True, description='The username.')
     def get(self):
         """ Retrieve a list of users that are followed by the authorized user. """
 

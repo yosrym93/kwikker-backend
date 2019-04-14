@@ -111,9 +111,15 @@ def initialize(env):
     return initialize_database()
 
 
+@app.after_request
+def apply_cors(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
 def run(env):
     """
             Attempts to initialize the app, and runs it if the initialization was successful.
     """
     if initialize(env):
-            app.run(host='0.0.0.0')
+        app.run(host='0.0.0.0')
