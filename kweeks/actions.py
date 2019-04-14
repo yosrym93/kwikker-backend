@@ -282,32 +282,32 @@ def get_kweek(kid, authorized_username, replies_only):
             mention = Mention(ment_dic)
             mentions_list.append(mention)
 
-        user = user[0]
-        extrauser = {}
-        me = authorized_username
-        check = check_following(me, user['username'])
-        if check:
-            extrauser['following'] = True
-        else:
-            extrauser['following'] = False
+    user = user[0]
+    extrauser = {}
+    me = authorized_username
+    check = check_following(me, user['username'])
+    if check:
+        extrauser['following'] = True
+    else:
+        extrauser['following'] = False
 
-        check = check_following(user['username'], me)
-        if check:
-            extrauser['follows_you'] = True
-        else:
-            extrauser['follows_you'] = False
+    check = check_following(user['username'], me)
+    if check:
+        extrauser['follows_you'] = True
+    else:
+        extrauser['follows_you'] = False
 
-        check = check_blocked(user['username'], me)
-        if check:
-            extrauser['blocked'] = True
-        else:
-            extrauser['blocked'] = False
-        check = check_muted(user['username'], me)
-        if check:
-            extrauser['muted'] = True
-        else:
-            extrauser['muted'] = False
-        extrauser.update(user)
+    check = check_blocked(user['username'], me)
+    if check:
+        extrauser['blocked'] = True
+    else:
+        extrauser['blocked'] = False
+    check = check_muted(user['username'], me)
+    if check:
+        extrauser['muted'] = True
+    else:
+        extrauser['muted'] = False
+    extrauser.update(user)
 
     userobj = User(extrauser)
 
