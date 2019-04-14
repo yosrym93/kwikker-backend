@@ -1,6 +1,6 @@
 import database_manager
 
-db_manager = database_manager.db_manager
+db_manager = database_manager.db_manager  # pragma:no cover
 
 
 def create_message(from_username, to_username, created_at, text, media_url):

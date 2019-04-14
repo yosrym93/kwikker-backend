@@ -85,8 +85,9 @@ def insert_kweek(kweek: Kweek):
     """
     add_kweek(kweek)
     kid = get_kweek_id()[0]['id']
-    notified_user = retrieve_user(kweek.reply_to, 1)[0]['username']
-    create_notifications(kweek.user.username, notified_user, 'REPLY', kid)
+    if kweek.reply_to:
+        notified_user = retrieve_user(kweek.reply_to, 1)[0]['username']
+        create_notifications(kweek.user.username, notified_user, 'REPLY', kid)
     for hash_obj in kweek.hashtags:
         test = check_existing_hashtag(hash_obj)
         if not test:  # then it is a new hashtag
@@ -105,7 +106,7 @@ def insert_kweek(kweek: Kweek):
             return False, 'the user mentioned does not exist in the database'
         notified_user = ment.username
         create_notifications(kweek.user.username, notified_user, 'MENTION', kid)
-   
+
     return True, 'success'
 
 
@@ -193,7 +194,7 @@ def delete_kweek(kid, authorized_username):
             return False, 'Deletion is not allowed'
     delete_main_kweek(kid)
     update_hashtag()
-    return True, None
+    return True, 'success'
 
 ########################################################################################################################
 
@@ -257,10 +258,11 @@ def get_kweek(kid, authorized_username, replies_only):
     mentions = retrieve_mentions(kid)  # rows of mention table (*)
     rekweeks = retrieve_user(kid, 3)
     likers = retrieve_user(kid, 2)  # rows of likers table for those who liked the kweek (usernames)
-    user = retrieve_user(kid, 1)  # row of user profile table fo the user who wrote the kweek (*)
+    user = retrieve_user(kid, 1)
     hashtags_list = []  # list of hashtag objects
     mentions_list = []  # list of mention objects
-
+    rekweeked_by_user = False
+    liked_by_user = False
     if hashtags:
         for hash_obj in hashtags:
             hid = hash_obj['hashtag_id']
@@ -321,17 +323,20 @@ def get_kweek(kid, authorized_username, replies_only):
 
     if likers:
         num_of_likes = len(likers)
-        liked_by_user = {'username': me} in likers
+        for user in likers:
+            if user['username'] == me:
+                liked_by_user = True
+
     else:
         num_of_likes = 0
-        liked_by_user = False
 
     if rekweeks:
         num_of_rekweeks = len(rekweeks)
-        rekweeked_by_user = {'username': me} in rekweeks
+        for user in rekweeks:
+            if user['username'] == me:
+                rekweeked_by_user = True
     else:
         num_of_rekweeks = 0
-        rekweeked_by_user = False
 
     kweekdic = {'hashtags': hashtags_list, 'mentions': mentions_list, 'number_of_likes': num_of_likes,
                 'number_of_rekweeks': num_of_rekweeks, 'number_of_replies': num_of_replies,
@@ -563,4 +568,3 @@ def retrieve_users(authorized_username, user_list):
         users_list.append(userobj)
     print(users_list)
     return True, 'success', users_list
-
