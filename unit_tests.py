@@ -3,7 +3,7 @@ import app
 from database_manager import db_manager
 import click
 
-all_modules = ['timelines_and_trends', 'users_profiles', 'authentication_and_registration', 'notifications',
+all_modules = ['users_profiles', 'timelines_and_trends', 'authentication_and_registration', 'notifications',
                'direct_messages', 'kweeks']
 
 

@@ -161,7 +161,7 @@ def update_user_username(username, new_username):
                  """
     data = (new_username, username)
     response = db_manager.execute_query_no_return(query, data)
-    if type(response) == Exception:
+    if isinstance(response, Exception):
         return False
     else:
         return True
