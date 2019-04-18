@@ -16,12 +16,12 @@ from datetime import datetime
                             ('test_user1', 'test_user3', {
                                  'following': True,
                                  'follows_you': True,
-                                 'muted': True,
+                                 'muted': False,
                                  'blocked': False
                              }),
                             ('test_user2', 'test_user3', {
                                  'following': True,
-                                 'follows_you': False,
+                                 'follows_you': True,
                                  'muted': False,
                                  'blocked': False
                              }),
@@ -38,9 +38,9 @@ from datetime import datetime
                                  'blocked': False
                              }),
                             ('test_user3', 'test_user2', {
-                                 'following': False,
+                                 'following': True,
                                  'follows_you': True,
-                                 'muted': False,
+                                 'muted': True,
                                  'blocked': False
                              }),
                             ('test_user3', 'test_user3', {
