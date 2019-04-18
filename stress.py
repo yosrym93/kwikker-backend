@@ -1,15 +1,15 @@
 from locust import HttpLocust, TaskSet, task
 import numpy as np
 
-users = ["test_user1", "test_user2", "test_user3"]
-passwords = ["password", "password", "password"]
+users = ["test_user2", "test_user3"]
+passwords = ["Pp111111","Pp111111"]
 hashtags = ["hashtag1", "hashtag2", "hashtag3"]
 banner_path= "E:\youssef photos\PHOTOS\AAFR9688.JPG"
 profile_picture_path= "E:\youssef photos\PHOTOS\ATIZE5497.JPG"
 
 kweek_to_reply = "3"
 kweek_to_get = "3"
-num_users = 3
+num_users = 2
 
 class UserBehavior(TaskSet):
     bannerbin = {'file': open(banner_path, 'rb')}
@@ -94,6 +94,18 @@ class UserBehavior(TaskSet):
         self.client.get("/trends/kweeks?trend_id=1",headers={"TOKEN": self.token_string})
 
 
+    @task(1)
+    def getdm(self):
+        self.client.get("/direct_message/?username=test_user2",headers={"TOKEN": self.token_string})
+
+
+    @task(1)
+    def getdmconversations(self):
+        self.client.get("/direct_message/conversations",headers={"TOKEN": self.token_string})
+
+    @task(1)
+    def getdmrecentconversationers(self):
+        self.client.get("/direct_message/recent_conversationers",headers={"TOKEN": self.token_string})
 
 
 class WebsiteUser(HttpLocust):
