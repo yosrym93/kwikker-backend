@@ -14,7 +14,7 @@ class Followers(Resource):
     @interactions_api.param(name='last_retrieved_username', type='str', required=True, description="Nullable. Normally the request returns the first 20 users when null."
                             "To retrieve more send the username of the last user retrieved.")
     def get(self):
-        """ Retrieve a list of users that follow the authorized user. """
+        """ Retrieve a list of users that follow the username. """
 
 
 @interactions_api.route('/following')
@@ -22,12 +22,11 @@ class Following(Resource):
     @interactions_api.response(code=200, description='Followed users returned successfully.', model=[UserProfile.api_model])
     @interactions_api.response(code=401, description='Unauthorized access.')
     @interactions_api.param(name='username', type='str', required=True, description='The username.')
-    @interactions_api.param(name='username', type='str', required=True, description='The username.')
     @interactions_api.param(name='last_retrieved_username', type='str', required=True,
                             description="Nullable. Normally the request returns the first 20 users when null."
                                         "To retrieve more send the username of the last user retrieved.")
     def get(self):
-        """ Retrieve a list of users that are followed by the authorized user. """
+        """ Retrieve a list of users that are followed by the username. """
 
 
 @interactions_api.route('/follow')
