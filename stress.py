@@ -36,6 +36,8 @@ class UserBehavior(TaskSet):
     def get_kweeks(self):
         self.client.get("/kweeks/?id="+kweek_to_get, headers={"TOKEN" : self.token_string})
 
+
+
     @task(1)
     def create_reply(self):
         idx = np.random.randint(num_users)
@@ -82,6 +84,16 @@ class UserBehavior(TaskSet):
     def profilepicture(self):
         self.client.put("/user/profile_picture",headers={"TOKEN": self.token_string},files=self.profilebin)
         self.client.delete("/user/profile_picture", headers={"TOKEN": self.token_string})
+
+    @task(1)
+    def gettrends(self):
+        self.client.get("/trends/",headers={"TOKEN": self.token_string})
+
+    @task(1)
+    def gettrendskweeks(self):
+        self.client.get("/trends/kweeks?trend_id=1",headers={"TOKEN": self.token_string})
+
+
 
 
 class WebsiteUser(HttpLocust):
