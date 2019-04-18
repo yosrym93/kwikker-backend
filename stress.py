@@ -4,12 +4,17 @@ import numpy as np
 users = ["test_user1", "test_user2", "test_user3"]
 passwords = ["password", "password", "password"]
 hashtags = ["hashtag1", "hashtag2", "hashtag3"]
+banner_path= "E:\youssef photos\PHOTOS\AAFR9688.JPG"
+profile_picture_path= "E:\youssef photos\PHOTOS\ATIZE5497.JPG"
 
 kweek_to_reply = "3"
 kweek_to_get = "3"
 num_users = 3
 
-class UserBehavior(TaskSet): 
+class UserBehavior(TaskSet):
+    bannerbin = {'file': open(banner_path, 'rb')}
+    profilebin = {'file': open(profile_picture_path, 'rb')}
+
     def on_start(self):
         """ on_start is called when a Locust start before any task is scheduled """
         self.login()
@@ -56,6 +61,27 @@ class UserBehavior(TaskSet):
     @task(1)
     def notifications(self):
         self.client.get("/notifications/",headers={"TOKEN": self.token_string})
+
+    @task(1)
+    def getprofile(self):
+        idx = np.random.randint(num_users)
+        self.client.get("/user/profile",headers={"TOKEN": self.token_string},params={"username":users[idx]})
+
+
+    @task(1)
+    def updatebioscreenname(self):
+        idx = np.random.randint(num_users)
+        self.client.patch("/user/profile",json = {"bio": "bio" , "screen_name": users[idx]+"updated"},headers={"TOKEN": self.token_string})
+
+    @task(1)
+    def banner(self):
+        self.client.put("/user/profile_banner",headers={"TOKEN": self.token_string},files=self.bannerbin)
+        self.client.delete("/user/profile_banner", headers={"TOKEN": self.token_string})
+
+    @task(1)
+    def profilepicture(self):
+        self.client.put("/user/profile_picture",headers={"TOKEN": self.token_string},files=self.profilebin)
+        self.client.delete("/user/profile_picture", headers={"TOKEN": self.token_string})
 
 
 class WebsiteUser(HttpLocust):
