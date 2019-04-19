@@ -104,7 +104,7 @@ def insert_kweek(kweek: Kweek):
         response = create_mention(kid, ment)
         if response is not None:
             return True, 'success'
-            notified_user = ment.username
+        notified_user = ment.username
         create_notifications(kweek.user.username, notified_user, 'MENTION', kid)
 
     return True, 'success'

@@ -2,7 +2,7 @@ from flask_restplus import Resource, fields, abort
 from flask import request
 from app import create_model
 from models import Kweek, User, NullableString
-from kweeks.actions import create_kweek, delete_kweek, get_kweek_with_replies, create_rekweek, delete_rekweek,\
+from kweeks.actions import create_kweek, delete_kweek, get_kweek_with_replies, create_rekweek, delete_rekweek, \
     like_kweek, dislike_kweek, get_rekweekers, get_likers
 import api_namespaces
 from authentication_and_registration.actions import authorize
@@ -189,7 +189,7 @@ class Like(Resource):
 @kweeks_api.route('/rekweekers')
 class KweekRekweekers(Resource):
     @kweeks_api.response(code=200, description='Rekweerkers have been returned successfully.',
-                        model=[User.api_model])
+                         model=[User.api_model])
     @kweeks_api.param(name='id', type='str',
                       description='Id of the Kweek whose rekweekers are to be retrieved', required=True)
     @kweeks_api.marshal_with(User.api_model, as_list=True)
