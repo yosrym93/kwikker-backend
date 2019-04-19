@@ -51,7 +51,6 @@ def add_user(username, password, email):
     """
     username_bool = query_factory.username_exists(username)
     email_bool = query_factory.email_exists(email)
-    print(username_bool, email_bool)
     if username_bool or email_bool:
         return username_bool, email_bool
     # Hash a password for the first time, with a randomly-generated salt
@@ -60,7 +59,7 @@ def add_user(username, password, email):
     return username_bool, email_bool
 
 
-def async_send_email(msg):
+def async_send_email(msg):  # pragma:no cover
     """
     Sending emails Asynchronous
 
@@ -71,7 +70,7 @@ def async_send_email(msg):
         mail.send(msg)
 
 
-def send_email(email, username, password, subject, url, html, confirm):
+def send_email(email, username, password, subject, url, html, confirm):  # pragma:no cover
     """
         Sending email
 
@@ -125,8 +124,7 @@ def confirm_user(username):
          -*True:* updated successfully.
          -*False:* error happened.
     """
-    query_factory.confirm_user(username)
-    pass
+    return query_factory.confirm_user(username)
 
 
 def update_user_username(username, new_username):
@@ -143,10 +141,7 @@ def update_user_username(username, new_username):
     """
     if query_factory.username_exists(new_username):
         return False
-    if not query_factory.username_exists(username):
-        return False
     else:
-        print('2')
         return query_factory.update_user_username(username, new_username)
 
 
@@ -163,8 +158,6 @@ def update_user_password(username, new_password):
          -*False:* error happened.
     """
     hashed = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
-    print(hashed)
-    print(new_password)
     return query_factory.update_user_password(username, hashed.decode('utf-8'))
 
 
@@ -180,7 +173,6 @@ def update_user_email(username, new_email):
          -*True:* updated successfully.
          -*False:* error happened.
     """
-    print(new_email)
     if query_factory.email_exists(new_email):
         return False
     else:
@@ -210,7 +202,7 @@ def create_token(username, password, secret=secret_key):
     return token
 
 
-def get_user(codee):
+def get_user(codee):  # pragma:no cover
     user = None
     try:
         user = jwt.decode(codee, code, algorithms=['HS256'])
@@ -222,6 +214,9 @@ def get_user(codee):
         abort(404, message='An unconfirmed user with the given confirmation code does not exist.')
 
     #    print('TOKEN: {}'.format(token))
+    if user is None:
+        abort(404, message='An unconfirmed user with the given confirmation code does not exist.')
+
     if not query_factory.username_exists(user['username']):
         abort(404, message='An unconfirmed user with the given confirmation code does not exist.')
 

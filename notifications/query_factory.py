@@ -1,5 +1,5 @@
 import database_manager
-db_manager = database_manager.db_manager
+db_manager = database_manager.db_manager  # pragma:no cover
 
 
 def get_notifications(involved_username):

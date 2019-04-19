@@ -182,9 +182,29 @@ class TrendsKweeks(Resource):
                                   "To retrieve more send the id of the last kweek retrieved.")
     @trends_api.response(code=200, description='Kweeks returned successfully.', model=[Kweek.api_model])
     @trends_api.response(code=401, description='Unauthorized access.')
-    @trends_api.response(code=404, description='Trend does not exist.')
+    @trends_api.response(code=404, description='Trend id or kweek id does not exist.')
+    @kweeks_api.response(code=500, description='An error occurred in the server.')
+    @kweeks_api.response(code=400, description='Invalid ID provided.')
+    @kweeks_api.marshal_with(Kweek.api_model, as_list=True)
     @trends_api.doc(security='KwikkerKey')
     @authorize
     def get(self, authorized_username):
         """ Retrieves a list of kweeks in a given trend. """
-        pass
+        if 'trend_id' not in request.args.keys():
+            abort(404, message='No trend id was sent.')
+        else:
+            trend_id = request.args.get('trend_id')
+            last_retrieved_kweek_id = request.args.get('last_retrieved_kweek_id')
+            if not actions.is_trend(trend_id):
+                abort(404, message='A trend with this id does not exist.')
+            try:
+                kweeks = actions.get_trend_kweeks(authorized_username=authorized_username,
+                                                  trend_id=trend_id,
+                                                  last_retrieved_kweek_id=last_retrieved_kweek_id)
+                if kweeks is None:
+                    abort(404, message='A kweek with the provided ID does not exist.')
+                return kweeks, 200
+            except TypeError:
+                abort(500, message='An error occurred in the server.')
+            except ValueError:
+                abort(400, 'Invalid ID provided.')

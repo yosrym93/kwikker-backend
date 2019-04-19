@@ -7,7 +7,6 @@ Configurations on config_local.py overwrite the configurations in this file.
 class BaseConfig:
     RESTPLUS_MASK_SWAGGER = False
     SWAGGER_UI_DOC_EXPANSION = 'list'
-    DEBUG = True
     SECRET_KEY = 'kwikkerSecretKeyIsSALTS'
     CODE_KEY = 'kwikkerConfirmationCode'
     ERROR_404_HELP = False
@@ -38,7 +37,8 @@ class ProductionConfig(BaseConfig):
     DEBUG = False
     DATABASE_USERNAME = 'kwikker'
     DATABASE_PASSWORD = '8Av5R7tRNqJSm4sXW23E'
-    DATABASE_HOST = 'kwikker-database.cxappseoabsy.eu-central-1.rds.amazonaws.com'
+    DATABASE_HOST = 'ec2-3-122-42-152.eu-central-1.compute.amazonaws.com'
+    SERVER_PATH = 'http://kwikkerbackend.eu-central-1.elasticbeanstalk.com/'
 
 
 class TestingConfig(BaseConfig):

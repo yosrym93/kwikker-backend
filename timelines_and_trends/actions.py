@@ -153,6 +153,9 @@ def get_profile_kweeks(authorized_username, required_username, last_retrieved_kw
 
         *Returns:*
             - *List of models.Kweek objects*
+            - *None*: if last_retrieved_kweek_id does not exist.
+            - *Raise ValueError*: if last_retrieved_kweek_id is not a valid number.
+            - *Raise TypeError*: if raised by paginate.
     """
     if last_retrieved_kweek_id is not None:
         try:
@@ -213,6 +216,9 @@ def get_home_kweeks(authorized_username, last_retrieved_kweek_id):
 
         *Returns:*
             - *List of models.Kweek objects*
+            - *None*: if last_retrieved_kweek_id does not exist.
+            - *Raise ValueError*: if last_retrieved_kweek_id is not a valid number.
+            - *Raise TypeError*: if raised by paginate.
     """
     if last_retrieved_kweek_id is not None:
         try:
@@ -271,6 +277,9 @@ def get_user_liked_kweeks(authorized_username, required_username, last_retrieved
 
         *Returns:*
             - *List of models.Kweek objects*
+            - *None*: if last_retrieved_kweek_id does not exist.
+            - *Raise ValueError*: if last_retrieved_kweek_id is not a valid number.
+            - *Raise TypeError*: if raised by paginate.
     """
     if last_retrieved_kweek_id is not None:
         try:
@@ -307,6 +316,81 @@ def get_user_liked_kweeks(authorized_username, required_username, last_retrieved
         kweeks.append(Kweek(kweek))
 
     return kweeks
+
+
+def get_trend_kweeks(authorized_username, trend_id, last_retrieved_kweek_id):
+    """
+        Gets the kweeks that should appear on the authorized user's home timeline.
+
+
+        *Parameters:*
+            - *authorized_username (string)*: The username of the authorized user.
+            - *last_retrieved_kweek_id (string)*: The id of the last retrieved kweek (used to fetch more). Nullable.
+            - *trend_id (string)*: The id of the trend whose kweeks are to be fetched.
+
+        *Returns:*
+            - *List of models.Kweek objects*
+            - *None*: if last_retrieved_kweek_id does not exist.
+            - *Raise ValueError*: if last_retrieved_kweek_id is not a valid number.
+            - *Raise TypeError*: if raised by paginate.
+    """
+    if last_retrieved_kweek_id is not None:
+        try:
+            last_retrieved_kweek_id = int(last_retrieved_kweek_id)
+        except ValueError:
+            raise
+    # No need to check for exceptions as this is done in is_trend()
+    trend_id = int(trend_id)
+    # Get a list of kweeks with missing data
+    trend_kweeks = query_factory.get_trend_kweeks(trend_id=trend_id)
+    # Paginate the results
+    try:
+        trend_kweeks = paginate(dictionaries_list=trend_kweeks, required_size=20,
+                                start_after_key='id', start_after_value=last_retrieved_kweek_id)
+    except TypeError as E:
+        print(E)
+        raise
+    if trend_kweeks is None:
+        return None
+
+    kweeks = []
+    for kweek in trend_kweeks:
+        # Add the user
+        kweek['user'] = get_user(authorized_username=authorized_username,
+                                 required_username=kweek['username'])
+        # Add the statistics
+        kweek_statistics = get_kweek_statistics(authorized_username=authorized_username,
+                                                kweek_id=kweek['id'])
+        kweek.update(kweek_statistics)
+        # Add mentions and hashtags
+        kweek['mentions'] = get_kweek_mentions(kweek['id'])
+        kweek['hashtags'] = get_kweek_hashtags(kweek['id'])
+        # Add rekweek info (original kweeks only appear in trends kweeks)
+        kweek['rekweek_info'] = None
+
+        kweeks.append(Kweek(kweek))
+
+    return kweeks
+
+
+def is_trend(trend_id):
+    """
+        Checks if a trend id belongs to an existing trend.
+
+
+        *Parameters:*
+            - *trend_id (string)*: The trend id to be checked.
+
+        *Returns:*
+            - *True*: The trend id belongs to an existing trend.
+            - *False*: The trend id does not exist.
+    """
+    try:
+        trend_id = int(trend_id)
+    except ValueError:
+        raise
+    # Check if the trend exists
+    return query_factory.is_trend(trend_id)
 
 
 def is_user(username):

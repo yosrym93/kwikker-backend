@@ -1,0 +1,17 @@
+{
+    "AWSEBDockerrunVersion": 1,
+   
+  
+    "image":{
+        "Name":"ajammil/kwikkerbackend"
+        },
+    "Ports":[
+                {
+                    "HostPort": 80,
+                    "ContainerPort": 5000
+                }
+            ]
+           
+
+
+}

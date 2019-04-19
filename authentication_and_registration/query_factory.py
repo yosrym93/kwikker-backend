@@ -161,11 +161,9 @@ def update_user_username(username, new_username):
                  """
     data = (new_username, username)
     response = db_manager.execute_query_no_return(query, data)
-    if type(response) == Exception:
-        print('false')
+    if isinstance(response, Exception):
         return False
     else:
-        print('true')
         return True
 
 
@@ -214,8 +212,7 @@ def confirm_user(username):
     response = db_manager.execute_query_no_return(query, data)
     if type(response) == Exception:
         return False
-    elif response is None:
-        return True
+    return True
 
 
 def is_user(username, password):

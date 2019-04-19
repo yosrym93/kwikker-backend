@@ -1,4 +1,3 @@
-
 from datetime import datetime
 from models import Kweek, Hashtag, Mention, User
 from kweeks.query_factory import add_kweek, delete_main_kweek, retrieve_hashtags, retrieve_mentions, retrieve_replies,\
@@ -7,7 +6,6 @@ from kweeks.query_factory import add_kweek, delete_main_kweek, retrieve_hashtags
     get_kweek_id, update_hashtag, validate_id, check_kweek_writer, check_kweek_mention, check_kweek_owner, add_rekweek,\
     delete_rekweeks, check_kweek_rekweeker, add_like, delete_like
 from notifications.actions import create_notifications
-
 
 
 def create_kweek(request, authorized_username):
@@ -28,7 +26,7 @@ def create_kweek(request, authorized_username):
     """
     data = {}
     reply_to = request["reply_to"]
-    if reply_to is not None :
+    if reply_to is not None:
         if len(reply_to) == 0 or (reply_to.isspace()):
             return False, 'No reply body found'
         if not reply_to.isdigit():
@@ -41,7 +39,6 @@ def create_kweek(request, authorized_username):
         return False, 'No text body found'
 
     # check if str and have a length of minimum one char and is not fully  white space
-
     hashtags, mentions = extract_mentions_hashtags(text)  # two lists of objects
     partial_user = get_user(authorized_username)
     if len(partial_user) == 0:
@@ -88,6 +85,9 @@ def insert_kweek(kweek: Kweek):
     """
     add_kweek(kweek)
     kid = get_kweek_id()[0]['id']
+    if kweek.reply_to:
+        notified_user = retrieve_user(kweek.reply_to, 1)[0]['username']
+        create_notifications(kweek.user.username, notified_user, 'REPLY', kid)
     for hash_obj in kweek.hashtags:
         test = check_existing_hashtag(hash_obj)
         if not test:  # then it is a new hashtag
@@ -100,10 +100,13 @@ def insert_kweek(kweek: Kweek):
     for ment in kweek.mentions:
         existed = check_kweek_mention(kid, ment)[0]['count']
         if existed != 0:
-            return False, 'Repeated mention in the same kweek'
+            return True, 'success'
         response = create_mention(kid, ment)
         if response is not None:
-            return False, 'the user mentioned does not exist in the database'
+            return True, 'success'
+        notified_user = ment.username
+        create_notifications(kweek.user.username, notified_user, 'MENTION', kid)
+
     return True, 'success'
 
 
@@ -191,7 +194,7 @@ def delete_kweek(kid, authorized_username):
             return False, 'Deletion is not allowed'
     delete_main_kweek(kid)
     update_hashtag()
-    return True, None
+    return True, 'success'
 
 ########################################################################################################################
 
@@ -255,10 +258,11 @@ def get_kweek(kid, authorized_username, replies_only):
     mentions = retrieve_mentions(kid)  # rows of mention table (*)
     rekweeks = retrieve_user(kid, 3)
     likers = retrieve_user(kid, 2)  # rows of likers table for those who liked the kweek (usernames)
-    user = retrieve_user(kid, 1)  # row of user profile table fo the user who wrote the kweek (*)
+    user = retrieve_user(kid, 1)
     hashtags_list = []  # list of hashtag objects
     mentions_list = []  # list of mention objects
-
+    rekweeked_by_user = False
+    liked_by_user = False
     if hashtags:
         for hash_obj in hashtags:
             hid = hash_obj['hashtag_id']
@@ -292,23 +296,23 @@ def get_kweek(kid, authorized_username, replies_only):
         else:
             extrauser['following'] = False
 
-        check = check_following(user['username'], me)
-        if check:
-            extrauser['follows_you'] = True
-        else:
-            extrauser['follows_you'] = False
+    check = check_following(user['username'], me)
+    if check:
+        extrauser['follows_you'] = True
+    else:
+        extrauser['follows_you'] = False
 
-        check = check_blocked(user['username'], me)
-        if check:
-            extrauser['blocked'] = True
-        else:
-            extrauser['blocked'] = False
-        check = check_muted(user['username'], me)
-        if check:
-            extrauser['muted'] = True
-        else:
-            extrauser['muted'] = False
-        extrauser.update(user)
+    check = check_blocked(user['username'], me)
+    if check:
+        extrauser['blocked'] = True
+    else:
+        extrauser['blocked'] = False
+    check = check_muted(user['username'], me)
+    if check:
+        extrauser['muted'] = True
+    else:
+        extrauser['muted'] = False
+    extrauser.update(user)
 
     userobj = User(extrauser)
 
@@ -319,17 +323,20 @@ def get_kweek(kid, authorized_username, replies_only):
 
     if likers:
         num_of_likes = len(likers)
-        liked_by_user = {'username': me} in likers
+        for user in likers:
+            if user['username'] == me:
+                liked_by_user = True
+
     else:
         num_of_likes = 0
-        liked_by_user = False
 
     if rekweeks:
         num_of_rekweeks = len(rekweeks)
-        rekweeked_by_user = {'username': me} in rekweeks
+        for user in rekweeks:
+            if user['username'] == me:
+                rekweeked_by_user = True
     else:
         num_of_rekweeks = 0
-        rekweeked_by_user = False
 
     kweekdic = {'hashtags': hashtags_list, 'mentions': mentions_list, 'number_of_likes': num_of_likes,
                 'number_of_rekweeks': num_of_rekweeks, 'number_of_replies': num_of_replies,
@@ -503,29 +510,22 @@ def dislike_kweek(kweek_id, authorized_username):
 def get_likers(kweek_id, authorized_username):
     check, message = validate_request(kweek_id)
     if not check:
-        print('here0')
         return check, message, None
     likers = retrieve_user(kweek_id, 2)
     if likers:
-        print('here1')
-        retrieve_users(authorized_username, likers)
+        return retrieve_users(authorized_username, likers)
     else:
-        print('here2')
         return False, 'The kweek has no likers', None
 
 
 def get_rekweekers(kweek_id, authorized_username):
     check, message = validate_request(kweek_id)
     if not check:
-        print('here0')
         return check, message, None
     rekweekers = retrieve_user(kweek_id, 3)
     if rekweekers:
-        print('here1')
-        print(rekweekers)
-        retrieve_users(authorized_username, rekweekers)
+        return retrieve_users(authorized_username, rekweekers)
     else:
-        print('here2')
         return False, 'The kweek has no rekweekers', None
 
 
@@ -559,6 +559,4 @@ def retrieve_users(authorized_username, user_list):
         user.update(extrauser)
         userobj = User(user)
         users_list.append(userobj)
-    print(users_list)
     return True, 'success', users_list
-

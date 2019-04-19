@@ -15,16 +15,32 @@ INSERT INTO public.profile(
 	       ('degla','deglascreenname','degla.profile.com','degla.banner.com','degla bio','2015-1-1 4:3:6', '2000-01-01'),
 	       ('no_message','no_mess_screenname','no_mess.profile.com','no_mess.banner.com','no_mess bio','2015-1-1 4:3:6', '2000-01-01');
 
+INSERT INTO public.message(
+	    from_username, to_username, created_at, text, media_url)
+	    VALUES ( 'ahly', 'zamalek', '2015-1-1 4:3:6', 'msg from ahly to zamalek','ahly-zamalek.mediaurl' ),
+	           ( 'zamalek', 'ahly', '2014-1-1 4:3:6', 'msg from zamalek to ahly','zamalek-ahly.mediaurl' ),
+	           ( 'ahly', 'arsenal', '2011-1-1 4:3:6', 'msg from ahly to arsenal','ahly-zamalek.mediaurl' ),
+	           ( 'arsenal', 'ahly', '2012-1-1 4:3:6', 'msg from arsenal to ahly','ahly-zamalek.mediaurl' ),
+	           ( 'ahly', 'degla', '2018-1-1 4:3:6', 'msg from ahly to degla','ahly-zamalek.mediaurl' ),
+	           ( 'degla', 'ahly', '2016-1-1 4:3:6', 'msg from degla to ahly','ahly-zamalek.mediaurl' );
+
+
+INSERT INTO public.follow(
+	    follower_username, followed_username)
+	    VALUES ('zamalek', 'ahly');
+
+
+INSERT INTO public.mute(
+	    muter_username, muted_username)
+	    VALUES ('ahly', 'zamalek');
+
+
+INSERT INTO public.block(
+	    blocker_username, blocked_username)
+	    VALUES ('ahly', 'zamalek');
 
 INSERT INTO public.kweek(
-	created_at, text, media_url, username, reply_to)
-	VALUES ('2010-1-1', 'kweek of 2010','www.media_url.2010','ahly',null),
+	    created_at, text, media_url, username, reply_to)
+	    VALUES ('2010-1-1', 'kweek of 2010','www.media_url.2010','ahly',null),
 		   ('2014-4-4', 'kweek of 2014','www.media_url.2014','zamalek',null),
 		   ('2018-7-5', 'kweek of 2014','www.media_url.2018','degla',null);
-
-
-INSERT INTO public.notification(
-	created_at, notified_username, involved_username, type, involved_kweek_id, is_seen)
-	VALUES ('2010-1-2','ahly','zamalek','REKWEEK',(SELECT ID FROM KWEEK WHERE USERNAME = 'zamalek' LIMIT 1),TRUE),
-		   ('2014-4-5','zamalek','degla','FOLLOW',null,TRUE),
-		   ('2018-8-8','degla','ahly','LIKE',(SELECT ID FROM KWEEK WHERE USERNAME = 'ahly' LIMIT 1),FALSE);

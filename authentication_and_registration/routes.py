@@ -182,7 +182,6 @@ class UpdateEmail(Resource):
     def put(self, authorized_username):
         """ Updates the user's email."""
         data = request.get_json()
-        print('1')
         is_updated = actions.update_user_email(authorized_username, data['email'])
         if is_updated:
             return "", 200

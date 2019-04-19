@@ -22,18 +22,17 @@ def get_profile_kweeks(username):
                                         | *is_rekweek (bool)*: Whether the user rekweeked the kweek or created it.}
     """
     query = """
-                SELECT * FROM
+                SELECT ID, CREATED_AT, TEXT, MEDIA_URL, USERNAME, REPLY_TO, IS_REKWEEK FROM
                 (
-                (SELECT K.ID, K.CREATED_AT, K.TEXT, K.MEDIA_URL, K.USERNAME, K.REPLY_TO, TRUE as IS_REKWEEK
+                (SELECT TRUE as IS_REKWEEK, K.ID, K.CREATED_AT, K.TEXT, K.MEDIA_URL, K.USERNAME, K.REPLY_TO, 
+                        RK.CREATED_AT AS SORT_BY 
                  FROM KWEEK K
                  JOIN REKWEEK RK ON RK.KWEEK_ID = K.ID
-                 WHERE RK.USERNAME = 'test_user1')
-
+                 WHERE RK.USERNAME = %s)
                 UNION
-
-                (SELECT *, FALSE as IS_REKWEEK FROM KWEEK WHERE USERNAME ='test_user1')
+                (SELECT FALSE as IS_REKWEEK, *, CREATED_AT AS SORT_BY FROM KWEEK WHERE USERNAME = %s)
                 ) AS KWEEKS
-                ORDER BY CREATED_AT DESC 
+                ORDER BY SORT_BY DESC
             """
 
     data = (username, username)
@@ -61,18 +60,20 @@ def get_home_kweeks(authorized_username):
                                         | *rekweeker (string)*: The username of the rekweeker (None if not a rekweek)}.
     """
     query = """
-            SELECT * FROM
-            ((SELECT *, FALSE AS IS_REKWEEK, NULL AS REKWEEKER FROM KWEEK WHERE USERNAME IN 
-                (SELECT FOLLOWED_USERNAME FROM FOLLOW WHERE FOLLOWER_USERNAME = 'test_user1'))
+            SELECT ID, CREATED_AT, TEXT, MEDIA_URL, USERNAME, REPLY_TO, IS_REKWEEK, REKWEEKER FROM
+            ((SELECT *, FALSE AS IS_REKWEEK, NULL AS REKWEEKER, CREATED_AT AS SORT_BY FROM KWEEK WHERE USERNAME IN 
+                (SELECT FOLLOWED_USERNAME FROM FOLLOW WHERE FOLLOWER_USERNAME = %s AND
+                 FOLLOWED_USERNAME NOT IN (SELECT MUTED_USERNAME FROM MUTE WHERE MUTER_USERNAME = %s)))
                 
             UNION
             
-            (SELECT K.*, TRUE AS IS_REKWEEK, R.USERNAME AS REKWEEKER 
+            (SELECT K.*, TRUE AS IS_REKWEEK, R.USERNAME AS REKWEEKER, R.CREATED_AT AS SORT_BY
              FROM KWEEK K JOIN REKWEEK R ON K.ID = R.KWEEK_ID WHERE R.USERNAME IN 
-                (SELECT FOLLOWED_USERNAME FROM FOLLOW WHERE FOLLOWER_USERNAME = 'test_user1'))) AS KWEEKS
-            ORDER BY CREATED_AT DESC
+                (SELECT FOLLOWED_USERNAME FROM FOLLOW WHERE FOLLOWER_USERNAME = %s AND
+                 FOLLOWED_USERNAME NOT IN (SELECT MUTED_USERNAME FROM MUTE WHERE MUTER_USERNAME = %s)))) AS KWEEKS
+            ORDER BY SORT_BY DESC
             """
-    data = (authorized_username, authorized_username)
+    data = (authorized_username, authorized_username, authorized_username, authorized_username)
     home_kweeks = db_manager.execute_query(query, data)
     return home_kweeks
 
@@ -388,3 +389,52 @@ def get_all_trends():
                 GROUP BY ID, TEXT
             """
     return db_manager.execute_query(query)
+
+
+def is_trend(trend_id):
+    """
+        Checks if a trend id belongs to an existing trend.
+
+
+        *Parameters:*
+            - *trend_id (string)*: The trend id to be checked.
+
+        *Returns:*
+            - *True*: The trend id belongs to an existing trend.
+            - *False*: The trend id does not exist.
+    """
+    query = """
+                SELECT * FROM HASHTAG WHERE ID = %s
+            """
+    data = (trend_id,)
+    trends = db_manager.execute_query(query, data)
+    if not trends:
+        return False
+    else:
+        return True
+
+
+def get_trend_kweeks(trend_id):
+    """
+        Gets the kweeks that belong to a trend.
+        The kweeks returned are missing some data to construct kweek objects.
+
+        *Parameters:*
+            - *trend_id (int)*: The username whose liked kweeks are to be fetched.
+
+        *Returns:*
+            - *List of dictionaries*: {
+                                        | *id (int)*: The id of the kweek.,
+                                        | *created_at (datetime)*: The date and time at which the kweek was created.,
+                                        | *text (string)*: The main content of the kweek.,
+                                        | *media_url (string)*: The url of the image attached with the kweek, if any.,
+                                        | *username (string)*: The username of the author of the kweek.,
+                                        | *reply_to (int)*: The id of the kweek which this kweek is a reply to, if any.}
+    """
+    query = """
+                SELECT K.* FROM KWEEK K JOIN KWEEK_HASHTAG KH ON K.ID = KH.KWEEK_ID
+                WHERE HASHTAG_ID = %s
+                ORDER BY CREATED_AT DESC
+            """
+    data = (trend_id,)
+    return db_manager.execute_query(query, data)

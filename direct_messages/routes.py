@@ -26,7 +26,11 @@ class DirectMessages(Resource):
     @messages_api.doc(security='KwikkerKey')
     @authorize
     def get(self, authorized_username):
-        """ Retrieves a list of Direct Messages. """
+        """ Retrieves a list of Direct Messages.
+
+        Note:  'media_url': fields.String(description='Nullable, url of the media.', nullable = True)
+                is in the payload
+        """
         to_username = request.args.get('username')
         last_message_retrieved_id = request.args.get('last_message_retrieved_id')
         try:
@@ -54,8 +58,7 @@ class DirectMessages(Resource):
     @messages_api.response(code=404, description='User does not exist.')
     @messages_api.expect(create_model('Sent Message', model={
         'text': fields.String(description='The content of the message.'),
-        'username': fields.String(description='Username that will receive the message.'),
-        'media_url': fields.String(description='Nullable, url of the media.')
+        'username': fields.String(description='Username that will receive the message.')
     }))
     @messages_api.doc(security='KwikkerKey')
     @authorize
@@ -65,6 +68,7 @@ class DirectMessages(Resource):
         to_username = data['username']
         text = data['text']
         media_url = data['media_url']
+        print(media_url)
         try:
             actions.create_message(authorized_username, to_username, text, media_url)
         except Exception as E:
@@ -128,12 +132,9 @@ class RecentConversationers(Resource):
         try:
             recent_conversationers = actions.get_recent_conversationers(authorized_username,
                                                                         last_conversationers_retrieved_username)
-            if recent_conversationers is None:
-                abort(404, message='A user does not exist.')
-            else:
-                if len(recent_conversationers) == 0:
-                    return [], 200
-                return recent_conversationers, 200
+            if len(recent_conversationers) == 0:
+                return [], 200
+            return recent_conversationers, 200
         except TypeError:
             abort(500, message='An error occurred in the server.')
         except Exception as E:

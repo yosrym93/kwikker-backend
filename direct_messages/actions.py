@@ -66,6 +66,7 @@ def get_messages(from_username, to_username, last_message_retrieved_id=None):
     if len(messages) == 0:
         return message_list
     for message in messages:
+        message['created_at'] = change_time(message['created_at'])
         message_list.append(DirectMessage(message))
     return message_list
 
@@ -255,7 +256,7 @@ def get_recent_conversationers(from_username, last_conversationers_retrieved_use
     except TypeError:
         raise
     if conversationers is None:
-        return None
+        return []
     conversationer_list = []
     if len(conversationers) == 0:
         return conversationer_list

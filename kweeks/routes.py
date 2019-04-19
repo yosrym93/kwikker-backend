@@ -2,7 +2,7 @@ from flask_restplus import Resource, fields, abort
 from flask import request
 from app import create_model
 from models import Kweek, User, NullableString
-from kweeks.actions import create_kweek, delete_kweek, get_kweek_with_replies, create_rekweek, delete_rekweek,\
+from kweeks.actions import create_kweek, delete_kweek, get_kweek_with_replies, create_rekweek, delete_rekweek, \
     like_kweek, dislike_kweek, get_rekweekers, get_likers
 import api_namespaces
 from authentication_and_registration.actions import authorize
@@ -16,8 +16,8 @@ class Kweeks(Resource):
         'text': fields.String,
         'reply_to': NullableString(description='The id of the kweek that this kweek '
                                                'is a reply to. Null if the kweek is not'
-                                               ' a reply.', validate=True)
-    }))
+                                               ' a reply.')
+    }), validate=True)
     @kweeks_api.response(code=401, description='Unauthorized access.')
     @kweeks_api.response(code=201, description='Kweek created successfully.')
     @kweeks_api.doc(security='KwikkerKey')
@@ -111,8 +111,8 @@ class KweekReplies(Resource):
 @kweeks_api.route('/rekweek')
 class Rekweek(Resource):
     @kweeks_api.expect(create_model('Kweek ID', {
-        'id': fields.String(description='The id of the kweek to be rekweeked.', validate=True)
-    }))
+        'id': fields.String(description='The id of the kweek to be rekweeked.')
+    }), validate=True)
     @kweeks_api.response(code=401, description='Unauthorized access.')
     @kweeks_api.response(code=201, description='Reweek created successfully')
     @kweeks_api.response(code=404, description='Kweek does not exist.')
@@ -154,7 +154,7 @@ class Like(Resource):
     @kweeks_api.response(code=401, description='Unauthorized access.')
     @kweeks_api.expect(create_model('Kweek ID', {
         'id': fields.String(description='The id of the kweek to be liked.')
-    }))
+    }), validate=True)
     @kweeks_api.doc(security='KwikkerKey')
     @authorize
     def post(self, authorized_username):
@@ -203,6 +203,7 @@ class KweekRekweekers(Resource):
         if not request.args.get('id'):
             abort(400, 'please provide the kweek id')
         check, message, users_obj_list = get_rekweekers(request.args.get('id'), authorized_username)
+        print(check, message, users_obj_list)
         if check:
             return users_obj_list
         else:

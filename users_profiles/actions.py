@@ -110,7 +110,7 @@ def update_user_profile(authorized_username, bio, screen_name):
     return response
 
 
-def update_profile_picture(file, authorized_username):
+def update_profile_picture(file, authorized_username):  # pragma:no cover
     """
                     The function updates profile picture.
 
@@ -173,7 +173,7 @@ def delete_profile_picture(authorized_username):
         return response  # pragma:no cover
 
 
-def update_profile_banner(file, authorized_username):
+def update_profile_banner(file, authorized_username):  # pragma:no cover
     """
                         The function updates banner picture.
 
@@ -189,7 +189,7 @@ def update_profile_banner(file, authorized_username):
         images = os.path.join(APP_ROOT, 'images/')
         if not os.path.isdir(images):
             os.mkdir(images)
-        target = os.path.join(APP_ROOT, 'images\banner/')
+        target = os.path.join(APP_ROOT, 'images\\banner/')
 
         if not os.path.isdir(target):
             os.mkdir(target)
@@ -221,7 +221,7 @@ def delete_banner_picture(authorized_username):
     filename = query_factory.get_user_banner_picture(authorized_username)['profile_banner_url']
     if filename == default_filename:
         return 'default image'
-    path = APP_ROOT + '\images\banner'
+    path = APP_ROOT + '\images\\banner'
     response = query_factory.update_user_banner_picture(authorized_username, default_filename)
     if response is None:
         os.chdir(path)
@@ -241,6 +241,7 @@ def search_user(authorized_username, search_key, username):
                 *Parameters*:
                     - *authorized_username (string)*: The user that is logged in now.
                     - *search_key (string)*: The keyword used to get best match users.
+                    - *username (string)*: The last username retrieve. Results after this one are fetched.
 
                 *Returns*:
                     - *User_list*: a list of objects of user.
@@ -249,7 +250,8 @@ def search_user(authorized_username, search_key, username):
         return []
     results = query_factory.search_user(search_key)
     try:
-        results = actions.paginate(dictionaries_list=results, required_size=size, start_after_key='username', start_after_value=username)
+        results = actions.paginate(dictionaries_list=results, required_size=size,
+                                   start_after_key='username', start_after_value=username)
     except TypeError as E:
         print(E)
         raise
