@@ -102,8 +102,9 @@ class Follow(Resource):
     @authorize
     def delete(self, authorized_username):
         """ Unfollow a certain user using their username. """
-        data = request.get_json()
-        username = data.get('username')
+        if 'username' not in request.args.keys():
+            abort(404, message='No username was sent.')
+        username = request.args.get('username')
         if not trends_actions.is_user(username):
             abort(404, message='A user with this username does not exist.')
         if username == authorized_username:
@@ -156,8 +157,9 @@ class Block(Resource):
     @authorize
     def delete(self, authorized_username):
         """ Unblock a certain user using his username. """
-        data = request.get_json()
-        username = data.get('username')
+        if 'username' not in request.args.keys():
+            abort(404, message='No username was sent.')
+        username = request.args.get('username')
         if not trends_actions.is_user(username):
             abort(404, message='A user with this username does not exist.')
         if username == authorized_username:
@@ -187,9 +189,10 @@ class Mute(Resource):
         'username': fields.String(description="The username of the user to be muted.")}))
     @interactions_api.doc(security='KwikkerKey')
     @authorize
-    def post(self, authorized_username ):
+    def post(self, authorized_username):
         """ Mute a certain user using his username. """
         data = request.get_json()
+        print(data)
         username = data.get('username')
         if not trends_actions.is_user(username):
             abort(404, message='A user with this username does not exist.')
@@ -210,8 +213,9 @@ class Mute(Resource):
     @authorize
     def delete(self, authorized_username):
         """ Unmute a certain user using his username. """
-        data = request.get_json()
-        username = data.get('username')
+        if 'username' not in request.args.keys():
+            abort(404, message='No username was sent.')
+        username = request.args.get('username')
         if not trends_actions.is_user(username):
             abort(404, message='A user with this username does not exist.')
         if username == authorized_username:
