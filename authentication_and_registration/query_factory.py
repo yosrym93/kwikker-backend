@@ -228,14 +228,11 @@ def is_user(username, password):
      -*False:* if there is no user with these info.
     """
     # for testing print username and password
-    print(username)
-    print(password)
     query: str = """
                      select PASSWORD from USER_CREDENTIALS where USERNAME= %s
                  """
     data = (username,)
     response = db_manager.execute_query(query, data)
-    print(response)
     if type(response) == Exception:
         return False
     elif response:
