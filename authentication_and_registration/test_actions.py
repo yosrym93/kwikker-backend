@@ -93,3 +93,14 @@ def test_update_user_email(test_username, test_new_email, expected_output):
 def test_update_user_username(test_username, test_new_username, expected_output):
     answer = actions.update_user_username(test_username, test_new_username)
     assert answer is expected_output
+
+
+@pytest.mark.parametrize("test_username, expected_output",
+                         [
+                             ('milann', True),
+                             ('amr', False),
+                         ]
+                         )
+def test_is_confirmed(test_username, expected_output):
+    answer = actions.is_confirmed(test_username)
+    assert answer is expected_output

@@ -93,11 +93,15 @@ class RegistrationResendEmail(Resource):
                             'email': fields.String('The email of the user pending email confirmation.')
                         }), validate=True)
     @account_api.response(code=200, description='Email resent successfully.')
+    @account_api.response(code=404,
+                          description='A user with the provided email does not exist.')
     @account_api.response(code=404, description='The user does not exist or is already confirmed.')
     def post(self):
         """ Re-sends an email to confirm the user registration. """
         data = request.get_json()
         user = actions.get_user_by_email(data['email'])
+        if user is None:
+            abort(404, message='A user with the provided email does not exist.')
         html = '<p>Confirming your account will give you </p> <b>full access to Kwikker</b>'
         subject = 'Confirm your Kwikker account, ' + user['username']
         actions.send_email(data['email'], user['username'], user['password'], subject,

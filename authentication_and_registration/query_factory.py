@@ -15,7 +15,7 @@ def is_confirmed(username):
         -*False*:if the user is not confirmed.
     """
     query: str = """
-                SELECT is_confirmed FROM USER_CREDENTIALS WHERE USERNAME = %s
+                SELECT * FROM USER_CREDENTIALS WHERE USERNAME = %s
                  """
     data = (username,)
     response = db_manager.execute_query(query, data)
@@ -23,6 +23,8 @@ def is_confirmed(username):
         return False
     elif response:
         return response[0]['is_confirmed']
+    elif response is None:
+        return False
 
 
 def get_user_by_email(email):

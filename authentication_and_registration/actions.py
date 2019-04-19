@@ -213,7 +213,7 @@ def is_confirmed(username):
         -*True*: if the user is confirmed.
         -*False*:if the user is not confirmed.
     """
-    query_factory.is_confirmed(username)
+    return query_factory.is_confirmed(username)
 
 
 def get_user(codee):  # pragma:no cover
