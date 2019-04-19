@@ -241,6 +241,7 @@ def search_user(authorized_username, search_key, username):
                 *Parameters*:
                     - *authorized_username (string)*: The user that is logged in now.
                     - *search_key (string)*: The keyword used to get best match users.
+                    - *username (string)*: The last username retrieve. Results after this one are fetched.
 
                 *Returns*:
                     - *User_list*: a list of objects of user.
@@ -249,7 +250,8 @@ def search_user(authorized_username, search_key, username):
         return []
     results = query_factory.search_user(search_key)
     try:
-        results = actions.paginate(dictionaries_list=results, required_size=size, start_after_key='username', start_after_value=username)
+        results = actions.paginate(dictionaries_list=results, required_size=size,
+                                   start_after_key='username', start_after_value=username)
     except TypeError as E:
         print(E)
         raise
