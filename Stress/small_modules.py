@@ -31,6 +31,15 @@ class UserBehavior(TaskSet):
     def notifications(self):
         self.client.get("/notifications/",headers={"TOKEN": self.token_string})
 
+    @task(1)
+    def gettrends(self):
+        self.client.get("/trends/",headers={"TOKEN": self.token_string})
+
+    @task(1)
+    def gettrendskweeks(self):
+        self.client.get("/trends/kweeks?trend_id=1",headers={"TOKEN": self.token_string})
+
+
 class WebsiteUser(HttpLocust):
     task_set = UserBehavior
     min_wait = 5000
