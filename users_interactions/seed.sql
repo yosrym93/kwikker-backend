@@ -1,34 +1,34 @@
 
 insert into user_credentials(
 	username, email, password, is_confirmed )
-	VALUES ('khaled', 'k@gmail.com', 'kkk', True);
+	VALUES ('khaled', 'k@gmail.com', '$2b$12$y6a/0cxyk5xl3m/O0J9Sf.hE7Af87rdgjljA.kj.nJP3B1KQelvf.', True);
 insert into user_credentials(
 	username, email, password, is_confirmed )
-	VALUES ('omar', 'o@gmail.com', 'ooo', True);
+	VALUES ('omar', 'o@gmail.com', '$2b$12$y6a/0cxyk5xl3m/O0J9Sf.hE7Af87rdgjljA.kj.nJP3B1KQelvf.', True);
 insert into user_credentials(
 	username, email, password, is_confirmed )
-	VALUES ('amr', 'a@gmail.com', 'aaa', True);
+	VALUES ('amr', 'a@gmail.com', '$2b$12$y6a/0cxyk5xl3m/O0J9Sf.hE7Af87rdgjljA.kj.nJP3B1KQelvf.', True);
 insert into user_credentials(
 	username, email, password, is_confirmed )
-	VALUES ('khaled ahmed', 'a@gmail.com', 'aaa', True);
+	VALUES ('khaled ahmed', 'a@gmail.com', '$2b$12$y6a/0cxyk5xl3m/O0J9Sf.hE7Af87rdgjljA.kj.nJP3B1KQelvf.', True);
 insert into user_credentials(
 	username, email, password, is_confirmed )
-	VALUES ('khaled mohamed', 'a@gmail.com', 'aaa', True);
+	VALUES ('khaled mohamed', 'a@gmail.com', '$2b$12$y6a/0cxyk5xl3m/O0J9Sf.hE7Af87rdgjljA.kj.nJP3B1KQelvf.', True);
 insert into user_credentials(
 	username, email, password, is_confirmed )
-	VALUES ('mohamed khaled', 'a@gmail.com', 'aaa', True);
+	VALUES ('mohamed khaled', 'a@gmail.com', '$2b$12$y6a/0cxyk5xl3m/O0J9Sf.hE7Af87rdgjljA.kj.nJP3B1KQelvf.', True);
 insert into user_credentials(
 	username, email, password, is_confirmed )
-	VALUES ('omar@figo', 'f@gmail.com', 'aaa', True);
+	VALUES ('omar@figo', 'f@gmail.com', '$2b$12$y6a/0cxyk5xl3m/O0J9Sf.hE7Af87rdgjljA.kj.nJP3B1KQelvf.', True);
 insert into user_credentials(
 	username, email, password, is_confirmed )
-	VALUES ('ahmed_khaled', 'f@gmail.com', 'aaa', True);
+	VALUES ('ahmed_khaled', 'f@gmail.com', '$2b$12$y6a/0cxyk5xl3m/O0J9Sf.hE7Af87rdgjljA.kj.nJP3B1KQelvf.', True);
 insert into user_credentials(
 	username, email, password, is_confirmed )
-	VALUES ('ahmed', 'f@gmail.com', 'aaa', True);
+	VALUES ('ahmed', 'f@gmail.com', '$2b$12$y6a/0cxyk5xl3m/O0J9Sf.hE7Af87rdgjljA.kj.nJP3B1KQelvf.', True);
 insert into user_credentials(
 	username, email, password, is_confirmed )
-	VALUES ('yosry', 'r@gmail.com', 'aaa', True);
+	VALUES ('yosry', 'r@gmail.com', '$2b$12$y6a/0cxyk5xl3m/O0J9Sf.hE7Af87rdgjljA.kj.nJP3B1KQelvf.', True);
 
 
 INSERT INTO profile(
