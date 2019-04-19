@@ -183,7 +183,7 @@ def run_migrations():
         if successful_migrations:
             print('Executing', migration, '...')
             response = db_manager.execute_query_no_return(open(os.path.dirname(
-                os.path.realpath(__file__)) + '\\' + migration, 'r').read())
+                os.path.realpath(__file__)) + '/' + migration, 'r').read())
             if response is not None:
                 print('Error executing migration', migration)
                 print(response)

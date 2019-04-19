@@ -2,7 +2,7 @@ from flask_restplus import Resource, fields, abort
 from flask import request
 from app import create_model
 from models import Kweek, User, NullableString
-from kweeks.actions import create_kweek, delete_kweek, get_kweek_with_replies, create_rekweek, delete_rekweek,\
+from kweeks.actions import create_kweek, delete_kweek, get_kweek_with_replies, create_rekweek, delete_rekweek, \
     like_kweek, dislike_kweek, get_rekweekers, get_likers
 import api_namespaces
 from authentication_and_registration.actions import authorize
@@ -203,6 +203,7 @@ class KweekRekweekers(Resource):
         if not request.args.get('id'):
             abort(400, 'please provide the kweek id')
         check, message, users_obj_list = get_rekweekers(request.args.get('id'), authorized_username)
+        print(check, message, users_obj_list)
         if check:
             return users_obj_list
         else:
