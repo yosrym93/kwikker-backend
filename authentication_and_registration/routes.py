@@ -16,6 +16,8 @@ class Login(Resource):
     }))
     @account_api.response(code=404,
                           description='A user with matching credentials does not exist.')
+    @account_api.response(code=404,
+                          description='A user with matching credentials is not confirmed.')
     @account_api.expect(create_model('User Credentials', {
                             'username': fields.String(description='The username of the user logging in.'),
                             'password': fields.String(description='The password of the user logging in.')
@@ -24,8 +26,11 @@ class Login(Resource):
         """ Authenticates user and provide an access token for Kwikker. """
         data = request.get_json()
         is_verified = actions.verify(data['username'], data['password'])
+        is_confirmed = actions.is_confirmed(data['username'])
         if not is_verified:
             abort(404, message='A user with matching credentials does not exist.')
+        if not is_confirmed:
+            abort(404, message='A user with matching credentials is not confirmed')
         else:
             token = actions.create_token(data['username'], data['password'])
             token = token.decode('utf-8')

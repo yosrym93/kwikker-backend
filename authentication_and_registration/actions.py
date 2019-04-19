@@ -202,7 +202,28 @@ def create_token(username, password, secret=secret_key):
     return token
 
 
+def is_confirmed(username):
+    """
+    Check if the user is confirmed or not
+
+    *Parameters:*
+        -*username(string)*: holds the value of the username.
+
+    *Returns:*
+        -*True*: if the user is confirmed.
+        -*False*:if the user is not confirmed.
+    """
+    query_factory.is_confirmed(username)
+
+
 def get_user(codee):  # pragma:no cover
+    """
+    Code verification function. This function validate the code.
+
+    *Returns:*
+        -*Error Response,401*: if the token is not given in the header, expired or invalid.
+        -*Username*:if the token is valid it allows the access and return the username of the user.
+    """
     user = None
     try:
         user = jwt.decode(codee, code, algorithms=['HS256'])
@@ -225,9 +246,7 @@ def get_user(codee):  # pragma:no cover
 
 def authorize(f):
     """
-    Token verification Decorator.
-
-    this decorator validate the token passed in the header with the endpoint.
+    Token verification Decorator. This decorator validate the token passed in the header with the endpoint.
 
     *Returns:*
         -*Error Response,401*: if the token is not given in the header, expired or invalid.
