@@ -113,6 +113,8 @@ class ForgetPassword(Resource):
         """ Sends email to the user which give him access to change the password. """
         data = request.get_json()
         user = actions.get_user_by_email(data['email'])
+        if user is None:
+            abort(404, message='A user with the provided email does not exist.')
         html = '<p>To reset your password </p>'
         subject = 'Request for changing password, ' + user['username']
         actions.send_email(data['email'], user['username'], user['password'], subject,
