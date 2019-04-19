@@ -38,6 +38,7 @@ class ProductionConfig(BaseConfig):
     DATABASE_USERNAME = 'kwikker'
     DATABASE_PASSWORD = '8Av5R7tRNqJSm4sXW23E'
     DATABASE_HOST = 'ec2-3-122-42-152.eu-central-1.compute.amazonaws.com'
+    SERVER_PATH = 'http://kwikkerbackend.eu-central-1.elasticbeanstalk.com/'
 
 
 class TestingConfig(BaseConfig):

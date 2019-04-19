@@ -3,7 +3,7 @@ import app
 from database_manager import db_manager
 import click
 
-all_modules = ['timelines_and_trends', 'users_profiles', 'authentication_and_registration', 'notifications',
+all_modules = ['users_profiles', 'timelines_and_trends', 'authentication_and_registration', 'notifications',
                'direct_messages', 'kweeks']
 
 
@@ -38,6 +38,10 @@ def cli(module):
             final_exit_code = exit_code
 
     db_manager.execute_query_no_return('DELETE FROM USER_CREDENTIALS; DELETE FROM HASHTAG;')
+    if final_exit_code == 0:
+        print('All tests passed.')
+    else:
+        print('Some tests failed!')
     raise SystemExit(final_exit_code)
 
 

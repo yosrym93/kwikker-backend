@@ -13,10 +13,11 @@ VALUES
 INSERT INTO FOLLOW VALUES
 ('test_user1', 'test_user3'),
 ('test_user2', 'test_user3'),
-('test_user3', 'test_user1');
+('test_user3', 'test_user1'),
+('test_user3', 'test_user2');
 
 INSERT INTO MUTE VALUES
-('test_user1', 'test_user3');
+('test_user3', 'test_user2');
 
 INSERT INTO BLOCK VALUES
 ('test_user2', 'test_user1');
