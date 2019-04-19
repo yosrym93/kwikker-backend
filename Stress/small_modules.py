@@ -1,8 +1,8 @@
 from locust import HttpLocust, TaskSet, task
 import numpy as np
 
-users = ["test_user1", "test_user2", "test_user3"]
-passwords = ["pass", "pass", "password"]
+users = ["test_user1", "test_user2", "ahly"]
+passwords = ["pass", "pass", "ahlypassword"]
 
 num_users = 3
 

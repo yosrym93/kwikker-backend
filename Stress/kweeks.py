@@ -1,11 +1,11 @@
 from locust import HttpLocust, TaskSet, task
 import numpy as np
 
-users = ["test_user1", "test_user2", "test_user3"]
-passwords = ["pass", "pass", "password"]
+users = ["test_user1", "test_user2", "ahly"]
+passwords = ["pass", "pass", "ahlypassword"]
 hashtags = ["hashtag1", "hashtag2", "hashtag3"]
 
-kweek_number = "8"
+kweek_number = "3"
 num_users = 3
 
 class UserBehavior(TaskSet): 
@@ -26,14 +26,15 @@ class UserBehavior(TaskSet):
                 json_response_dict = response.json() 
                 self.token_string = json_response_dict['token']
             else:
-                response.failure("Cannot Login With User" + str(idx))
+                response.failure("Cannot Login With User: " + str(idx))
 
 
-    @task(10)
+    @task(1)
     def get_kweeks(self):
-        self.client.get("/kweeks/?id="+kweek_number, headers={"TOKEN" : self.token_string})
+        self.client.get("/kweeks/?id=" + kweek_number, 
+        headers={"TOKEN" : self.token_string})
 
-    @task(2)
+    @task(1)
     def create_reply(self):
         idx = np.random.randint(num_users)
         mode = np.random.randint(3)
@@ -50,7 +51,7 @@ class UserBehavior(TaskSet):
             json = {"text": "Hi Reply", "reply_to": kweek_number}, 
             headers={"TOKEN" : self.token_string})
 
-    @task(2)
+    @task(1)
     def create_kweek(self):
         idx = np.random.randint(num_users)
         mode = np.random.randint(3)
@@ -67,10 +68,15 @@ class UserBehavior(TaskSet):
             json = {"text": "Hi Kweek", "reply_to": None}, 
             headers={"TOKEN" : self.token_string})
 
-    @task(5)
+    @task(1)
     def like_kweek(self):
         self.client.post("/kweeks/like",
         json = {"id": kweek_number}, 
+        headers={"TOKEN" : self.token_string})
+
+    @task(1)
+    def get_kweeks_likers(self):
+        self.client.get("/kweeks/likers?id=" + kweek_number, 
         headers={"TOKEN" : self.token_string})
 
 class WebsiteUser(HttpLocust):
