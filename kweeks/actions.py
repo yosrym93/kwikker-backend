@@ -100,11 +100,11 @@ def insert_kweek(kweek: Kweek):
     for ment in kweek.mentions:
         existed = check_kweek_mention(kid, ment)[0]['count']
         if existed != 0:
-            return False, 'Repeated mention in the same kweek'
+            return True, 'success'
         response = create_mention(kid, ment)
         if response is not None:
-            return False, 'the user mentioned does not exist in the database'
-        notified_user = ment.username
+            return True, 'success'
+            notified_user = ment.username
         create_notifications(kweek.user.username, notified_user, 'MENTION', kid)
 
     return True, 'success'
@@ -284,7 +284,6 @@ def get_kweek(kid, authorized_username, replies_only):
             mention = Mention(ment_dic)
             mentions_list.append(mention)
 
-
     if not user:
         return False, 'not a valid user', None, None
     else:
@@ -296,7 +295,6 @@ def get_kweek(kid, authorized_username, replies_only):
             extrauser['following'] = True
         else:
             extrauser['following'] = False
-
 
     check = check_following(user['username'], me)
     if check:
@@ -512,29 +510,22 @@ def dislike_kweek(kweek_id, authorized_username):
 def get_likers(kweek_id, authorized_username):
     check, message = validate_request(kweek_id)
     if not check:
-        print('here0')
         return check, message, None
     likers = retrieve_user(kweek_id, 2)
     if likers:
-        print('here1')
-        retrieve_users(authorized_username, likers)
+        return retrieve_users(authorized_username, likers)
     else:
-        print('here2')
         return False, 'The kweek has no likers', None
 
 
 def get_rekweekers(kweek_id, authorized_username):
     check, message = validate_request(kweek_id)
     if not check:
-        print('here0')
         return check, message, None
     rekweekers = retrieve_user(kweek_id, 3)
     if rekweekers:
-        print('here1')
-        print(rekweekers)
-        retrieve_users(authorized_username, rekweekers)
+        return retrieve_users(authorized_username, rekweekers)
     else:
-        print('here2')
         return False, 'The kweek has no rekweekers', None
 
 
@@ -568,5 +559,4 @@ def retrieve_users(authorized_username, user_list):
         user.update(extrauser)
         userobj = User(user)
         users_list.append(userobj)
-    print(users_list)
     return True, 'success', users_list

@@ -189,7 +189,7 @@ class Like(Resource):
 @kweeks_api.route('/rekweekers')
 class KweekRekweekers(Resource):
     @kweeks_api.response(code=200, description='Rekweerkers have been returned successfully.',
-                         model=[User.api_model])
+                        model=[User.api_model])
     @kweeks_api.param(name='id', type='str',
                       description='Id of the Kweek whose rekweekers are to be retrieved', required=True)
     @kweeks_api.marshal_with(User.api_model, as_list=True)
@@ -203,6 +203,7 @@ class KweekRekweekers(Resource):
         if not request.args.get('id'):
             abort(400, 'please provide the kweek id')
         check, message, users_obj_list = get_rekweekers(request.args.get('id'), authorized_username)
+        print(check, message, users_obj_list)
         if check:
             return users_obj_list
         else:

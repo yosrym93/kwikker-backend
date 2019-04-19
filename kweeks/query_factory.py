@@ -318,14 +318,17 @@ def retrieve_user(kweek_id, num):
     """
     response = None
     query1: str = """SELECT * FROM PROFILE WHERE USERNAME IN (SELECT USERNAME FROM KWEEK WHERE ID=%s)"""
-    query2: str = """SELECT * FROM PROFILE WHERE USERNAME = (SELECT USERNAME FROM FAVORITE WHERE  KWEEK_ID= %s)"""
-    query3: str = """SELECT * FROM PROFILE WHERE USERNAME = (SELECT USERNAME FROM REKWEEK WHERE  KWEEK_ID= %s)"""
+    query2: str = """SELECT * FROM PROFILE WHERE USERNAME IN (SELECT USERNAME FROM FAVORITE WHERE  KWEEK_ID= %s)"""
+    query3: str = """SELECT * FROM PROFILE WHERE USERNAME IN (SELECT USERNAME FROM REKWEEK WHERE  KWEEK_ID= %s)"""
     data = (kweek_id,)
     if num == 1:
+        print('num1')
         response = db_manager.execute_query(query1, data)
     elif num == 2:
+        print('num2')
         response = db_manager.execute_query(query2, data)
     elif num == 3:
+        print('num3')
         response = db_manager.execute_query(query3, data)
     return response
 
