@@ -65,7 +65,7 @@ class ProfileBanner(Resource):
     @user_api.param(name='file', description='The new profile banner.', required=True, type='file')
     @user_api.doc(security='KwikkerKey')
     @authorize
-    def put(self, authorized_username):
+    def post(self, authorized_username):
         """ Update a profile banner given the new banner image. """
         if 'file' not in request.files:
             return abort(404, message='No image part')
@@ -105,7 +105,7 @@ class ProfilePicture(Resource):
     @user_api.param(name='file', description='The new profile picture.', required=True, type='file')
     @user_api.doc(security='KwikkerKey')
     @authorize
-    def put(self, authorized_username):
+    def post(self, authorized_username):
         """ Update a profile picture given the new picture. """
         if 'file' not in request.files:
             return abort(404, message='No image part')
