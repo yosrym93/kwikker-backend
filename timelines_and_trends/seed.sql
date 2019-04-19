@@ -1,6 +1,6 @@
 INSERT INTO USER_CREDENTIALS(USERNAME, PASSWORD, EMAIL, IS_CONFIRMED) VALUES
 ('test_user1', '$2b$12$/naY78xtO3Za9yefRig8Ueh/6qHIUt5wXSrFaHd96pwhZgRoWTiVm', 'test_user1@test.com', TRUE),
-('test_user2', '$2b$12$/naY78xtO3Za9yefRig8Ueh/6qHIUt5wXSrFaHd96pwhZgRoWTiVm', 'test_user3@test.com', TRUE),
+('test_user2', '$2b$12$/naY78xtO3Za9yefRig8Ueh/6qHIUt5wXSrFaHd96pwhZgRoWTiVm', 'test_user2@test.com', TRUE),
 ('test_user3', '$2b$12$/naY78xtO3Za9yefRig8Ueh/6qHIUt5wXSrFaHd96pwhZgRoWTiVm', 'test_user3@test.com', TRUE);
 
 
@@ -13,10 +13,11 @@ VALUES
 INSERT INTO FOLLOW VALUES
 ('test_user1', 'test_user3'),
 ('test_user2', 'test_user3'),
-('test_user3', 'test_user1');
+('test_user3', 'test_user1'),
+('test_user3', 'test_user2');
 
 INSERT INTO MUTE VALUES
-('test_user1', 'test_user3');
+('test_user3', 'test_user2');
 
 INSERT INTO BLOCK VALUES
 ('test_user2', 'test_user1');

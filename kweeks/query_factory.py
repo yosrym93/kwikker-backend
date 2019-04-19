@@ -283,7 +283,6 @@ def retrieve_mentions(kid: int):
     data = (kid,)
     response = db_manager.execute_query(query, data)
     return response
-    print(response)
 
 
 def retrieve_replies(kid):
@@ -317,9 +316,10 @@ def retrieve_user(kweek_id, num):
                        - *response*: A list of dictionary of the user tuple .
 
     """
+    response = None
     query1: str = """SELECT * FROM PROFILE WHERE USERNAME IN (SELECT USERNAME FROM KWEEK WHERE ID=%s)"""
-    query2: str = """SELECT * FROM PROFILE WHERE USERNAME = (SELECT USERNAME FROM FAVORITE WHERE  KWEEK_ID= %s)"""
-    query3: str = """SELECT * FROM PROFILE WHERE USERNAME = (SELECT USERNAME FROM REKWEEK WHERE  KWEEK_ID= %s)"""
+    query2: str = """SELECT * FROM PROFILE WHERE USERNAME IN (SELECT USERNAME FROM FAVORITE WHERE  KWEEK_ID= %s)"""
+    query3: str = """SELECT * FROM PROFILE WHERE USERNAME IN (SELECT USERNAME FROM REKWEEK WHERE  KWEEK_ID= %s)"""
     data = (kweek_id,)
     if num == 1:
         response = db_manager.execute_query(query1, data)
@@ -327,7 +327,6 @@ def retrieve_user(kweek_id, num):
         response = db_manager.execute_query(query2, data)
     elif num == 3:
         response = db_manager.execute_query(query3, data)
-    print(response)
     return response
 
 
@@ -416,8 +415,9 @@ def add_rekweek(kweek_id, authorized_username):
 
     """
     query: str = """INSERT INTO  REKWEEK (USERNAME,KWEEK_ID,CREATED_AT) VALUES(%s,%s,%s) """
-    data = (authorized_username, kweek_id, datetime.utcnow() )
+    data = (authorized_username, kweek_id, datetime.utcnow())
     db_manager.execute_query_no_return(query, data)
+
 
 def check_kweek_rekweeker(kid, authorized_username):
     """
@@ -436,6 +436,7 @@ def check_kweek_rekweeker(kid, authorized_username):
     data = (authorized_username, kid)
     response = db_manager.execute_query(query, data)
     return response
+
 
 def add_like(kweek_id, authorized_username):
     """

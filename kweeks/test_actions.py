@@ -188,7 +188,7 @@ def test_insert_kweek():
                         'ending_index': 16}
     expected_hahstag = {'text': '#sky', 'kweek_id': kid, 'hashtag_id': hid,
                         'starting_index': 10, 'ending_index': 16}
-    expected_kweek = {'id': kid, 'text': '#testtest',
+    expected_kweek = {'id': kid, 'text': '#test1',
                       'media_url': None, 'username': 'user1', 'reply_to': None}
     assert expected_kweek == resulted_kweek
     assert expected_hahstag == resulted_hashtag
@@ -246,7 +246,8 @@ def test_insert_kweek():
                              }, (False, 'No reply body found')),
                              ('user1', {
                                  'text': "#first tweet",
-                                 'reply_to': -1
+                                 'reply_to': '1000000000'
+
                              }, (False, 'Kweek does not exist '))
 
 
@@ -315,7 +316,6 @@ def test_delete_kweek():
     data = ('01-01-2010', 'test1', None, 'user1', None)
     db_manager.execute_query_no_return(query, data)
     kid1 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
-
     query: str = """INSERT INTO HASHTAG(TEXT) VALUES (%s) """
     data = ('hashtag1',)
     db_manager.execute_query_no_return(query, data)
@@ -323,7 +323,6 @@ def test_delete_kweek():
     query: str = """SELECT ID FROM HASHTAG WHERE TEXT = %s """
     data = ('hashtag1',)
     hid1 = db_manager.execute_query(query, data)[0]['id']
-
     query: str = """INSERT INTO KWEEK_HASHTAG VALUES (%s,%s,%s,%s)"""
     data = (kid1, hid1, 0, 9,)
     db_manager.execute_query_no_return(query, data)
@@ -342,7 +341,6 @@ def test_delete_kweek():
     data = ('01-01-2010', 'test2', None, 'user1', None)
     db_manager.execute_query_no_return(query, data)
     kid1 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
-
     query: str = """INSERT INTO HASHTAG(TEXT) VALUES (%s) """
     data = ('hashtag2',)
     db_manager.execute_query_no_return(query, data)
@@ -350,36 +348,26 @@ def test_delete_kweek():
     query: str = """SELECT ID FROM HASHTAG WHERE TEXT = %s """
     data = ('hashtag2',)
     hid1 = db_manager.execute_query(query, data)[0]['id']
-
     query: str = """INSERT INTO KWEEK_HASHTAG VALUES (%s,%s,%s,%s)"""
     data = (kid1, hid1, 0, 9,)
     db_manager.execute_query_no_return(query, data)
     # second test- second kweek #
     query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
-    data = ('01-01-2010', 'test2', None, 'user1', kid1)
+    data = ('01-01-2010', 'test2', None, 'user1', None)
     db_manager.execute_query_no_return(query, data)
     kid2 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
-
-    query: str = """INSERT INTO HASHTAG(TEXT) VALUES (%s) """
-    data = ('hashtag2',)
-    db_manager.execute_query_no_return(query, data)
-
-    query: str = """SELECT ID FROM HASHTAG WHERE TEXT = %s """
-    data = ('hashtag2',)
-    hid2 = db_manager.execute_query(query, data)[0]['id']
-
     query: str = """INSERT INTO KWEEK_HASHTAG VALUES (%s,%s,%s,%s)"""
-    data = (kid2, hid2, 0, 9,)
+    data = (kid2, hid1, 0, 9,)
     db_manager.execute_query_no_return(query, data)
 
     actions.delete_kweek(kid1, 'user1')
-    query: str = """SELECT TEXT FROM HASHTAG  WHERE TEXT= %s"""
+    query: str = """SELECT TEXT FROM HASHTAG WHERE TEXT= %s"""
     data = ('hashtag2',)
     response = db_manager.execute_query(query, data)
     assert response != []
 
     actions.delete_kweek(kid2, 'user1')
-    query: str = """SELECT TEXT FROM HASHTAG  WHERE TEXT= %s"""
+    query: str = """SELECT TEXT FROM HASHTAG WHERE TEXT= %s"""
     data = ('hashtag2',)
     response = db_manager.execute_query(query, data)
     assert response == []
@@ -409,7 +397,7 @@ def test_delete_kweek():
     # fourth test : user is not kweek owner
 
     query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
-    data = ('01-01-2010', 'test3', None, 'user1', 'user2')
+    data = ('01-01-2010', 'test3', None, 'user2', None)
     db_manager.execute_query_no_return(query, data)
     kid1 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
 
@@ -431,23 +419,14 @@ def test_delete_kweek():
     # fifth test: user is  kweek owner
 
     query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
-    data = ('01-01-2010', 'test3', None, 'user1', 'user2')
+    data = ('01-01-2010', 'test3', None, 'user1', kid1)
     db_manager.execute_query_no_return(query, data)
-    kid1 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
-
-    query: str = """INSERT INTO HASHTAG(TEXT) VALUES (%s) """
-    data = ('hashtag3',)
-    db_manager.execute_query_no_return(query, data)
-
-    query: str = """SELECT ID FROM HASHTAG WHERE TEXT = %s """
-    data = ('hashtag3',)
-    hid1 = db_manager.execute_query(query, data)[0]['id']
+    kid2 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
 
     query: str = """INSERT INTO KWEEK_HASHTAG VALUES (%s,%s,%s,%s)"""
-    data = (kid1, hid1, 0, 9,)
+    data = (kid2, hid1, 0, 9,)
     db_manager.execute_query_no_return(query, data)
-
-    check, message = actions.delete_kweek(kid1, 'user2')
+    check, message = actions.delete_kweek(kid2, 'user2')
     assert message == 'success'
 
     # sixth test: kweek doesn't exist
@@ -517,7 +496,7 @@ def test_get_kweek():
     db_manager.execute_query_no_return(query, data)
 
     query: str = """INSERT INTO FAVORITE VALUES(%s,%s,%s) """
-    data = ('test_user3', kid3, '01-01-2010')
+    data = ('user3', kid3, '01-01-2010')
     db_manager.execute_query_no_return(query, data)
 
     # first output #
@@ -533,8 +512,8 @@ def test_get_kweek():
             'profile_image_url': 'image_url',
             'following': True,
             'follows_you': True,
-            'muted': True,
-            'blocked': True
+            'muted': False,
+            'blocked': False
         }),
         'mentions': [
             Mention({
@@ -572,32 +551,38 @@ def test_get_kweek():
             'muted': False,
             'blocked': False
         }),
+        'mentions': [
+
+        ],
+        'hashtags': [
+
+        ],
         'number_of_likes': 0,
         'number_of_rekweeks': 0,
         'number_of_replies': 0,
-        'reply_to': None,
+        'reply_to': int(kid1),
         'rekweek_info': None,
         'liked_by_user': False,
         'rekweeked_by_user': False
     })
 
-    check_replies, message, k, r = actions.get_kweek(kid1, 'test_user3', False)
+    check_replies, message, k, r = actions.get_kweek(kid1, 'user3', False)
     assert message == 'success'
     assert k.to_json() == kweek_test1.to_json()
     assert [{'id': int(kid2)}, {'id': int(kid3)}] == r
 
-    check_replies, message, k, r = actions.get_kweek(kid2, 'test_user1', False)
+    check_replies, message, k, r = actions.get_kweek(kid2, 'user1', False)
     assert message == 'success'
     assert k.to_json() == kweek_test2.to_json()
     assert [] == r
 
-    check_replies, message, k, r = actions.get_kweek('ahmed', 'test_user1', False)
+    check_replies, message, k, r = actions.get_kweek('ahmed', 'user1', False)
     assert message == 'Invalid data type'
 
-    check_replies, message, k, r = actions.get_kweek('-1', 'test_user1', False)
+    check_replies, message, k, r = actions.get_kweek('-1', 'user1', False)
     assert message == 'Kweek is not available'
 
-    check_replies, message, k, r = actions.get_kweek(kid1, 'test_user3', True)
+    check_replies, message, k, r = actions.get_kweek(kid1, 'user3', True)
     assert message == 'success'
     assert k is None
     assert [{'id': int(kid2)}, {'id': int(kid3)}] == r
@@ -808,7 +793,7 @@ def test_get_kweek_with_replies():
             'rekweek_info': None,
             'liked_by_user': True,
             'rekweeked_by_user': False
-        }),
+        })
 
     ]
     check_replies, message, k, r = actions.get_kweek_with_replies(kid1, 'user3', False)
@@ -819,7 +804,7 @@ def test_get_kweek_with_replies():
 
     check_replies, message, k, r = actions.get_kweek_with_replies('ahmed', 'user3', False)
     assert message == 'Invalid data type'
-    assert r is None
+    assert r == []
     assert k is None
 
     check_replies, message, k, r = actions.get_kweek_with_replies(kid2, 'user3', False)

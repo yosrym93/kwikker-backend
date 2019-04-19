@@ -65,16 +65,16 @@ class ProfileBanner(Resource):
     @user_api.param(name='file', description='The new profile banner.', required=True, type='file')
     @user_api.doc(security='KwikkerKey')
     @authorize
-    def put(self, authorized_username):
+    def post(self, authorized_username):
         """ Update a profile banner given the new banner image. """
         if 'file' not in request.files:
-            return abort(404, message='No image part')
+            return abort(404, message='No image file')
         file = request.files['file']
         response = actions.update_profile_banner(file, authorized_username)
         if response == 'No selected file':
             return abort(404, message=response)
         if response == 'not allowed extensions':
-            return abort(404, message=response)
+            return abort(400, message=response)
         if response == Exception:
             return abort(404, message=response)
         return response, 200
@@ -105,16 +105,16 @@ class ProfilePicture(Resource):
     @user_api.param(name='file', description='The new profile picture.', required=True, type='file')
     @user_api.doc(security='KwikkerKey')
     @authorize
-    def put(self, authorized_username):
+    def post(self, authorized_username):
         """ Update a profile picture given the new picture. """
         if 'file' not in request.files:
-            return abort(404, message='No image part')
+            return abort(404, message='No image file')
         file = request.files['file']
         response = actions.update_profile_picture(file, authorized_username)
         if response == 'No selected file':
             return abort(404, message=response)
         if response == 'not allowed extensions':
-            return abort(404, message=response)
+            return abort(400, message=response)
         if response == Exception:
             return abort(404, message=response)
         return response, 200
