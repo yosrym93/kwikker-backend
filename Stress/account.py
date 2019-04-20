@@ -1,10 +1,7 @@
 from locust import HttpLocust, TaskSet, task
 import numpy as np
 
-users = ["test_user1", "test_user2", "test_user3"]
-passwords = ["pass", "pass", "password"]
-
-num_users = 3
+max_users = 100
 
 class UserBehavior(TaskSet): 
     def on_start(self):
@@ -17,23 +14,44 @@ class UserBehavior(TaskSet):
         #self.logout()
         pass
 
+    @task(1)
     def login(self):
-        idx = np.random.randint(num_users)
+        idx = np.random.randint(max_users)
         with self.client.post("/account/login", 
-            json = {"username": users[idx], "password": passwords[idx]}, catch_response=True) as response:
+            json = {"username": "uname" + str(idx), "password": "pass" + str(idx)}, 
+            catch_response=True) as response:
             if (response.status_code == 200):
                 json_response_dict = response.json() 
                 self.token_string = json_response_dict['token']
-            else:
-                response.failure("Cannot Login With User" + str(idx))
+            elif response.status_code == 404:
+                response.success()
 
+    @task(1)
+    def registration(self):
+        idx = np.random.randint(max_users)
+        with self.client.post("/account/registration",
+        json = {"username": "uname" + str(idx), "password": "pass" + str(idx),
+                "email": "mail" + str(idx) + "@mail.com", "screen_name": "sname" + str(idx),
+                 "birth_date": "1999-01-01"}, catch_response = True) as response:
+                 if response.status_code == 403:
+                    response.success()
 
-    @task(5)
+    @task(1)
     def forget_password(self):
-        idx = np.random.randint(num_users)
-        self.client.post("/account/forget_password",
-        json = {"email": users[idx] + "@test.com"})
+        idx = np.random.randint(max_users)
+        with self.client.post("/account/forget_password",
+        json = {"email": "mail" + str(idx) + "@mail.com"}, catch_response = True) as response:
+                if response.status_code == 403:
+                    response.success()
 
+    @task(1)
+    def resend_email(self):
+        idx = np.random.randint(max_users)
+        with self.client.post("/account/registration/resend_email", 
+        json = {"email": "mail" + str(idx) + "@mail.com"}, catch_response = True) as response:
+                 if response.status_code == 403:
+                    response.success()
+    
 class WebsiteUser(HttpLocust):
     task_set = UserBehavior
     min_wait = 5000

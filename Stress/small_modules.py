@@ -1,8 +1,8 @@
 from locust import HttpLocust, TaskSet, task
 import numpy as np
 
-users = ["test_user1", "test_user2", "test_user3"]
-passwords = ["pass", "pass", "password"]
+users = ["test_user1", "test_user2", "ahly"]
+passwords = ["pass", "pass", "ahlypassword"]
 
 num_users = 3
 
@@ -30,6 +30,15 @@ class UserBehavior(TaskSet):
     @task(1)
     def notifications(self):
         self.client.get("/notifications/",headers={"TOKEN": self.token_string})
+
+    @task(1)
+    def gettrends(self):
+        self.client.get("/trends/",headers={"TOKEN": self.token_string})
+
+    @task(1)
+    def gettrendskweeks(self):
+        self.client.get("/trends/kweeks?trend_id=1",headers={"TOKEN": self.token_string})
+
 
 class WebsiteUser(HttpLocust):
     task_set = UserBehavior

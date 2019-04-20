@@ -3,6 +3,30 @@ import bcrypt
 db_manager = database_manager.db_manager
 
 
+def is_confirmed(username):
+    """
+        check if the user is confirmed
+
+    *Parameters:*
+        -*username(string)*: holds the value of the username.
+
+    *Returns:*
+        -*True*: if the user is confirmed.
+        -*False*:if the user is not confirmed.
+    """
+    query: str = """
+                SELECT * FROM USER_CREDENTIALS WHERE USERNAME = %s
+                 """
+    data = (username,)
+    response = db_manager.execute_query(query, data)
+    if type(response) == Exception:
+        return False
+    elif response:
+        return response[0]['is_confirmed']
+    elif response is None:
+        return False
+
+
 def get_user_by_email(email):
     """
         get specific user by his/her email.
