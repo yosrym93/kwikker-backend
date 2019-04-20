@@ -9,13 +9,28 @@ from app import secret_key, app, code
 from flask_mail import Mail, Message
 from threading import Thread
 import bcrypt
+import re
 mail = Mail(app)
 root = app.config['FRONT_END_ROOT']
 
 
+def validate_email(email):
+    """
+    Check if the email is in the right format.
+
+    *Returns:*
+        *True:*if the email is in valid format.
+        *False:*if no in a valid format.
+    """
+    if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+        return False
+    else:
+        return True
+
+
 def get_user_by_email(email):
     """
-    search for user with the given email
+    search for user with the given email.
 
     *Returns:*
         -the user.
