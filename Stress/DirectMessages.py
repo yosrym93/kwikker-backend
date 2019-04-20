@@ -35,6 +35,11 @@ class UserBehavior(TaskSet):
     def getdmrecentconversationers(self):
         self.client.get("/direct_message/recent_conversationers",headers={"TOKEN": self.token_string})
 
+    @task(1)
+    def postrecentconversationers(self):
+        idx = np.random.randint(num_users)
+        self.client.post("/direct_message/recent_conversationers",json = {"search_user" : users[idx]},headers = {"TOKEN": self.token_string})
+
 
 class WebsiteUser(HttpLocust):
     task_set = UserBehavior

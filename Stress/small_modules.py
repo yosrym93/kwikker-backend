@@ -39,6 +39,11 @@ class UserBehavior(TaskSet):
     def gettrendskweeks(self):
         self.client.get("/trends/kweeks?trend_id=1",headers={"TOKEN": self.token_string})
 
+    @task(1)
+    def searchusers(self):
+        idx = np.random.randint(num_users)
+        self.client.get("/search/users?search_text="+users[idx],headers={"TOKEN": self.token_string})
+
 
 class WebsiteUser(HttpLocust):
     task_set = UserBehavior
