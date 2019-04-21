@@ -105,6 +105,74 @@ def get_user_liked_kweeks(username):
     return liked_kweeks
 
 
+def get_replies_and_mentions_kweeks(authorized_username):
+    """
+        Gets the kweeks that should appear on the authorized user's replies and mentions timeline.
+        The kweeks returned are missing some data to construct kweek objects.
+
+        *Parameters:*
+            - *authorized_username (string)*: The username of the authorized user.
+
+        *Returns:*
+            - *List of dictionaries*: {
+                                        | *id (int)*: The id of the kweek.,
+                                        | *created_at (datetime)*: The date and time at which the kweek was created.,
+                                        | *text (string)*: The main content of the kweek.,
+                                        | *media_url (string)*: The url of the image attached with the kweek, if any.,
+                                        | *username (string)*: The username of the author of the kweek.,
+                                        | *reply_to (int)*: The id of the kweek which this kweek is a reply to, if any.
+                                        }
+    """
+    query = """
+            (SELECT * FROM KWEEK K WHERE 
+            (SELECT USERNAME FROM KWEEK WHERE ID = K.REPLY_TO) = %s)
+            
+            UNION
+            
+            (SELECT K.* FROM KWEEK K JOIN MENTION M ON K.ID = M.KWEEK_ID
+            WHERE M.USERNAME = %s)
+            
+            ORDER BY CREATED_AT DESC
+            """
+    data = (authorized_username, authorized_username)
+    replies_and_mentions_kweeks = db_manager.execute_query(query, data)
+    return replies_and_mentions_kweeks
+
+
+def get_replies_and_mentions_unseen_count(authorized_username):
+    """
+        Gets the count of the unseen replies and mentions of the authorized user.
+
+        *Parameters:*
+            -*authorized_username (string)*: The username of the authorized user.
+
+        *Returns:*
+            -*count (int)*: The number of unseen replies and mentions of the authorized user.
+    """
+    query = """
+                SELECT COUNT(*) FROM NOTIFICATION WHERE NOTIFIED_USERNAME = %s
+                AND IS_SEEN = FALSE AND (TYPE = 'MENTION' OR TYPE = 'REPLY')
+            """
+    data = (authorized_username,)
+    response = db_manager.execute_query(query, data)
+    return response[0].get('count')
+
+
+def set_replies_and_mentions_as_seen(authorized_username):
+    """
+        Sets the count of the unseen replies and mentions of the authorized user as seen.
+
+        *Parameters:*
+            -*authorized_username (string)*: The username of the authorized user.
+    """
+    query = """
+                UPDATE NOTIFICATION SET IS_SEEN = TRUE WHERE NOTIFIED_USERNAME = %s
+                AND (TYPE = 'REPLY' OR TYPE = 'MENTION') AND IS_SEEN = FALSE
+            """
+    data = (authorized_username, )
+    db_manager.execute_query_no_return(query, data)
+
+
 def get_kweek_statistics(kweek_id, authorized_username):
     """
         Gets the statistics of a kweek and the interactions of the authorized user with it.
