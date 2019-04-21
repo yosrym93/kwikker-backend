@@ -183,7 +183,7 @@ class UpdateUsername(Resource):
 class UpdatePassword(Resource):
     @user_api.expect(create_model('Password Data', {
         'password': fields.String(description='The new password.'),
-        'old-password': fields.String(description='The old password'),
+        'old_password': fields.String(description='The old password'),
     }), validate=True)
     @user_api.response(code=200, description='Updated Successfully.', model=create_model('token', model={
         'token': fields.String(description='Access token.')
@@ -197,7 +197,7 @@ class UpdatePassword(Resource):
     def put(self, authorized_username):
         """ Updates the user's password. """
         data = request.get_json()
-        is_verified = actions.verify(authorized_username, data['old-password'])
+        is_verified = actions.verify(authorized_username, data['old_password'])
         if not is_verified:
             abort(404, message='Invalid user')
         if data['password'] == '':
