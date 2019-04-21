@@ -8,7 +8,7 @@ class BaseConfig:
     RESTPLUS_MASK_SWAGGER = False
     SWAGGER_UI_DOC_EXPANSION = 'list'
     SECRET_KEY = 'kwikkerSecretKeyIsSALTS'
-    CODE_KEY = 'kwikkerConfirmationCode'
+    CODE_KEY = 'kwikkerCode'
     ERROR_404_HELP = False
     TESTING = False
     DATABASE_NAME = 'kwikker'

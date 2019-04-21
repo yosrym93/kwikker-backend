@@ -1,6 +1,7 @@
-from flask_restplus import Resource, abort
+from flask_restplus import Resource, abort, fields
 from flask import request
 from models import Kweek, Trend
+from app import create_model
 import api_namespaces
 from . import actions
 from authentication_and_registration.actions import authorize
@@ -18,7 +19,7 @@ class HomeTimeline(Resource):
                                      " To retrieve more send the id of the last kweek retrieved.")
     @timelines_api.response(code=200, description='Kweeks returned successfully.', model=[Kweek.api_model])
     @timelines_api.response(code=401, description='Unauthorized access.')
-    @timelines_api.response(code=404, description='Username or kweek id does not exist.')
+    @timelines_api.response(code=404, description='Kweek id does not exist.')
     @timelines_api.response(code=500, description='An error occurred in the server.')
     @timelines_api.response(code=400, description='Invalid ID provided.')
     @timelines_api.marshal_with(Kweek.api_model, as_list=True)
@@ -77,17 +78,44 @@ class ProfileTimeline(Resource):
 
 
 @timelines_api.route('/mentions')
-class MentionsTimeline(Resource):
+class RepliesAndMentionsTimeline(Resource):
     @timelines_api.param(name='last_retrieved_kweek_id', type='str',
                          description="Nullable. Normally the request returns the first 20 kweeks when null."
                                      "To retrieve more send the id of the last kweek retrieved.")
-    @timelines_api.response(code=200, description='Kweeks returned successfully.', model=[Kweek.api_model])
+    @timelines_api.response(code=200, description='Kweeks returned successfully.',
+                            model= create_model('Replies and Mentions', model={
+                                'unseen_count': fields.Integer('The number of unseen replies and mentions.'),
+                                'replies_and_mentions': fields.List(fields.Nested(Kweek.api_model))
+                            }))
     @timelines_api.response(code=401, description='Unauthorized access.')
+    @timelines_api.response(code=404, description='Kweek id does not exist.')
+    @timelines_api.response(code=500, description='An error occurred in the server.')
+    @timelines_api.response(code=400, description='Invalid ID provided.')
+    @timelines_api.marshal_with(create_model('Replies and Mentions', model={
+                                'unseen_count': fields.Integer('The number of unseen replies and mentions.'),
+                                'replies_and_mentions': fields.List(fields.Nested(Kweek.api_model))
+                            }))
     @timelines_api.doc(security='KwikkerKey')
     @authorize
     def get(self, authorized_username):
         """ Retrieves a list of kweeks where the authorized user is mentioned. """
-        pass
+        last_retrieved_kweek_id = request.args.get('last_retrieved_kweek_id')
+        try:
+            kweeks = actions.get_replies_and_mentions_timeline_kweeks(authorized_username=authorized_username,
+                                                                      last_retrieved_kweek_id=last_retrieved_kweek_id)
+            if kweeks is None:
+                abort(404, message='A kweek with the provided ID does not exist.')
+            else:
+                unseen_count = actions.get_replies_and_mentions_unseen_count(authorized_username)
+                actions.set_replies_and_mentions_as_seen(authorized_username)
+                return {
+                    'unseen_count': unseen_count,
+                    'replies_and_mentions': kweeks
+                }
+        except TypeError:
+            abort(500, message='An error occurred in the server.')
+        except ValueError:
+            abort(400, 'Invalid ID provided.')
 
 
 @kweeks_api.route('/user/liked')

@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_restplus import Api
+from flask_socketio import SocketIO
 from database_migration.migration import migrate_non_cli
 import api_namespaces
 import database_manager
@@ -13,10 +14,16 @@ authorizations = {
         'type': 'apiKey',
         'in': 'header',
         'name': 'TOKEN'
+    },
+    'KwikkerCode': {
+        'type': 'apiKey',
+        'in': 'header',
+        'name': 'CODE'
     }
 }
 api = Api(app, authorizations=authorizations, doc='/api/doc', title='Kwikker API', version='1.0',
           validate=True)
+socketio = SocketIO(app)
 create_model = api.model
 secret_key = None
 code = None
@@ -122,4 +129,5 @@ def run(env):
             Attempts to initialize the app, and runs it if the initialization was successful.
     """
     if initialize(env):
-        app.run(host='0.0.0.0')
+        #socketio.run(app)
+        socketio.run(app, host='0.0.0.0')

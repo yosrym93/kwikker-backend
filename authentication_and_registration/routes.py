@@ -80,16 +80,18 @@ class Registration(Resource):
 
 @account_api.route('/registration/confirmation')
 class RegistrationConfirmation(Resource):
-    @account_api.expect(create_model('Confirmation Code', {
-                                        'confirmation_code': fields.String('The confirmation code of the user.')
-                                    }), validate=True)
     @account_api.response(code=200, description='User confirmed.')
+    @account_api.response(code=403, description='Code is missing.')
     @account_api.response(code=404,
                           description='An unconfirmed user with the given confirmation code does not exist.')
+    @account_api.doc(security='KwikkerCode')
     def post(self):
         """ Confirm a user's registration and provide an access token. """
-        data = request.get_json()
-        username, password = actions.get_user(data['confirmation_code'])
+        if 'CODE' in request.headers:
+            code = request.headers['CODE']
+        else:
+            abort(403, message='Code is missing.')
+        username, password = actions.get_user(code)
         actions.confirm_user(username)
         return "", 200
         pass
@@ -141,30 +143,35 @@ class ForgetPassword(Resource):
         html = '<p>To reset your password </p>'
         subject = 'Request for changing password, ' + user['username']
         actions.send_email(data['email'], user['username'], user['password'], subject,
-                           '/reset_password/', html, False)
+                           '/reset_password/', html, True)
+        return "", 200
         pass
 
 
 @user_api.route('/username')
 class UpdateUsername(Resource):
-    @account_api.expect(create_model('Username update data', {
-        'username': fields.String(description='The new username.')
+    @user_api.expect(create_model('Username update data', {
+        'username': fields.String(description='The new username.'),
+        'password': fields.String(description='The old password.')
     }), validate=True)
-    @account_api.response(code=200, description='Updated Successfully.', model=create_model('token', model={
+    @user_api.response(code=200, description='Updated Successfully.', model=create_model('token', model={
         'token': fields.String(description='Access token.')
     }))
-    @account_api.response(code=404, description='Username already exists')
-    @account_api.response(code=404, description='New username is empty')
-    @account_api.doc(security='KwikkerKey')
+    @user_api.response(code=404, description='Username already exists')
+    @user_api.response(code=404, description='New username is empty')
+    @user_api.doc(security='KwikkerKey')
     @authorize
     def put(self, authorized_username):
         """ Updates the user's username. """
         data = request.get_json()
+        is_verified = actions.verify(authorized_username, data['password'])
+        if not is_verified:
+            abort(404, message='Invalid user')
         if data['username'] == '':
             abort(404, message='New username is empty')
         is_updated = actions.update_user_username(authorized_username, data['username'])
         if is_updated:
-            token = actions.create_token(data['username'], actions.get_user_by_username(data['username'])['password'])
+            token = actions.create_token(data['username'], data['password'])
             token = token.decode('utf-8')
             return{'token': token}, 200
         else:
@@ -174,20 +181,25 @@ class UpdateUsername(Resource):
 
 @user_api.route('/password')
 class UpdatePassword(Resource):
-    @account_api.expect(create_model('New Password', {
+    @user_api.expect(create_model('Password Data', {
         'password': fields.String(description='The new password.'),
+        'old_password': fields.String(description='The old password'),
     }), validate=True)
-    @account_api.response(code=200, description='Updated Successfully.', model=create_model('token', model={
+    @user_api.response(code=200, description='Updated Successfully.', model=create_model('token', model={
         'token': fields.String(description='Access token.')
     }))
     @user_api.response(code=401, description='Unauthorized access.')
     @user_api.response(code=404, description='Update failed.')
+    @user_api.response(code=404, description='Invalid user')
     @user_api.response(code=404, description='New password is empty')
-    @account_api.doc(security='KwikkerKey')
+    @user_api.doc(security='KwikkerKey')
     @authorize
     def put(self, authorized_username):
         """ Updates the user's password. """
         data = request.get_json()
+        is_verified = actions.verify(authorized_username, data['old_password'])
+        if not is_verified:
+            abort(404, message='Invalid user')
         if data['password'] == '':
             abort(404, message='New password is empty')
         is_updated = actions.update_user_password(authorized_username, data['password'])
@@ -200,16 +212,44 @@ class UpdatePassword(Resource):
         pass
 
 
+@account_api.route('/reset_password')
+class ResetPassword(Resource):
+    @account_api.expect(create_model('Reset Password Data', {
+        'password': fields.String(description='The new password.'),
+    }), validate=True)
+    @account_api.response(code=200, description='Reset Successfully.')
+    @account_api.response(code=404, description='Reset failed.')
+    @account_api.response(code=404, description='Invalid user')
+    @account_api.response(code=404, description='New password is empty')
+    @account_api.doc(security='KwikkerCode')
+    def put(self):
+        """ Updates the user's password. """
+        data = request.get_json()
+        if 'CODE' in request.headers:
+            code = request.headers['CODE']
+        else:
+            abort(403, message='Code is missing.')
+        username, password = actions.get_user(code)
+        if data['password'] == '':
+            abort(404, message='New password is empty')
+        is_updated = actions.update_user_password(username, data['password'])
+        if is_updated:
+            return "", 200
+        else:
+            abort(404, message='Reset failed.')
+        pass
+
+
 @user_api.route('/email')
 class UpdateEmail(Resource):
-    @account_api.expect(create_model('New Email', {
+    @user_api.expect(create_model('New Email', {
         'email': fields.String(description='The new email.'),
     }), validate=True)
-    @account_api.response(code=200, description='Email updated.')
-    @account_api.response(code=404, description='Email already exists.')
-    @account_api.response(code=404, description='Invalid email.')
+    @user_api.response(code=200, description='Email updated.')
+    @user_api.response(code=404, description='Email already exists.')
+    @user_api.response(code=404, description='Invalid email.')
     @user_api.response(code=401, description='Unauthorized access.')
-    @account_api.doc(security='KwikkerKey')
+    @user_api.doc(security='KwikkerKey')
     @authorize
     def put(self, authorized_username):
         """ Updates the user's email."""
@@ -222,4 +262,23 @@ class UpdateEmail(Resource):
             return "", 200
         else:
             abort(404, message='Email already exists.')
+        pass
+
+
+@account_api.route('/get_email')
+class GetEmail(Resource):
+    @account_api.response(code=200, description='Email returned successfully.', model=create_model('Email', model={
+        'email': fields.String(description='Holds the value of Email requested.')
+    }))
+    @account_api.response(code=404, description='An unconfirmed user with the given confirmation code does not exist.')
+    @user_api.response(code=401, description='Unauthorized access.')
+    @user_api.response(code=404, description='Invalid username')
+    @account_api.doc(security='KwikkerKey')
+    @authorize
+    def post(self, authorized_username):
+        """ Get the user email"""
+        user = actions.get_user_by_username(authorized_username)
+        if not user:
+            abort(404, message='Invalid username. Please login again.')
+        return {"email": user['email']}, 200
         pass
