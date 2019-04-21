@@ -387,6 +387,7 @@ def get_all_trends():
                 SELECT ID, TEXT, COUNT(KWEEK_ID) AS NUMBER_OF_KWEEKS
                 FROM HASHTAG H JOIN KWEEK_HASHTAG KH ON H.ID = KH.HASHTAG_ID
                 GROUP BY ID, TEXT
+                ORDER BY NUMBER_OF_KWEEKS DESC
             """
     return db_manager.execute_query(query)
 

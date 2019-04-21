@@ -6,9 +6,12 @@ INSERT INTO USER_CREDENTIALS(USERNAME, PASSWORD, EMAIL, IS_CONFIRMED) VALUES
 
 INSERT INTO PROFILE(USERNAME, SCREEN_NAME, PROFILE_IMAGE_URL, PROFILE_BANNER_URL, BIO, CREATED_AT, BIRTH_DATE)
 VALUES
-('user1', 'test1', 'image_url', 'banner_url', 'bio', '01-01-2019', '01-01-1999'),
-('user2', 'test2', 'image_url', 'banner_url', 'bio', '01-01-2019', '01-01-1999'),
-('user3', 'test3', 'image_url', 'banner_url', 'bio', '01-01-2019', '01-01-1999');
+('user1', 'test1', 'image_url', 'banner_url', 'bio', TO_DATE('01-01-2019', 'DD/MM/YYYY'),
+ TO_DATE('01-01-1999', 'DD/MM/YYYY')),
+('user2', 'test2', 'image_url', 'banner_url', 'bio', TO_DATE('01-01-2019', 'DD/MM/YYYY'),
+ TO_DATE('01-01-1999', 'DD/MM/YYYY')),
+('user3', 'test3', 'image_url', 'banner_url', 'bio', TO_DATE('01-01-2019', 'DD/MM/YYYY'),
+ TO_DATE('01-01-1999', 'DD/MM/YYYY'));
 
 INSERT INTO FOLLOW VALUES
 ('user1', 'user3'),
@@ -22,4 +25,4 @@ INSERT INTO BLOCK VALUES
 ('user2', 'user1');
 
 INSERT INTO KWEEK(CREATED_AT, TEXT, USERNAME, REPLY_TO) VALUES
-('01-01-2010', 'spare test', 'user1', null)
+(TO_DATE('01-01-2010', 'DD/MM/YYYY'), 'spare test', 'user1', null)
