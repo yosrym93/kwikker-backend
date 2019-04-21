@@ -14,6 +14,11 @@ authorizations = {
         'type': 'apiKey',
         'in': 'header',
         'name': 'TOKEN'
+    },
+    'KwikkerCode': {
+        'type': 'apiKey',
+        'in': 'header',
+        'name': 'CODE'
     }
 }
 api = Api(app, authorizations=authorizations, doc='/api/doc', title='Kwikker API', version='1.0',

@@ -1,6 +1,5 @@
 from . import actions
 import jwt
-from database_manager import db_manager
 from app import secret_key, code
 import pytest
 
@@ -103,4 +102,18 @@ def test_update_user_username(test_username, test_new_username, expected_output)
                          )
 def test_is_confirmed(test_username, expected_output):
     answer = actions.is_confirmed(test_username)
+    assert answer is expected_output
+
+
+@pytest.mark.parametrize("test_email, expected_output",
+                         [
+                             ('', False),
+                             ('example', False),
+                             ('example@gmailcc', False),
+                             ('example.com', False),
+                             ('example@gmail.com', True),
+                         ]
+                         )
+def test_validate_email(test_email, expected_output):
+    answer = actions.validate_email(test_email)
     assert answer is expected_output

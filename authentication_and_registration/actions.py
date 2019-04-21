@@ -244,17 +244,16 @@ def get_user(codee):  # pragma:no cover
         user = jwt.decode(codee, code, algorithms=['HS256'])
 
     except jwt.ExpiredSignatureError:
-        abort(401, message='Signature expired. try to resend the email.')
+        abort(401, message='Code expired. Request another code')
 
     except jwt.InvalidTokenError:
-        abort(404, message='An unconfirmed user with the given confirmation code does not exist.')
+        abort(404, message='Invalid code.')
 
-    #    print('TOKEN: {}'.format(token))
     if user is None:
-        abort(404, message='An unconfirmed user with the given confirmation code does not exist.')
+        abort(404, message='Invalid code')
 
     if not query_factory.username_exists(user['username']):
-        abort(404, message='An unconfirmed user with the given confirmation code does not exist.')
+        abort(404, message='User with the given code does not exist.')
 
     return user['username'], user['password']
 
@@ -288,8 +287,12 @@ def authorize(f):
             abort(401, message='Invalid token. Please log in again.')
 
         # print('TOKEN: {}'.format(token))
-        if not query_factory.username_exists(user['username']):
-            abort(401, message='User not found.')
+        # if not query_factory.username_exists(user['username']):
+            # abort(401, message='User not found.')
+
+        if not verify(user['username'], user['password']):
+            abort(403, message='User not found.')
+
         return f(authorized_username=user['username'], *args, **kwargs)
 
     return decorated  # pragma:no cover
