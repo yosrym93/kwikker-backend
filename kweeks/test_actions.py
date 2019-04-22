@@ -202,9 +202,9 @@ def test_insert_kweek():
     third_count = db_manager.execute_query(query)[0]['count']
     assert third_count - second_count == 0
     check, message = actions.insert_kweek(kweek_test_3)
-    assert message == 'Repeated mention in the same kweek'
+    assert message == 'success'
     check, message = actions.insert_kweek(kweek_test_4)
-    assert message == 'the user mentioned does not exist in the database'
+    assert message == 'success'
 
 
 @pytest.mark.parametrize("authorized_username,request_kweek, expected_output",

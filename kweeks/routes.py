@@ -122,6 +122,7 @@ class Rekweek(Resource):
         """
         Create a new Rekweek.
         """
+        print(request.get_json(),'route')
         check, message = create_rekweek(request.get_json(), authorized_username)
         if check:
             return 'success', 201
@@ -175,7 +176,7 @@ class Like(Resource):
     @authorize
     def delete(self, authorized_username):
         """
-        Dislike a rekweek.
+        Dislike a kweek.
         """
         if not request.args.get('id'):
             abort(400, 'please provide the kweek id')

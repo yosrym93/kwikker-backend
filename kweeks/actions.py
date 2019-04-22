@@ -402,6 +402,7 @@ def create_rekweek(request, authorized_username):
                                 | }
 
     """
+    print(request["id"],'iddd')
     rekweek_id = request["id"]
     if id is not None:
         if len(rekweek_id) == 0 or (rekweek_id.isspace()):
@@ -417,8 +418,10 @@ def create_rekweek(request, authorized_username):
     if len(partial_user) == 0:
         message = 'The authorized user does not exist in the data base'
         return False, message
+    print(rekweek_id,'id')
     add_rekweek(rekweek_id, authorized_username)
     notified_user = retrieve_user(rekweek_id, 1)[0]['username']
+    print(authorized_username, notified_user)
     create_notifications(authorized_username, notified_user, 'REKWEEK', rekweek_id)
     return True, 'success '
 
