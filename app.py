@@ -92,6 +92,8 @@ def initialize(env):
         Loads the app configuration from the config.py, registers the api namespaces,
         and initializes the database.
 
+        *Parameters:*
+            - *env (string)*: The environment in which the server is running for configurations
 
         *Returns:*
             - *True*: If the database connection was successful.
@@ -100,7 +102,9 @@ def initialize(env):
     # Initializing configuration
     if env == 'production':
         app.config.from_object(config.ProductionConfig)
-    elif env == 'test':
+    elif env == 'production test':
+        app.config.from_object(config.ProductionTestingConfig)
+    elif env == 'development test':
         app.config.from_object(config.TestingConfig)
         app.config.from_pyfile('config_local.py')
     else:
