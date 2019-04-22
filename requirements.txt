@@ -17,6 +17,7 @@ docutils==0.14
 Flask==1.0.2
 Flask-Mail==0.9.1
 flask-restplus==0.12.1
+Flask-SocketIO==3.3.2
 idna==2.8
 imagesize==1.1.0
 itsdangerous==1.1.0
@@ -37,6 +38,8 @@ pyparsing==2.3.1
 pyrsistent==0.14.11
 pytest==4.3.1
 pytest-cov==2.6.1
+python-engineio==3.5.1
+python-socketio==3.1.2
 pytz==2018.9
 PyYAML==5.1
 relativetimebuilder==0.2.0
