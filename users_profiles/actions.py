@@ -234,7 +234,7 @@ def delete_banner_picture(authorized_username):
         return response  # pragma:no cover
 
 
-def search_user(authorized_username, search_key, username):
+def search_user(authorized_username, search_key, username, results_size=size):
     """
                 The function returns a list of users searched by search_key.
 
@@ -250,7 +250,7 @@ def search_user(authorized_username, search_key, username):
         return []
     results = query_factory.search_user(search_key)
     try:
-        results = actions.paginate(dictionaries_list=results, required_size=size,
+        results = actions.paginate(dictionaries_list=results, required_size=results_size,
                                    start_after_key='username', start_after_value=username)
     except TypeError as E:
         print(E)

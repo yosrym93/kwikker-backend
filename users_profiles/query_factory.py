@@ -198,17 +198,18 @@ def get_user_banner_picture(username):
 
 def search_user(search_key):
     """
-                                            Query to search for users from database.
+        Query to search for users from database.
 
-                                            *Parameters*:
-                                                - *search_key (string)*: part or full user_name or screen_name.
+        *Parameters*:
+            - *search_key (string)*: part or full user_name or screen_name.
 
-                                            *Returns*:
-                                                - *response*: a list of dictionary contains search result.
+        *Returns*:
+            - *response*: a list of dictionary contains search result.
     """
     query: str = """
                          select username, screen_name , profile_image_url from profile
-                         where( lower(username) like lower( '%%' || %s || '%%') OR lower(screen_name) like lower( '%%' || %s || '%%') )
+                         where( lower(username) like lower( '%%' || %s || '%%') OR 
+                         lower(screen_name) like lower( '%%' || %s || '%%') )
                          
                  """
     data = (search_key, search_key)
