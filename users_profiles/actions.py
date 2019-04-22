@@ -127,7 +127,7 @@ def update_profile_picture(file, authorized_username):  # pragma:no cover
         images = os.path.join(APP_ROOT, 'images/')
         if not os.path.isdir(images):
             os.mkdir(images)
-        target = os.path.join(APP_ROOT, 'images\profile/')
+        target = os.path.join(APP_ROOT, 'images/profile/')
 
         if not os.path.isdir(target):
             os.mkdir(target)
@@ -160,7 +160,7 @@ def delete_profile_picture(authorized_username):
     filename = query_factory.get_user_profile_picture(authorized_username)['profile_image_url']
     if filename == default_filename:
         return 'default image'
-    path = APP_ROOT + '\images\profile'
+    path = APP_ROOT + '/images/profile'
     response = query_factory.update_user_profile_picture(authorized_username, default_filename)
     if response is None:
         os.chdir(path)
@@ -189,7 +189,7 @@ def update_profile_banner(file, authorized_username):  # pragma:no cover
         images = os.path.join(APP_ROOT, 'images/')
         if not os.path.isdir(images):
             os.mkdir(images)
-        target = os.path.join(APP_ROOT, 'images\\banner/')
+        target = os.path.join(APP_ROOT, 'images/banner/')
 
         if not os.path.isdir(target):
             os.mkdir(target)
@@ -221,7 +221,7 @@ def delete_banner_picture(authorized_username):
     filename = query_factory.get_user_banner_picture(authorized_username)['profile_banner_url']
     if filename == default_filename:
         return 'default image'
-    path = APP_ROOT + '\images\\banner'
+    path = APP_ROOT + '/images/banner'
     response = query_factory.update_user_banner_picture(authorized_username, default_filename)
     if response is None:
         os.chdir(path)
@@ -234,7 +234,7 @@ def delete_banner_picture(authorized_username):
         return response  # pragma:no cover
 
 
-def search_user(authorized_username, search_key, username):
+def search_user(authorized_username, search_key, username, results_size=size):
     """
                 The function returns a list of users searched by search_key.
 
@@ -250,7 +250,7 @@ def search_user(authorized_username, search_key, username):
         return []
     results = query_factory.search_user(search_key)
     try:
-        results = actions.paginate(dictionaries_list=results, required_size=size,
+        results = actions.paginate(dictionaries_list=results, required_size=results_size,
                                    start_after_key='username', start_after_value=username)
     except TypeError as E:
         print(E)

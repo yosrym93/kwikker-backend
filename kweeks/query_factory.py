@@ -204,6 +204,7 @@ def delete_like(lid, authorized_username):
                        - *authorized_username(string)*: The user currently logged in.
 
     """
+    print(lid, authorized_username)
     query: str = """DELETE FROM FAVORITE WHERE KWEEK_ID=%s AND USERNAME=%s"""
     data = (lid, authorized_username)
     db_manager.execute_query_no_return(query, data)
@@ -414,6 +415,7 @@ def add_rekweek(kweek_id, authorized_username):
                        - *authorized_username(string)*: The user currently logged in.
 
     """
+    print(kweek_id, authorized_username,'q')
     query: str = """INSERT INTO  REKWEEK (USERNAME,KWEEK_ID,CREATED_AT) VALUES(%s,%s,%s) """
     data = (authorized_username, kweek_id, datetime.utcnow())
     db_manager.execute_query_no_return(query, data)

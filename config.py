@@ -10,7 +10,6 @@ class BaseConfig:
     SECRET_KEY = 'kwikkerSecretKeyIsSALTS'
     CODE_KEY = 'kwikkerCode'
     ERROR_404_HELP = False
-    TESTING = False
     DATABASE_NAME = 'kwikker'
     DATABASE_USERNAME = 'postgres'
     DATABASE_PASSWORD = ''
@@ -42,8 +41,12 @@ class ProductionConfig(BaseConfig):
 
 
 class TestingConfig(BaseConfig):
-    ENV = 'production'
-    DEBUG = False
+    TESTING = True
+    DATABASE_NAME = 'kwikker_test'
+    MIGRATIONS_DATABASE_NAME = 'migrations_test'
+
+
+class ProductionTestingConfig(ProductionConfig):
     TESTING = True
     DATABASE_NAME = 'kwikker_test'
     MIGRATIONS_DATABASE_NAME = 'migrations_test'

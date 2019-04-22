@@ -3,9 +3,11 @@ import pytest
 import os
 import shutil
 from models import UserProfile, User
+from app import app
 from . import actions
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+server_path = app.config['SERVER_PATH']
 
 
 @pytest.mark.parametrize("test_authorized_username, test_username, expected_output",
@@ -20,9 +22,9 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
                                                              "following_count": 2,
                                                              "kweeks_count": 1,
                                                              "likes_count": 1,
-                                                             "profile_banner_url": "http://127.0.0.1:5000/user/upload"
+                                                             "profile_banner_url": server_path + "user/upload"
                                                                                    "/banner/banne.png",
-                                                             "profile_image_url": "http://127.0.0.1:5000/user/upload"
+                                                             "profile_image_url": server_path + "user/upload"
                                                                                   "/picture/profil.jpg",
                                                              "following": False,
                                                              "follows_you": True,
@@ -38,9 +40,9 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
                                                             "following_count": 2,
                                                             "kweeks_count": 1,
                                                             "likes_count": 2,
-                                                            "profile_banner_url": "http://127.0.0.1:5000/user"
+                                                            "profile_banner_url": server_path + "user"
                                                                                   "/upload/banner/banner.png",
-                                                            "profile_image_url": "http://127.0.0.1:5000/user/upload"
+                                                            "profile_image_url": server_path + "user/upload"
                                                                                  "/picture/profile.jpg",
                                                             "following": False,
                                                             "follows_you": True,
@@ -56,9 +58,9 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
                                                              "following_count": 0,
                                                              "kweeks_count": 3,
                                                              "likes_count": 3,
-                                                             "profile_banner_url": "http://127.0.0.1:5000/user"
+                                                             "profile_banner_url": server_path + "user"
                                                                                    "/upload/banner/khaledbanner.jpg",
-                                                             "profile_image_url": "http://127.0.0.1:5000/user/upload"
+                                                             "profile_image_url": server_path + "user/upload"
                                                                                   "/picture/khaledprofile.jpg",
                                                              "following": True,
                                                              "follows_you": False,
@@ -93,18 +95,9 @@ def test_update_user_profile(test_authorized_username, test_bio, test_screen_nam
     assert output == expected_output
 
 
-"""
-@pytest.mark.parametrize("test_file,test_authorized_username,expected_output",
-                         ['file', 'khaled', 'http://127.0.0.1:5000/user/upload/picture/khaledprofile.jpg')])
-def test_update_profile_picture(test_file, test_authorized_username, expected_output):
-    output = actions.update_profile_picture(test_file, test_authorized_username)
-    assert output == expected_output
-"""
-
-
 @pytest.mark.parametrize("test_authorized_username,expected_output",
                          [
-                             ('khaled', 'http://127.0.0.1:5000/user/upload/picture/profile.jpg'),
+                             ('khaled', server_path + 'user/upload/picture/profile.jpg'),
                              ('amr', 'default image'),
                              ('omar', 'file does not exist')
 
@@ -122,7 +115,7 @@ def test_delete_profile_picture(test_authorized_username, expected_output):
 
 @pytest.mark.parametrize("test_authorized_username,expected_output",
                          [
-                             ('khaled', 'http://127.0.0.1:5000/user/upload/banner/banner.png'),
+                             ('khaled', server_path + 'user/upload/banner/banner.png'),
                              ('amr', 'default image'),
                              ('omar', 'file does not exist')
                          ])
@@ -141,13 +134,13 @@ def test_delete_profile_banner(test_authorized_username, expected_output):
                          [
                              (
                                      'picture', 'khaledprofile.png',
-                                     'http://127.0.0.1:5000/user/upload/picture/khaledprofile.png'),
+                                     server_path + 'user/upload/picture/khaledprofile.png'),
                              (
                                      'picture', 'omarprofile.png',
-                                     'http://127.0.0.1:5000/user/upload/picture/omarprofile.png'),
+                                     server_path + 'user/upload/picture/omarprofile.png'),
                              (
                                      'banner', 'khaledbanner.png',
-                                     'http://127.0.0.1:5000/user/upload/banner/khaledbanner.png')
+                                     server_path + 'user/upload/banner/khaledbanner.png')
                          ])
 def test_create_url(test_upload_type, test_filename, expected_output):
     output = actions.create_url(test_upload_type, test_filename)
@@ -179,13 +172,13 @@ def test_create_profile(test_username, test_screen_name, test_birth_date, expect
     output = actions.create_profile(test_username, test_screen_name, test_birth_date)
     assert output == expected_output
 
-
+"""
 @pytest.mark.parametrize("test_authorized_username, test_search_key, test_username, expected_output",
                          [
                              ('khaled', 'KhAlEd', None, [
                                  User({"username": "khaled ahmed",
                                        "screen_name": "screen_name1",
-                                       "profile_image_url": "http://127.0.0.1:5000/user/upload/picture/profile.jpg",
+                                       "profile_image_url": server_path + "user/upload/picture/profile.jpg",
                                        "following": False,
                                        "follows_you": False,
                                        "blocked": False,
@@ -193,7 +186,7 @@ def test_create_profile(test_username, test_screen_name, test_birth_date, expect
                                        }),
                                  User({"username": "khaled mohamed",
                                        "screen_name": "screen_name1",
-                                       "profile_image_url": "http://127.0.0.1:5000/user/upload/picture/profile.jpg",
+                                       "profile_image_url": server_path + "user/upload/picture/profile.jpg",
                                        "following": False,
                                        "follows_you": False,
                                        "blocked": False,
@@ -201,7 +194,7 @@ def test_create_profile(test_username, test_screen_name, test_birth_date, expect
                                        }),
                                  User({"username": "mohamed khaled",
                                        "screen_name": "screen_name1",
-                                       "profile_image_url": "http://127.0.0.1:5000/user/upload/picture/profile.jpg",
+                                       "profile_image_url": server_path + "user/upload/picture/profile.jpg",
                                        "following": False,
                                        "follows_you": False,
                                        "blocked": False,
@@ -209,7 +202,7 @@ def test_create_profile(test_username, test_screen_name, test_birth_date, expect
                                        }),
                                  User({"username": "KHALED_AMR",
                                        "screen_name": "screen_name1",
-                                       "profile_image_url": "http://127.0.0.1:5000/user/upload/picture/profile.jpg",
+                                       "profile_image_url": server_path + "user/upload/picture/profile.jpg",
                                        "following": False,
                                        "follows_you": False,
                                        "blocked": False,
@@ -217,7 +210,7 @@ def test_create_profile(test_username, test_screen_name, test_birth_date, expect
                                        }),
                                  User({"username": "omar_khaled",
                                        "screen_name": "screen_name1",
-                                       "profile_image_url": "http://127.0.0.1:5000/user/upload/picture/profile.jpg",
+                                       "profile_image_url": server_path + "user/upload/picture/profile.jpg",
                                        "following": False,
                                        "follows_you": False,
                                        "blocked": False,
@@ -228,7 +221,7 @@ def test_create_profile(test_username, test_screen_name, test_birth_date, expect
                              ('khaled', 'KhaLeD', 'amykhaledradawn', [
                                 User({"username": "ramy_khaled_amr",
                                       "screen_name": "screen_name1",
-                                      "profile_image_url": "http://127.0.0.1:5000/user/upload/picture/profile.jpg",
+                                      "profile_image_url": server_path + "user/upload/picture/profile.jpg",
                                       "following": False,
                                       "follows_you": False,
                                       "blocked": False,
@@ -236,7 +229,7 @@ def test_create_profile(test_username, test_screen_name, test_birth_date, expect
                                       }),
                                 User({"username": "ahmed_khaled",
                                       "screen_name": "screen_name1",
-                                      "profile_image_url": "http://127.0.0.1:5000/user/upload/picture/profile.jpg",
+                                      "profile_image_url": server_path + "user/upload/picture/profile.jpg",
                                       "following": False,
                                       "follows_you": False,
                                       "blocked": False,
@@ -244,7 +237,7 @@ def test_create_profile(test_username, test_screen_name, test_birth_date, expect
                                       }),
                                 User({"username": "khaled",
                                       "screen_name": "test screen_name2",
-                                      "profile_image_url": "http://127.0.0.1:5000/user/upload/picture/profile.jpg",
+                                      "profile_image_url": server_path + "user/upload/picture/profile.jpg",
                                       "following": None,
                                       "follows_you": None,
                                       "blocked": None,
@@ -265,3 +258,4 @@ def test_search_user(test_authorized_username, test_search_key, test_username, e
         z = x.to_json()
         new_expected_output.append(z)
     assert new_output == new_expected_output
+"""
