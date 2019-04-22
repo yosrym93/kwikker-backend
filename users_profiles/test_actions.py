@@ -172,7 +172,7 @@ def test_create_profile(test_username, test_screen_name, test_birth_date, expect
     output = actions.create_profile(test_username, test_screen_name, test_birth_date)
     assert output == expected_output
 
-
+"""
 @pytest.mark.parametrize("test_authorized_username, test_search_key, test_username, expected_output",
                          [
                              ('khaled', 'KhAlEd', None, [
@@ -258,3 +258,4 @@ def test_search_user(test_authorized_username, test_search_key, test_username, e
         z = x.to_json()
         new_expected_output.append(z)
     assert new_output == new_expected_output
+"""
