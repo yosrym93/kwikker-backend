@@ -9,13 +9,28 @@ from app import secret_key, app, code
 from flask_mail import Mail, Message
 from threading import Thread
 import bcrypt
+import re
 mail = Mail(app)
 root = app.config['FRONT_END_ROOT']
 
 
+def validate_email(email):
+    """
+    Check if the email is in the right format.
+
+    *Returns:*
+        *True:*if the email is in valid format.
+        *False:*if no in a valid format.
+    """
+    if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+        return False
+    else:
+        return True
+
+
 def get_user_by_email(email):
     """
-    search for user with the given email
+    search for user with the given email.
 
     *Returns:*
         -the user.
@@ -202,32 +217,50 @@ def create_token(username, password, secret=secret_key):
     return token
 
 
+def is_confirmed(username):
+    """
+    Check if the user is confirmed or not
+
+    *Parameters:*
+        -*username(string)*: holds the value of the username.
+
+    *Returns:*
+        -*True*: if the user is confirmed.
+        -*False*:if the user is not confirmed.
+    """
+    return query_factory.is_confirmed(username)
+
+
 def get_user(codee):  # pragma:no cover
+    """
+    Code verification function. This function validate the code.
+
+    *Returns:*
+        -*Error Response,401*: if the token is not given in the header, expired or invalid.
+        -*Username*:if the token is valid it allows the access and return the username of the user.
+    """
     user = None
     try:
         user = jwt.decode(codee, code, algorithms=['HS256'])
 
     except jwt.ExpiredSignatureError:
-        abort(401, message='Signature expired. try to resend the email.')
+        abort(401, message='Code expired. Request another code')
 
     except jwt.InvalidTokenError:
-        abort(404, message='An unconfirmed user with the given confirmation code does not exist.')
+        abort(404, message='Invalid code.')
 
-    #    print('TOKEN: {}'.format(token))
     if user is None:
-        abort(404, message='An unconfirmed user with the given confirmation code does not exist.')
+        abort(404, message='Invalid code')
 
     if not query_factory.username_exists(user['username']):
-        abort(404, message='An unconfirmed user with the given confirmation code does not exist.')
+        abort(404, message='User with the given code does not exist.')
 
     return user['username'], user['password']
 
 
 def authorize(f):
     """
-    Token verification Decorator.
-
-    this decorator validate the token passed in the header with the endpoint.
+    Token verification Decorator. This decorator validate the token passed in the header with the endpoint.
 
     *Returns:*
         -*Error Response,401*: if the token is not given in the header, expired or invalid.
@@ -254,8 +287,12 @@ def authorize(f):
             abort(401, message='Invalid token. Please log in again.')
 
         # print('TOKEN: {}'.format(token))
-        if not query_factory.username_exists(user['username']):
-            abort(401, message='User not found.')
+        # if not query_factory.username_exists(user['username']):
+            # abort(401, message='User not found.')
+
+        if not verify(user['username'], user['password']):
+            abort(403, message='User not found.')
+
         return f(authorized_username=user['username'], *args, **kwargs)
 
     return decorated  # pragma:no cover

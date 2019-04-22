@@ -1,4 +1,4 @@
-from flask_restplus import Resource, fields, abort
+from flask_restplus import Resource, fields, abort, marshal
 from flask import request
 from models import DirectMessage, Conversation, User
 from app import create_model
@@ -7,7 +7,94 @@ import api_namespaces
 from authentication_and_registration.actions import authorize
 from users_profiles import actions as user_profile_actions
 from timelines_and_trends import actions as tre_time_actions
+from flask_restplus import abort, marshal
+from app import socketio
+from flask_socketio import send, emit, join_room, leave_room , Namespace
+
 messages_api = api_namespaces.messages_api
+
+
+@socketio.on('on_retrieve',namespace= '/chat')
+@socketio.on_error('/chat')
+def on_retrieve(data):
+    """
+        this function send back a list of direct messages using sockets.
+    *Returns*:
+        -*Error Response*: if there is an error.
+        -*list of DMs*: if everything is ok.
+    """
+    authorized_username = data['authorized_username']
+    to_username = data['to_username']
+    last_message_retrieved_id = data ['last_message_retrieved_id']
+    #authorized_username = 'ahly'
+    #to_username = 'zamalek'
+    #last_message_retrieved_id = None
+    try:
+        messages = actions.get_messages(authorized_username, to_username, last_message_retrieved_id)
+        if messages is None:
+            abort(404, message='A message with the provided ID does not exist.')
+        else:
+            if len(messages) == 0:
+                emit("receive",[])
+            emit("receive",marshal(messages,DirectMessages.api_model))
+    except TypeError:
+        abort(500, message='An error occurred in the server.')
+    except ValueError:
+        abort(400, message='Invalid ID provided.')
+    except Exception as E:
+        if str(E) == 'Username who want to receive this message does not exist.':
+            abort(404, message='Username who want to receive this message does not exist.')
+        elif str(E) == 'Username who sent this message does not exist.':
+            abort(404, message='Username who want to receive this message does not exist.')
+    if messages is None:
+        abort(404, message='A message with the provided ID does not exist.')
+
+
+@socketio.on('on_join',namespace='/chat')
+@socketio.on_error('/chat')
+def on_join(data):
+    """
+        this function makes user join a certain room
+    *param* : data Json object
+    *return*: a msg that a user has entered the room
+    """
+    username = data['username']
+    room = username
+    join_room(room)
+    send(username + ' has entered the room.', room=room)
+
+@socketio.on('on_leave',namespace= '/chat')
+@socketio.on_error('/chat')
+def on_leave(data):
+    """
+        this function makes user join a certain room
+    *param* : data Json object
+    *return*: a msg that a user has left the room
+    """
+    username = data['username']
+    room = username
+    leave_room(room)
+    send(username + ' has left the room.', room= room)
+
+
+@socketio.on('on_create',namespace='/chat')
+@socketio.on_error('/chat')
+def on_create(data):
+    """
+    this function makes user create a msg
+    """
+    authorized_username = data['authorized_username']
+    to_username = data['username']
+    text = data['text']
+    media_url = data['media_url']
+    try:
+        actions.create_message(authorized_username, to_username, text, media_url)
+    except Exception as E:
+        if str(E) == 'Username who want to receive this message does not exist.':
+            abort(404, message='Username who want to receive this message does not exist.')
+        elif str(E) == 'Username who sent this message does not exist.':
+            abort(404, message='Username who sent this message does not exist.')
+    send({'message': 'message created successfully'})
 
 
 @messages_api.route('/')
@@ -25,12 +112,8 @@ class DirectMessages(Resource):
     @messages_api.marshal_with(DirectMessage.api_model, as_list=True)
     @messages_api.doc(security='KwikkerKey')
     @authorize
-    def get(self, authorized_username):
-        """ Retrieves a list of Direct Messages.
-
-        Note:  'media_url': fields.String(description='Nullable, url of the media.', nullable = True)
-                is in the payload
-        """
+    def get(self,authorized_username):
+        """ Retrieves a list of Direct Messages."""
         to_username = request.args.get('username')
         last_message_retrieved_id = request.args.get('last_message_retrieved_id')
         try:
@@ -61,14 +144,17 @@ class DirectMessages(Resource):
         'username': fields.String(description='Username that will receive the message.')
     }))
     @messages_api.doc(security='KwikkerKey')
+    #@socketio.on('Receive')
     @authorize
     def post(self, authorized_username):
-        """ Creates a New Direct Message. """
+        """ Creates a New Direct Message.
+            Note:  'media_url': fields.String(description='Nullable, url of the media.', nullable = True)
+            is in the payload
+        """
         data = request.get_json()
         to_username = data['username']
         text = data['text']
         media_url = data['media_url']
-        print(media_url)
         try:
             actions.create_message(authorized_username, to_username, text, media_url)
         except Exception as E:
@@ -127,6 +213,7 @@ class RecentConversationers(Resource):
     @messages_api.doc(security='KwikkerKey')
     @authorize
     def get(self, authorized_username):
+
         """ Retrieves a list of recent users gone conversations. """
         last_conversationers_retrieved_username = request.args.get('last_conversationers_retrieved_username')
         try:

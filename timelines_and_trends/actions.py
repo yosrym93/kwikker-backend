@@ -469,3 +469,79 @@ def paginate(dictionaries_list, required_size, start_after_key, start_after_valu
         return None
 
     return dictionaries_list[start_after_index + 1: start_after_index + 1 + required_size]
+
+
+def get_replies_and_mentions_timeline_kweeks(authorized_username, last_retrieved_kweek_id):
+    """
+        Gets the kweeks that should appear on the authorized user's replies and mentions timeline.
+
+
+        *Parameters:*
+            - *authorized_username (string)*: The username of the authorized user.
+            - *last_retrieved_kweek_id (string)*: The id of the last retrieved kweek (used to fetch more). Nullable.
+
+        *Returns:*
+            - *List of models.Kweek objects*
+            - *None*: if last_retrieved_kweek_id does not exist.
+            - *Raise ValueError*: if last_retrieved_kweek_id is not a valid number.
+            - *Raise TypeError*: if raised by paginate.
+    """
+    if last_retrieved_kweek_id is not None:
+        try:
+            last_retrieved_kweek_id = int(last_retrieved_kweek_id)
+        except ValueError:
+            raise
+    # Get a list of kweeks with missing data
+    replies_and_mentions_kweeks = query_factory.get_replies_and_mentions_kweeks(authorized_username)
+    # Paginate the results
+    try:
+        replies_and_mentions_kweeks = paginate(dictionaries_list=replies_and_mentions_kweeks, required_size=20,
+                                               start_after_key='id', start_after_value=last_retrieved_kweek_id)
+    except TypeError as E:
+        print(E)
+        raise
+    if replies_and_mentions_kweeks is None:
+        return None
+
+    kweeks = []
+    for kweek in replies_and_mentions_kweeks:
+        # Add the user
+        kweek['user'] = get_user(authorized_username=authorized_username,
+                                 required_username=kweek['username'])
+        # Add the statistics
+        kweek_statistics = get_kweek_statistics(authorized_username=authorized_username,
+                                                kweek_id=kweek['id'])
+        kweek.update(kweek_statistics)
+        # Add mentions and hashtags
+        kweek['mentions'] = get_kweek_mentions(kweek['id'])
+        kweek['hashtags'] = get_kweek_hashtags(kweek['id'])
+        # Add rekweek info (original kweeks only appear in replies and mentions kweeks)
+        kweek['rekweek_info'] = None
+
+        kweeks.append(Kweek(kweek))
+
+    return kweeks
+
+
+def get_replies_and_mentions_unseen_count(authorized_username):
+    """
+    Gets the count of the unseen replies and mentions of the authorized user.
+
+    *Parameters:*
+        -*authorized_username (string)*: The username of the authorized user.
+
+    *Returns:*
+        -*count (int)*: The number of unseen replies and mentions of the authorized user.
+    """
+
+    return query_factory.get_replies_and_mentions_unseen_count(authorized_username)
+
+
+def set_replies_and_mentions_as_seen(authorized_username):
+    """
+        Sets the count of the unseen replies and mentions of the authorized user as seen.
+
+        *Parameters:*
+            -*authorized_username (string)*: The username of the authorized user.
+    """
+    return query_factory.set_replies_and_mentions_as_seen(authorized_username)
