@@ -313,7 +313,7 @@ def test_delete_kweek():
     # first test:delete normal kweek -  first kweek#
 
     query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
-    data = ('01-01-2010', 'test1', None, 'user1', None)
+    data = ('2010-01-01', 'test1', None, 'user1', None)
     db_manager.execute_query_no_return(query, data)
     kid1 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
     query: str = """INSERT INTO HASHTAG(TEXT) VALUES (%s) """
@@ -338,7 +338,7 @@ def test_delete_kweek():
     # second test: test update hashtag - first kweek #
 
     query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
-    data = ('01-01-2010', 'test2', None, 'user1', None)
+    data = ('2010-01-01', 'test2', None, 'user1', None)
     db_manager.execute_query_no_return(query, data)
     kid1 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
     query: str = """INSERT INTO HASHTAG(TEXT) VALUES (%s) """
@@ -353,7 +353,7 @@ def test_delete_kweek():
     db_manager.execute_query_no_return(query, data)
     # second test- second kweek #
     query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
-    data = ('01-01-2010', 'test2', None, 'user1', None)
+    data = ('2010-01-01', 'test2', None, 'user1', None)
     db_manager.execute_query_no_return(query, data)
     kid2 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
     query: str = """INSERT INTO KWEEK_HASHTAG VALUES (%s,%s,%s,%s)"""
@@ -375,7 +375,7 @@ def test_delete_kweek():
     # third test: user is not kweek writer
 
     query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
-    data = ('01-01-2010', 'test3', None, 'user1', 'None')
+    data = ('2010-01-01', 'test3', None, 'user1', 'None')
     db_manager.execute_query_no_return(query, data)
     kid1 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
 
@@ -397,7 +397,7 @@ def test_delete_kweek():
     # fourth test : user is not kweek owner
 
     query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
-    data = ('01-01-2010', 'test3', None, 'user2', None)
+    data = ('2010-01-01', 'test3', None, 'user2', None)
     db_manager.execute_query_no_return(query, data)
     kid1 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
 
@@ -419,7 +419,7 @@ def test_delete_kweek():
     # fifth test: user is  kweek owner
 
     query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
-    data = ('01-01-2010', 'test3', None, 'user1', kid1)
+    data = ('2010-01-01', 'test3', None, 'user1', kid1)
     db_manager.execute_query_no_return(query, data)
     kid2 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
 
@@ -441,7 +441,7 @@ def test_get_kweek():
     # first kweek #
 
     query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
-    data = ('01-01-2010', 'test1', None, 'user1', None)
+    data = ('2010-01-01', 'test1', None, 'user1', None)
     db_manager.execute_query_no_return(query, data)
     kid1 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
 
@@ -462,24 +462,24 @@ def test_get_kweek():
     db_manager.execute_query_no_return(query, data)
 
     query: str = """INSERT INTO REKWEEK VALUES(%s,%s,%s) """
-    data = ('user3', kid1, '01-01-2010')
+    data = ('user3', kid1, '2010-01-01')
     db_manager.execute_query_no_return(query, data)
 
     query: str = """INSERT INTO FAVORITE VALUES(%s,%s,%s) """
-    data = ('user3', kid1, '01-01-2010')
+    data = ('user3', kid1, '2010-01-01')
     db_manager.execute_query_no_return(query, data)
 
     # second kweek #
 
     query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
-    data = ('01-01-2010', 'test2', None, 'user2', kid1)
+    data = ('2010-01-01', 'test2', None, 'user2', kid1)
     db_manager.execute_query_no_return(query, data)
     kid2 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
 
     # third kweek #
 
     query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
-    data = ('01-01-2010', 'test3', None, 'user1', kid1)
+    data = ('2010-01-01', 'test3', None, 'user1', kid1)
     db_manager.execute_query_no_return(query, data)
     kid3 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
 
@@ -496,7 +496,7 @@ def test_get_kweek():
     db_manager.execute_query_no_return(query, data)
 
     query: str = """INSERT INTO FAVORITE VALUES(%s,%s,%s) """
-    data = ('user3', kid3, '01-01-2010')
+    data = ('user3', kid3, '2010-01-01')
     db_manager.execute_query_no_return(query, data)
 
     # first output #
@@ -592,7 +592,7 @@ def test_get_kweek_with_replies():
     # first kweek #
 
     query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
-    data = ('01-01-2010', 'test1', None, 'user1', None)
+    data = ('2010-01-01', 'test1', None, 'user1', None)
     db_manager.execute_query_no_return(query, data)
     kid1 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
 
@@ -613,17 +613,17 @@ def test_get_kweek_with_replies():
     db_manager.execute_query_no_return(query, data)
 
     query: str = """INSERT INTO REKWEEK VALUES(%s,%s,%s) """
-    data = ('user2', kid1, '01-01-2010')
+    data = ('user2', kid1, '2010-01-01')
     db_manager.execute_query_no_return(query, data)
 
     query: str = """INSERT INTO FAVORITE VALUES(%s,%s,%s) """
-    data = ('user2', kid1, '01-01-2010')
+    data = ('user2', kid1, '2010-01-01')
     db_manager.execute_query_no_return(query, data)
 
     # second kweek #
 
     query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
-    data = ('01-01-2010', 'test2', None, 'user2', kid1)
+    data = ('2010-01-01', 'test2', None, 'user2', kid1)
     db_manager.execute_query_no_return(query, data)
     kid2 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
 
@@ -640,13 +640,13 @@ def test_get_kweek_with_replies():
     db_manager.execute_query_no_return(query, data)
 
     query: str = """INSERT INTO FAVORITE VALUES(%s,%s,%s) """
-    data = ('user1', kid2, '01-01-2010')
+    data = ('user1', kid2, '2010-01-01')
     db_manager.execute_query_no_return(query, data)
 
     # third kweek #
 
     query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
-    data = ('01-01-2010', 'test3', None, 'user3', kid1)
+    data = ('2010-01-01', 'test3', None, 'user3', kid1)
     db_manager.execute_query_no_return(query, data)
     kid3 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
 
@@ -663,7 +663,7 @@ def test_get_kweek_with_replies():
     db_manager.execute_query_no_return(query, data)
 
     query: str = """INSERT INTO FAVORITE VALUES(%s,%s,%s) """
-    data = ('user3', kid3, '01-01-2010')
+    data = ('user3', kid3, '2010-01-01')
     db_manager.execute_query_no_return(query, data)
 
     kweek_test1 = Kweek({

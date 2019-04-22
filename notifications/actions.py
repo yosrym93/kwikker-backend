@@ -44,7 +44,6 @@ def get_notifications(notified_username, last_notification_retrieved_id=None):
 
 
 def create_notifications(involved_username, notified_username, type_notification, kweek_id=None):
-    print(involved_username, notified_username,kweek_id,'here')
     """
      This function create a notification in the database.
 
