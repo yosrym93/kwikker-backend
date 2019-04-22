@@ -9,6 +9,7 @@ before_install:
 script:
 #tests will be here
   - gem install bundler
+  - docker run ajammil/kwikkerbackend:latest python3 unit_tests.py --production
 
 after_success:
   #Log in to docker hub
