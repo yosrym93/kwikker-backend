@@ -3,13 +3,14 @@ import app
 from database_manager import db_manager
 import click
 
-all_modules = ['users_profiles', 'timelines_and_trends', 'authentication_and_registration', 'notifications',
-               'direct_messages', 'kweeks']
+all_modules = ['timelines_and_trends', 'authentication_and_registration', 'notifications',
+               'direct_messages', 'users_profiles', 'kweeks']
 
 
 @click.command()
 @click.option('--module', default='')
-def cli(module):
+@click.option('--production', is_flag=True)
+def cli(module, production):
     if module == '':
         modules = all_modules
     elif module in all_modules:
@@ -18,7 +19,12 @@ def cli(module):
         print('Module does not exist.')
         raise SystemExit(12)
 
-    if not app.initialize(env='test'):
+    if production:
+        env = 'production test'
+    else:
+        env = 'development test'
+
+    if not app.initialize(env=env):
         raise SystemExit(11)
 
     failed = False
