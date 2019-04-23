@@ -8,3 +8,4 @@ docs/build/
 .coverage
 **/.pytest_cache/
 config_local.py
+images
