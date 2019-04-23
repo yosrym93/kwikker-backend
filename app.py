@@ -1,7 +1,7 @@
 from flask import Flask, request
 from flask_restplus import Api
 from flask_socketio import SocketIO
-from database_migration.migration import migrate_non_cli
+from database_migration.migrate import migrate_non_cli
 import api_namespaces
 import database_manager
 import config
@@ -129,14 +129,8 @@ def inject_cors_headers(response):
     else:
         response.headers.add('Access-Control-Allow-Origin', '*')
     response.headers.add('Access-Control-Allow-Credentials', 'true')
-    response.headers.add('Access-Control-Allow-Methods', 'ACL, CANCELUPLOAD, CHECKIN, CHECKOUT, COPY, DELETE, GET,'
-                                                         ' HEAD, LOCK, MKCALENDAR, MKCOL, MOVE, OPTIONS, POST,'
-                                                         ' PROPFIND, PROPPATCH, PUT, REPORT, SEARCH, UNCHECKOUT,'
-                                                         ' UNLOCK, UPDATE, VERSION-CONTROL')
-    response.headers.add('Access-Control-Allow-Headers', 'Overwrite, Destination, Content-Type, Depth, User-Agent,'
-                                                         ' Translate, Range, Content-Range, Timeout, X-File-Size,'
-                                                         ' X-Requested-With, If-Modified-Since, X-File-Name,'
-                                                         ' Cache-Control, Location, Lock-Token, If, Token')
+    response.headers.add('Access-Control-Allow-Methods', 'DELETE, GET, HEAD, OPTIONS, POST, PUT, PATCH')
+    response.headers.add('Access-Control-Allow-Headers', 'Origin, Content-Type, User-Agent, Content-Range, Token')
     response.headers.add('Access-Control-Expose-Headers', 'DAV, content-length, Allow')
     return response
 

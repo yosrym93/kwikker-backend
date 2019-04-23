@@ -141,238 +141,6 @@ def get_all_trends(last_retrieved_trend_id):
     return trends
 
 
-def get_profile_kweeks(authorized_username, required_username, last_retrieved_kweek_id):
-    """
-        Gets the kweeks that should appear on a specific user profile.
-
-
-        *Parameters:*
-            - *authorized_username (string)*: The username of the authorized user.
-            - *required_username (string)*: The username of the user whose profile kweeks are required.
-            - *last_retrieved_kweek_id (string)*: The id of the last retrieved kweek (used to fetch more). Nullable.
-
-        *Returns:*
-            - *List of models.Kweek objects*
-            - *None*: if last_retrieved_kweek_id does not exist.
-            - *Raise ValueError*: if last_retrieved_kweek_id is not a valid number.
-            - *Raise TypeError*: if raised by paginate.
-    """
-    if last_retrieved_kweek_id is not None:
-        try:
-            last_retrieved_kweek_id = int(last_retrieved_kweek_id)
-        except ValueError:
-            raise
-    # Get a list of kweeks with missing data
-    profile_kweeks = query_factory.get_profile_kweeks(required_username)
-    # Paginate the results
-    try:
-        profile_kweeks = paginate(dictionaries_list=profile_kweeks, required_size=20,
-                                  start_after_key='id', start_after_value=last_retrieved_kweek_id)
-    except TypeError as E:
-        print(E)
-        raise
-    if profile_kweeks is None:
-        return None
-    # The profile user as a user object, will be used for most of the kweeks
-    profile_user = get_user(authorized_username=authorized_username,
-                            required_username=required_username)
-    kweeks = []
-    for kweek in profile_kweeks:
-        # Add the user
-        if kweek['username'] == required_username:
-            kweek['user'] = profile_user
-        else:
-            kweek['user'] = get_user(authorized_username=authorized_username,
-                                     required_username=kweek['username'])
-        # Add the statistics
-        kweek_statistics = get_kweek_statistics(authorized_username=authorized_username,
-                                                kweek_id=kweek['id'])
-        kweek.update(kweek_statistics)
-        # Add mentions and hashtags
-        kweek['mentions'] = get_kweek_mentions(kweek['id'])
-        kweek['hashtags'] = get_kweek_hashtags(kweek['id'])
-        # Add rekweek info
-        if kweek['is_rekweek']:
-            rekweek_info = RekweekInfo({
-                'rekweeker_name': profile_user.screen_name,
-                'rekweeker_username': profile_user.username
-            })
-            kweek['rekweek_info'] = rekweek_info
-        else:
-            kweek['rekweek_info'] = None
-        kweeks.append(Kweek(kweek))
-
-    return kweeks
-
-
-def get_home_kweeks(authorized_username, last_retrieved_kweek_id):
-    """
-        Gets the kweeks that should appear on the authorized user's home timeline.
-
-
-        *Parameters:*
-            - *authorized_username (string)*: The username of the authorized user.
-            - *last_retrieved_kweek_id (string)*: The id of the last retrieved kweek (used to fetch more). Nullable.
-
-        *Returns:*
-            - *List of models.Kweek objects*
-            - *None*: if last_retrieved_kweek_id does not exist.
-            - *Raise ValueError*: if last_retrieved_kweek_id is not a valid number.
-            - *Raise TypeError*: if raised by paginate.
-    """
-    if last_retrieved_kweek_id is not None:
-        try:
-            last_retrieved_kweek_id = int(last_retrieved_kweek_id)
-        except ValueError:
-            raise
-    # Get a list of kweeks with missing data
-    home_kweeks = query_factory.get_home_kweeks(authorized_username=authorized_username)
-    # Paginate the results
-    try:
-        home_kweeks = paginate(dictionaries_list=home_kweeks, required_size=20,
-                               start_after_key='id', start_after_value=last_retrieved_kweek_id)
-    except TypeError as E:
-        print(E)
-        raise
-    if home_kweeks is None:
-        return None
-
-    kweeks = []
-    for kweek in home_kweeks:
-        # Add the user
-        kweek['user'] = get_user(authorized_username=authorized_username,
-                                 required_username=kweek['username'])
-        # Add the statistics
-        kweek_statistics = get_kweek_statistics(authorized_username=authorized_username,
-                                                kweek_id=kweek['id'])
-        kweek.update(kweek_statistics)
-        # Add mentions and hashtags
-        kweek['mentions'] = get_kweek_mentions(kweek['id'])
-        kweek['hashtags'] = get_kweek_hashtags(kweek['id'])
-        # Add rekweek info
-        if kweek['is_rekweek']:
-            rekweeker_username = kweek['rekweeker']
-            rekweeker_name = query_factory.get_user_data(required_username=rekweeker_username)[0].get('screen_name')
-            rekweek_info = RekweekInfo({
-                'rekweeker_name': rekweeker_name,
-                'rekweeker_username': rekweeker_username
-            })
-            kweek['rekweek_info'] = rekweek_info
-        else:
-            kweek['rekweek_info'] = None
-        kweeks.append(Kweek(kweek))
-
-    return kweeks
-
-
-def get_user_liked_kweeks(authorized_username, required_username, last_retrieved_kweek_id):
-    """
-        Gets the kweeks that should appear on the authorized user's home timeline.
-
-
-        *Parameters:*
-            - *authorized_username (string)*: The username of the authorized user.
-            - *required_username (string)*: The username of the user whose liked kweeks are required.
-            - *last_retrieved_kweek_id (string)*: The id of the last retrieved kweek (used to fetch more). Nullable.
-
-        *Returns:*
-            - *List of models.Kweek objects*
-            - *None*: if last_retrieved_kweek_id does not exist.
-            - *Raise ValueError*: if last_retrieved_kweek_id is not a valid number.
-            - *Raise TypeError*: if raised by paginate.
-    """
-    if last_retrieved_kweek_id is not None:
-        try:
-            last_retrieved_kweek_id = int(last_retrieved_kweek_id)
-        except ValueError:
-            raise
-    # Get a list of kweeks with missing data
-    user_liked_kweeks = query_factory.get_user_liked_kweeks(username=required_username)
-    # Paginate the results
-    try:
-        user_liked_kweeks = paginate(dictionaries_list=user_liked_kweeks, required_size=20,
-                                     start_after_key='id', start_after_value=last_retrieved_kweek_id)
-    except TypeError as E:
-        print(E)
-        raise
-    if user_liked_kweeks is None:
-        return None
-
-    kweeks = []
-    for kweek in user_liked_kweeks:
-        # Add the user
-        kweek['user'] = get_user(authorized_username=authorized_username,
-                                 required_username=kweek['username'])
-        # Add the statistics
-        kweek_statistics = get_kweek_statistics(authorized_username=authorized_username,
-                                                kweek_id=kweek['id'])
-        kweek.update(kweek_statistics)
-        # Add mentions and hashtags
-        kweek['mentions'] = get_kweek_mentions(kweek['id'])
-        kweek['hashtags'] = get_kweek_hashtags(kweek['id'])
-        # Add rekweek info (original kweeks appear in user likes, not rekweeks)
-        kweek['rekweek_info'] = None
-
-        kweeks.append(Kweek(kweek))
-
-    return kweeks
-
-
-def get_trend_kweeks(authorized_username, trend_id, last_retrieved_kweek_id):
-    """
-        Gets the kweeks that should appear on the authorized user's home timeline.
-
-
-        *Parameters:*
-            - *authorized_username (string)*: The username of the authorized user.
-            - *last_retrieved_kweek_id (string)*: The id of the last retrieved kweek (used to fetch more). Nullable.
-            - *trend_id (string)*: The id of the trend whose kweeks are to be fetched.
-
-        *Returns:*
-            - *List of models.Kweek objects*
-            - *None*: if last_retrieved_kweek_id does not exist.
-            - *Raise ValueError*: if last_retrieved_kweek_id is not a valid number.
-            - *Raise TypeError*: if raised by paginate.
-    """
-    if last_retrieved_kweek_id is not None:
-        try:
-            last_retrieved_kweek_id = int(last_retrieved_kweek_id)
-        except ValueError:
-            raise
-    # No need to check for exceptions as this is done in is_trend()
-    trend_id = int(trend_id)
-    # Get a list of kweeks with missing data
-    trend_kweeks = query_factory.get_trend_kweeks(trend_id=trend_id)
-    # Paginate the results
-    try:
-        trend_kweeks = paginate(dictionaries_list=trend_kweeks, required_size=20,
-                                start_after_key='id', start_after_value=last_retrieved_kweek_id)
-    except TypeError as E:
-        print(E)
-        raise
-    if trend_kweeks is None:
-        return None
-
-    kweeks = []
-    for kweek in trend_kweeks:
-        # Add the user
-        kweek['user'] = get_user(authorized_username=authorized_username,
-                                 required_username=kweek['username'])
-        # Add the statistics
-        kweek_statistics = get_kweek_statistics(authorized_username=authorized_username,
-                                                kweek_id=kweek['id'])
-        kweek.update(kweek_statistics)
-        # Add mentions and hashtags
-        kweek['mentions'] = get_kweek_mentions(kweek['id'])
-        kweek['hashtags'] = get_kweek_hashtags(kweek['id'])
-        # Add rekweek info (original kweeks only appear in trends kweeks)
-        kweek['rekweek_info'] = None
-
-        kweeks.append(Kweek(kweek))
-
-    return kweeks
-
-
 def is_trend(trend_id):
     """
         Checks if a trend id belongs to an existing trend.
@@ -471,58 +239,6 @@ def paginate(dictionaries_list, required_size, start_after_key, start_after_valu
     return dictionaries_list[start_after_index + 1: start_after_index + 1 + required_size]
 
 
-def get_replies_and_mentions_timeline_kweeks(authorized_username, last_retrieved_kweek_id):
-    """
-        Gets the kweeks that should appear on the authorized user's replies and mentions timeline.
-
-
-        *Parameters:*
-            - *authorized_username (string)*: The username of the authorized user.
-            - *last_retrieved_kweek_id (string)*: The id of the last retrieved kweek (used to fetch more). Nullable.
-
-        *Returns:*
-            - *List of models.Kweek objects*
-            - *None*: if last_retrieved_kweek_id does not exist.
-            - *Raise ValueError*: if last_retrieved_kweek_id is not a valid number.
-            - *Raise TypeError*: if raised by paginate.
-    """
-    if last_retrieved_kweek_id is not None:
-        try:
-            last_retrieved_kweek_id = int(last_retrieved_kweek_id)
-        except ValueError:
-            raise
-    # Get a list of kweeks with missing data
-    replies_and_mentions_kweeks = query_factory.get_replies_and_mentions_kweeks(authorized_username)
-    # Paginate the results
-    try:
-        replies_and_mentions_kweeks = paginate(dictionaries_list=replies_and_mentions_kweeks, required_size=20,
-                                               start_after_key='id', start_after_value=last_retrieved_kweek_id)
-    except TypeError as E:
-        print(E)
-        raise
-    if replies_and_mentions_kweeks is None:
-        return None
-
-    kweeks = []
-    for kweek in replies_and_mentions_kweeks:
-        # Add the user
-        kweek['user'] = get_user(authorized_username=authorized_username,
-                                 required_username=kweek['username'])
-        # Add the statistics
-        kweek_statistics = get_kweek_statistics(authorized_username=authorized_username,
-                                                kweek_id=kweek['id'])
-        kweek.update(kweek_statistics)
-        # Add mentions and hashtags
-        kweek['mentions'] = get_kweek_mentions(kweek['id'])
-        kweek['hashtags'] = get_kweek_hashtags(kweek['id'])
-        # Add rekweek info (original kweeks only appear in replies and mentions kweeks)
-        kweek['rekweek_info'] = None
-
-        kweeks.append(Kweek(kweek))
-
-    return kweeks
-
-
 def get_replies_and_mentions_unseen_count(authorized_username):
     """
     Gets the count of the unseen replies and mentions of the authorized user.
@@ -545,3 +261,210 @@ def set_replies_and_mentions_as_seen(authorized_username):
             -*authorized_username (string)*: The username of the authorized user.
     """
     return query_factory.set_replies_and_mentions_as_seen(authorized_username)
+
+
+def get_kweeks(authorized_username, last_retrieved_kweek_id, db_kweeks_fetcher, args=None):
+    """
+        Gets kweeks fetched by a function and builds them into models.Kweek objects.
+
+
+        *Parameters:*
+            - *authorized_username (string)*: The username of the authorized user.
+            - *last_retrieved_kweek_id (string)*: The id of the last retrieved kweek (used to fetch more). Nullable.
+            - *db_kweeks_fetcher (function)*: A function that fetches kweek dictionaries from the database.
+            - *args*: Positional arguments passed to db_kweeks_fetcher
+
+        *Returns:*
+            - *List of models.Kweek objects*
+            - *None*: if last_retrieved_kweek_id does not exist.
+            - *Raise ValueError*: if last_retrieved_kweek_id is not a valid number.
+            - *Raise TypeError*: if raised by paginate.
+    """
+    if last_retrieved_kweek_id is not None:
+        try:
+            last_retrieved_kweek_id = int(last_retrieved_kweek_id)
+        except ValueError:
+            raise
+    # Get a list of kweeks with missing data
+    db_kweeks = db_kweeks_fetcher(*args)
+    # Paginate the results
+    try:
+        db_kweeks = paginate(dictionaries_list=db_kweeks, required_size=20,
+                             start_after_key='id', start_after_value=last_retrieved_kweek_id)
+    except TypeError as E:
+        print(E)
+        raise
+    if db_kweeks is None:
+        return None
+    return kweeks_builder(db_kweeks, authorized_username)
+
+
+def kweeks_builder(db_kweeks, authorized_username):
+    """
+        Builds model.Kweek objects from database kweeks dictionaries.
+
+
+        *Parameters:*
+            - *db_kweeks (list of dictionaries)*: The kweeks fetched from the database.
+            - *authorized_username (string)*: The username of the authorized user.
+            - *last_retrieved_kweek_id (string)*: The id of the last retrieved kweek (used to fetch more). Nullable.
+
+        *Returns:*
+            - *List of models.Kweek objects*
+        """
+    kweeks = []
+    for kweek in db_kweeks:
+        # Add the user
+        kweek['user'] = get_user(authorized_username=authorized_username,
+                                 required_username=kweek['username'])
+        # Add the statistics
+        kweek_statistics = get_kweek_statistics(authorized_username=authorized_username,
+                                                kweek_id=kweek['id'])
+        kweek.update(kweek_statistics)
+        # Add mentions and hashtags
+        kweek['mentions'] = get_kweek_mentions(kweek['id'])
+        kweek['hashtags'] = get_kweek_hashtags(kweek['id'])
+        # Add rekweek info
+        if 'is_rekweek' in kweek and kweek['is_rekweek']:
+            rekweeker_username = kweek['rekweeker']
+            rekweeker_name = query_factory.get_user_data(required_username=rekweeker_username)[0].get('screen_name')
+            rekweek_info = RekweekInfo({
+                'rekweeker_name': rekweeker_name,
+                'rekweeker_username': rekweeker_username
+            })
+            kweek['rekweek_info'] = rekweek_info
+        else:
+            kweek['rekweek_info'] = None
+        kweeks.append(Kweek(kweek))
+
+    return kweeks
+
+
+def get_home_kweeks(authorized_username, last_retrieved_kweek_id):
+    """
+        Gets the kweeks that should appear on the authorized user's home timeline.
+
+
+        *Parameters:*
+            - *authorized_username (string)*: The username of the authorized user.
+            - *last_retrieved_kweek_id (string)*: The id of the last retrieved kweek (used to fetch more). Nullable.
+
+        *Returns:*
+            - *List of models.Kweek objects*
+            - *None*: if last_retrieved_kweek_id does not exist.
+            - *Raise ValueError*: if last_retrieved_kweek_id is not a valid number.
+            - *Raise TypeError*: if raised by paginate.
+    """
+    return get_kweeks(authorized_username=authorized_username,
+                      last_retrieved_kweek_id=last_retrieved_kweek_id,
+                      db_kweeks_fetcher=query_factory.get_home_kweeks,
+                      args=[authorized_username])
+
+
+def get_profile_kweeks(authorized_username, required_username, last_retrieved_kweek_id):
+    """
+        Gets the kweeks that should appear on a specific user profile.
+
+
+        *Parameters:*
+            - *authorized_username (string)*: The username of the authorized user.
+            - *required_username (string)*: The username of the user whose profile kweeks are required.
+            - *last_retrieved_kweek_id (string)*: The id of the last retrieved kweek (used to fetch more). Nullable.
+
+        *Returns:*
+            - *List of models.Kweek objects*
+            - *None*: if last_retrieved_kweek_id does not exist.
+            - *Raise ValueError*: if last_retrieved_kweek_id is not a valid number.
+            - *Raise TypeError*: if raised by paginate.
+    """
+    return get_kweeks(authorized_username=authorized_username,
+                      last_retrieved_kweek_id=last_retrieved_kweek_id,
+                      db_kweeks_fetcher=query_factory.get_profile_kweeks,
+                      args=[required_username])
+
+
+def get_replies_and_mentions_timeline_kweeks(authorized_username, last_retrieved_kweek_id):
+    """
+        Gets the kweeks that should appear on the authorized user's replies and mentions timeline.
+
+
+        *Parameters:*
+            - *authorized_username (string)*: The username of the authorized user.
+            - *last_retrieved_kweek_id (string)*: The id of the last retrieved kweek (used to fetch more). Nullable.
+
+        *Returns:*
+            - *List of models.Kweek objects*
+            - *None*: if last_retrieved_kweek_id does not exist.
+            - *Raise ValueError*: if last_retrieved_kweek_id is not a valid number.
+            - *Raise TypeError*: if raised by paginate.
+    """
+    return get_kweeks(authorized_username=authorized_username,
+                      last_retrieved_kweek_id=last_retrieved_kweek_id,
+                      db_kweeks_fetcher=query_factory.get_replies_and_mentions_kweeks,
+                      args=[authorized_username])
+
+
+def get_user_liked_kweeks(authorized_username, required_username, last_retrieved_kweek_id):
+    """
+        Gets the kweeks that are liked by a user.
+
+
+        *Parameters:*
+            - *authorized_username (string)*: The username of the authorized user.
+            - *required_username (string)*: The username of the user whose liked kweeks are required.
+            - *last_retrieved_kweek_id (string)*: The id of the last retrieved kweek (used to fetch more). Nullable.
+
+        *Returns:*
+            - *List of models.Kweek objects*
+            - *None*: if last_retrieved_kweek_id does not exist.
+            - *Raise ValueError*: if last_retrieved_kweek_id is not a valid number.
+            - *Raise TypeError*: if raised by paginate.
+    """
+    return get_kweeks(authorized_username=authorized_username,
+                      last_retrieved_kweek_id=last_retrieved_kweek_id,
+                      db_kweeks_fetcher=query_factory.get_user_liked_kweeks,
+                      args=[required_username])
+
+
+def get_trend_kweeks(authorized_username, trend_id, last_retrieved_kweek_id):
+    """
+        Gets the kweeks that belong to a trend.
+
+
+        *Parameters:*
+            - *authorized_username (string)*: The username of the authorized user.
+            - *last_retrieved_kweek_id (string)*: The id of the last retrieved kweek (used to fetch more). Nullable.
+            - *trend_id (string)*: The id of the trend whose kweeks are to be fetched.
+
+        *Returns:*
+            - *List of models.Kweek objects*
+            - *None*: if last_retrieved_kweek_id does not exist.
+            - *Raise ValueError*: if last_retrieved_kweek_id is not a valid number.
+            - *Raise TypeError*: if raised by paginate.
+    """
+    return get_kweeks(authorized_username=authorized_username,
+                      last_retrieved_kweek_id=last_retrieved_kweek_id,
+                      db_kweeks_fetcher=query_factory.get_trend_kweeks,
+                      args=[trend_id])
+
+
+def get_search_kweeks(authorized_username, search_text, last_retrieved_kweek_id):
+    """
+        Gets the kweeks that correspond to the search text, ordered by relevance.
+
+
+        *Parameters:*
+            - *authorized_username (string)*: The username of the authorized user.
+            - *last_retrieved_kweek_id (string)*: The id of the last retrieved kweek (used to fetch more). Nullable.
+            - *search_text (string)*: The text entered by the user in the search bar.
+
+        *Returns:*
+            - *List of models.Kweek objects*
+            - *None*: if last_retrieved_kweek_id does not exist.
+            - *Raise ValueError*: if last_retrieved_kweek_id is not a valid number.
+            - *Raise TypeError*: if raised by paginate.
+    """
+    return get_kweeks(authorized_username=authorized_username,
+                      last_retrieved_kweek_id=last_retrieved_kweek_id,
+                      db_kweeks_fetcher=query_factory.get_search_kweeks,
+                      args=[search_text])

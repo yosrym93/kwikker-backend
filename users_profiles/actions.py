@@ -217,7 +217,7 @@ def delete_banner_picture(authorized_username):
                         *Returns*:
                             - *response*: which is none of case in successful deletion .
     """
-    default_filename = 'banner.png'
+    default_filename = 'banner.jpg'
     filename = query_factory.get_user_banner_picture(authorized_username)['profile_banner_url']
     if filename == default_filename:
         return 'default image'
@@ -227,7 +227,7 @@ def delete_banner_picture(authorized_username):
         os.chdir(path)
         if os.path.exists(filename):
             os.remove(filename)
-            return create_url('banner', 'banner.png')
+            return create_url('banner', 'banner.jpg')
         else:
             return 'file does not exist'
     else:

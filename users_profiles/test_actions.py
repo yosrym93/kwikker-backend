@@ -23,7 +23,7 @@ server_path = app.config['SERVER_PATH']
                                                              "kweeks_count": 1,
                                                              "likes_count": 1,
                                                              "profile_banner_url": server_path + "user/upload"
-                                                                                   "/banner/banne.png",
+                                                                                   "/banner/banne.jpg",
                                                              "profile_image_url": server_path + "user/upload"
                                                                                   "/picture/profil.jpg",
                                                              "following": False,
@@ -41,7 +41,7 @@ server_path = app.config['SERVER_PATH']
                                                             "kweeks_count": 1,
                                                             "likes_count": 2,
                                                             "profile_banner_url": server_path + "user"
-                                                                                  "/upload/banner/banner.png",
+                                                                                  "/upload/banner/banner.jpg",
                                                             "profile_image_url": server_path + "user/upload"
                                                                                  "/picture/profile.jpg",
                                                             "following": False,
@@ -115,7 +115,7 @@ def test_delete_profile_picture(test_authorized_username, expected_output):
 
 @pytest.mark.parametrize("test_authorized_username,expected_output",
                          [
-                             ('khaled', server_path + 'user/upload/banner/banner.png'),
+                             ('khaled', server_path + 'user/upload/banner/banner.jpg'),
                              ('amr', 'default image'),
                              ('omar', 'file does not exist')
                          ])
