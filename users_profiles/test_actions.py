@@ -41,7 +41,7 @@ server_path = app.config['SERVER_PATH']
                                                             "kweeks_count": 1,
                                                             "likes_count": 2,
                                                             "profile_banner_url": server_path + "user"
-                                                                                  "/upload/banner/banner.png",
+                                                                                  "/upload/banner/banner.jpg",
                                                             "profile_image_url": server_path + "user/upload"
                                                                                  "/picture/profile.jpg",
                                                             "following": False,
