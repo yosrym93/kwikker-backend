@@ -136,7 +136,7 @@ def inject_cors_headers(response):
     response.headers.add('Access-Control-Allow-Headers', 'Overwrite, Destination, Content-Type, Depth, User-Agent,'
                                                          ' Translate, Range, Content-Range, Timeout, X-File-Size,'
                                                          ' X-Requested-With, If-Modified-Since, X-File-Name,'
-                                                         ' Cache-Control, Location, Lock-Token, If')
+                                                         ' Cache-Control, Location, Lock-Token, If, Token')
     response.headers.add('Access-Control-Expose-Headers', 'DAV, content-length, Allow')
     return response
 
