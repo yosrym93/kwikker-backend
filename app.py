@@ -123,9 +123,9 @@ def initialize(env):
 
 
 @app.after_request
-def apply_cors(response):
+def inject_cors_headers(response):
     if 'Origin' in request.headers:
-        response.add('Access-Control-Allow-Origin', request.headers.get('Origin'))
+        response.headers.add('Access-Control-Allow-Origin', request.headers.get('Origin'))
     else:
         response.headers.add('Access-Control-Allow-Origin', '*')
     return response
@@ -136,5 +136,5 @@ def run(env):
             Attempts to initialize the app, and runs it if the initialization was successful.
     """
     if initialize(env):
-        #socketio.run(app)
+        # socketio.run(app)
         socketio.run(app, host='0.0.0.0')
