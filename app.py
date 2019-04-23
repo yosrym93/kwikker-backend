@@ -128,6 +128,10 @@ def inject_cors_headers(response):
         response.headers.add('Access-Control-Allow-Origin', request.headers.get('Origin'))
     else:
         response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Credentials', True)
+    response.headers.add('Access-Control-Allow-Methods', '*')
+    response.headers.add('Access-Control-Allow-Headers', '*')
+    response.headers.add('Access-Control-Expose-Headers', 'DAV, content-length, Allow')
     return response
 
 
