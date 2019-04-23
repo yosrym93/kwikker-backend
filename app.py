@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from flask_restplus import Api
 from flask_socketio import SocketIO
 from database_migration.migration import migrate_non_cli
@@ -124,7 +124,10 @@ def initialize(env):
 
 @app.after_request
 def apply_cors(response):
-    response.headers.add('Access-Control-Allow-Origin', '*')
+    if 'Origin' in request.headers:
+        response.add('Access-Control-Allow-Origin', request.headers.get('Origin'))
+    else:
+        response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
 
