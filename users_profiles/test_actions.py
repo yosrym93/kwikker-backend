@@ -115,7 +115,7 @@ def test_delete_profile_picture(test_authorized_username, expected_output):
 
 @pytest.mark.parametrize("test_authorized_username,expected_output",
                          [
-                             ('khaled', server_path + 'user/upload/banner/banner.png'),
+                             ('khaled', server_path + 'user/upload/banner/banner.jpg'),
                              ('amr', 'default image'),
                              ('omar', 'file does not exist')
                          ])

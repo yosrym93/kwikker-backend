@@ -6,9 +6,9 @@ INSERT INTO USER_CREDENTIALS(USERNAME, PASSWORD, EMAIL, IS_CONFIRMED) VALUES
 
 INSERT INTO PROFILE(USERNAME, SCREEN_NAME, PROFILE_IMAGE_URL, PROFILE_BANNER_URL, BIO, CREATED_AT, BIRTH_DATE)
 VALUES
-('test_user1', 'test1', 'profile.jpg', 'banner.png', 'bio', '2019-01-01', '1999-01-01'),
-('test_user2', 'test2', 'profile.jpg', 'banner.png', 'bio', '2019-01-01', '1999-01-01'),
-('test_user3', 'test3', 'profile.jpg', 'banner.png', 'bio', '2019-01-01', '1999-01-01');
+('test_user1', 'test1', 'profile.jpg', 'banner.jpg', 'bio', '2019-01-01', '1999-01-01'),
+('test_user2', 'test2', 'profile.jpg', 'banner.jpg', 'bio', '2019-01-01', '1999-01-01'),
+('test_user3', 'test3', 'profile.jpg', 'banner.jpg', 'bio', '2019-01-01', '1999-01-01');
 
 INSERT INTO FOLLOW VALUES
 ('test_user1', 'test_user3'),
