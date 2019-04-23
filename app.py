@@ -1,7 +1,7 @@
 from flask import Flask, request
 from flask_restplus import Api
 from flask_socketio import SocketIO
-from database_migration.migration import migrate_non_cli
+from database_migration.migrate import migrate_non_cli
 import api_namespaces
 import database_manager
 import config
