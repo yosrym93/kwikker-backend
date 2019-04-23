@@ -83,7 +83,7 @@ class RepliesAndMentionsTimeline(Resource):
                          description="Nullable. Normally the request returns the first 20 kweeks when null."
                                      "To retrieve more send the id of the last kweek retrieved.")
     @timelines_api.response(code=200, description='Kweeks returned successfully.',
-                            model= create_model('Replies and Mentions', model={
+                            model=create_model('Replies and Mentions', model={
                                 'unseen_count': fields.Integer('The number of unseen replies and mentions.'),
                                 'replies_and_mentions': fields.List(fields.Nested(Kweek.api_model))
                             }))
@@ -94,7 +94,7 @@ class RepliesAndMentionsTimeline(Resource):
     @timelines_api.marshal_with(create_model('Replies and Mentions', model={
                                 'unseen_count': fields.Integer('The number of unseen replies and mentions.'),
                                 'replies_and_mentions': fields.List(fields.Nested(Kweek.api_model))
-                            }))
+                                }))
     @timelines_api.doc(security='KwikkerKey')
     @authorize
     def get(self, authorized_username):
@@ -164,6 +164,10 @@ class KweeksSearch(Resource):
                                   "To retrieve more send the id of the last kweek retrieved.")
     @search_api.response(code=200, description='Kweeks returned successfully.', model=[Kweek.api_model])
     @search_api.response(code=401, description='Unauthorized access.')
+    @search_api.response(code=404, description='Kweek id does not exist.')
+    @search_api.response(code=500, description='An error occurred in the server.')
+    @search_api.response(code=400, description='Invalid ID provided.')
+    @search_api.marshal_with(Kweek.api_model, as_list=True)
     @search_api.doc(security='KwikkerKey')
     @authorize
     def get(self, authorized_username):
@@ -171,7 +175,22 @@ class KweeksSearch(Resource):
             Retrieves a list of kweeks that matches (either fully or partially) the sent string.
             The order of the returned kweeks is based on the users who are followed by the authorized user.
         """
-        pass
+        if 'search_text' not in request.args.keys():
+            abort(404, message='No search text was sent.')
+        else:
+            search_text = request.args.get('search_text')
+            last_retrieved_kweek_id = request.args.get('last_retrieved_kweek_id')
+            try:
+                kweeks = actions.get_search_kweeks(authorized_username=authorized_username,
+                                                   search_text=search_text,
+                                                   last_retrieved_kweek_id=last_retrieved_kweek_id)
+                if kweeks is None:
+                    abort(404, message='A kweek with the provided ID does not exist.')
+                return kweeks, 200
+            except TypeError:
+                abort(500, message='An error occurred in the server.')
+            except ValueError:
+                abort(400, 'Invalid ID provided.')
 
 
 @trends_api.route('/')

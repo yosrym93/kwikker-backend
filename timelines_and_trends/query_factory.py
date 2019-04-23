@@ -22,7 +22,7 @@ def get_profile_kweeks(username):
                                         | *is_rekweek (bool)*: Whether the user rekweeked the kweek or created it.}
     """
     query = """
-                SELECT ID, CREATED_AT, TEXT, MEDIA_URL, USERNAME, REPLY_TO, IS_REKWEEK FROM
+                SELECT ID, CREATED_AT, TEXT, MEDIA_URL, USERNAME, REPLY_TO, IS_REKWEEK, %s AS REKWEEKER FROM
                 (
                 (SELECT TRUE as IS_REKWEEK, K.ID, K.CREATED_AT, K.TEXT, K.MEDIA_URL, K.USERNAME, K.REPLY_TO, 
                         RK.CREATED_AT AS SORT_BY 
@@ -35,7 +35,7 @@ def get_profile_kweeks(username):
                 ORDER BY SORT_BY DESC
             """
 
-    data = (username, username)
+    data = (username, username, username)
     profile_kweeks = db_manager.execute_query(query, data)
     return profile_kweeks
 
@@ -498,7 +498,8 @@ def get_trend_kweeks(trend_id):
                                         | *text (string)*: The main content of the kweek.,
                                         | *media_url (string)*: The url of the image attached with the kweek, if any.,
                                         | *username (string)*: The username of the author of the kweek.,
-                                        | *reply_to (int)*: The id of the kweek which this kweek is a reply to, if any.}
+                                        | *reply_to (int)*: The id of the kweek which this kweek is a reply to, if any.
+                                      }
     """
     query = """
                 SELECT K.* FROM KWEEK K JOIN KWEEK_HASHTAG KH ON K.ID = KH.KWEEK_ID
@@ -506,4 +507,37 @@ def get_trend_kweeks(trend_id):
                 ORDER BY CREATED_AT DESC
             """
     data = (trend_id,)
+    return db_manager.execute_query(query, data)
+
+
+def get_search_kweeks(search_text):
+    """
+        Gets the kweeks that correspond to the search text, ordered by relevance.
+        The kweeks returned are missing some data to construct kweek objects.
+
+        *Parameters:*
+            - *search_text (string)*: The text to be searched for in the kweeks.
+
+        *Returns:*
+            - *List of dictionaries*: {
+                                        | *id (int)*: The id of the kweek.,
+                                        | *created_at (datetime)*: The date and time at which the kweek was created.,
+                                        | *text (string)*: The main content of the kweek.,
+                                        | *media_url (string)*: The url of the image attached with the kweek, if any.,
+                                        | *username (string)*: The username of the author of the kweek.,
+                                        | *reply_to (int)*: The id of the kweek which this kweek is a reply to, if any.
+                                      }
+    """
+
+    # Escape all whitespace characters and add & between words
+    search_text = '&'.join(search_text.split())
+    query = """
+                SELECT K.*
+                FROM KWEEK K JOIN KWEEK_SEARCH_TOKENS KS ON K.ID = KS.KWEEK_ID
+                WHERE TS_RANK(TOKENS, TO_TSQUERY('english_nostop', %s)) > 0.00001
+                ORDER BY 
+                TS_RANK(TOKENS, TO_TSQUERY('english_nostop', %s)) DESC,
+                CREATED_AT DESC 
+            """
+    data = (search_text, search_text)
     return db_manager.execute_query(query, data)
