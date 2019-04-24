@@ -606,6 +606,200 @@ def test_get_trend_kweeks():
     assert exception_caught
 
 
+def test_get_replies_and_mentions():
+    expected_kweeks = []
+
+    query = """
+                SELECT ID FROM KWEEK WHERE USERNAME = 'test_user3'
+                AND TEXT = 'Test user 3, third kweek'
+            """
+    kweek_id = db_manager.execute_query(query)[0]['id']
+    query = """
+                SELECT ID FROM KWEEK WHERE KWEEK.TEXT = 'Test user 1, third kweek'
+            """
+    reply_to_id = db_manager.execute_query(query)[0]['id']
+    expected_kweeks.append(Kweek({
+        'id': kweek_id,
+        'created_at': datetime.strptime('2018-01-01 00:00:00', '%Y-%m-%d %H:%M:%S'),
+        'text': 'Test user 3, third kweek',
+        'media_url': None,
+        'user': actions.get_user('test_user1', 'test_user3'),
+        'mentions': actions.get_kweek_mentions(kweek_id),
+        'hashtags': actions.get_kweek_hashtags(kweek_id),
+        'number_of_likes': 0,
+        'number_of_rekweeks': 0,
+        'number_of_replies': 0,
+        'reply_to': reply_to_id,
+        'rekweek_info': None,
+        'liked_by_user': False,
+        'rekweeked_by_user': False
+    }))
+
+    query = """
+                SELECT ID FROM KWEEK WHERE USERNAME = 'test_user2'
+                AND TEXT = 'Test user 2, second kweek'
+            """
+    kweek_id = db_manager.execute_query(query)[0]['id']
+    query = """
+                SELECT ID FROM KWEEK WHERE KWEEK.TEXT = 'Test user 1, second kweek'
+            """
+    reply_to_id = db_manager.execute_query(query)[0]['id']
+    expected_kweeks.append(Kweek({
+        'id': kweek_id,
+        'created_at': datetime.strptime('2014-01-01 00:00:00', '%Y-%m-%d %H:%M:%S'),
+        'text': 'Test user 2, second kweek',
+        'media_url': None,
+        'user': actions.get_user('test_user1', 'test_user2'),
+        'mentions': actions.get_kweek_mentions(kweek_id),
+        'hashtags': actions.get_kweek_hashtags(kweek_id),
+        'number_of_likes': 0,
+        'number_of_rekweeks': 0,
+        'number_of_replies': 0,
+        'reply_to': reply_to_id,
+        'rekweek_info': None,
+        'liked_by_user': False,
+        'rekweeked_by_user': False
+    }))
+
+    query = """
+                    SELECT ID FROM KWEEK WHERE USERNAME = 'test_user2'
+                    AND TEXT = 'Test user 2, first kweek @test_user1 #trend'
+                """
+    kweek_id = db_manager.execute_query(query)[0]['id']
+    expected_kweeks.append(Kweek({
+        'id': kweek_id,
+        'created_at': datetime.strptime('2011-01-01 00:00:00', '%Y-%m-%d %H:%M:%S'),
+        'text': 'Test user 2, first kweek @test_user1 #trend',
+        'media_url': None,
+        'user': actions.get_user('test_user1', 'test_user2'),
+        'mentions': actions.get_kweek_mentions(kweek_id),
+        'hashtags': actions.get_kweek_hashtags(kweek_id),
+        'number_of_likes': 1,
+        'number_of_rekweeks': 0,
+        'number_of_replies': 0,
+        'reply_to': None,
+        'rekweek_info': None,
+        'liked_by_user': False,
+        'rekweeked_by_user': False
+    }))
+
+    actual_kweeks = actions.get_replies_and_mentions_timeline_kweeks('test_user1', None)
+
+    for index, kweek in enumerate(actual_kweeks):
+        assert expected_kweeks[index].to_json() == kweek.to_json()
+
+    # Invalid ID
+    exception_caught = False
+    try:
+        actions.get_replies_and_mentions_timeline_kweeks('test_user1', 'invalid_id')
+    except ValueError:
+        exception_caught = True
+    assert exception_caught
+
+    actual_kweeks = actions.get_replies_and_mentions_timeline_kweeks('test_user2', None)
+    assert actual_kweeks == []
+
+    unseen_count = actions.get_replies_and_mentions_unseen_count('test_user1')
+    assert unseen_count == 2
+
+    actions.set_replies_and_mentions_as_seen('test_user1')
+    unseen_count = actions.get_replies_and_mentions_unseen_count('test_user1')
+    assert unseen_count == 0
+
+    unseen_count = actions.get_replies_and_mentions_unseen_count('test_user2')
+    assert unseen_count == 0
+
+
+def test_search_kweeks():
+    expected_kweeks = []
+
+    query = """
+                        SELECT ID FROM KWEEK WHERE USERNAME = 'test_user3'
+                        AND TEXT = 'Test user 3, second kweek'
+                    """
+    kweek_id = db_manager.execute_query(query)[0]['id']
+    expected_kweeks.append(Kweek({
+        'id': kweek_id,
+        'created_at': datetime.strptime('2017-01-01 00:00:00', '%Y-%m-%d %H:%M:%S'),
+        'text': 'Test user 3, second kweek',
+        'media_url': None,
+        'user': actions.get_user('test_user1', 'test_user3'),
+        'mentions': actions.get_kweek_mentions(kweek_id),
+        'hashtags': actions.get_kweek_hashtags(kweek_id),
+        'number_of_likes': 0,
+        'number_of_rekweeks': 0,
+        'number_of_replies': 0,
+        'reply_to': None,
+        'rekweek_info': None,
+        'liked_by_user': False,
+        'rekweeked_by_user': False
+    }))
+
+    query = """
+                SELECT ID FROM KWEEK WHERE USERNAME = 'test_user2'
+                AND TEXT = 'Test user 2, second kweek'
+            """
+    kweek_id = db_manager.execute_query(query)[0]['id']
+    query = """
+                SELECT ID FROM KWEEK WHERE KWEEK.TEXT = 'Test user 1, second kweek'
+            """
+    reply_to_id = db_manager.execute_query(query)[0]['id']
+    expected_kweeks.append(Kweek({
+        'id': kweek_id,
+        'created_at': datetime.strptime('2014-01-01 00:00:00', '%Y-%m-%d %H:%M:%S'),
+        'text': 'Test user 2, second kweek',
+        'media_url': None,
+        'user': actions.get_user('test_user1', 'test_user2'),
+        'mentions': actions.get_kweek_mentions(kweek_id),
+        'hashtags': actions.get_kweek_hashtags(kweek_id),
+        'number_of_likes': 0,
+        'number_of_rekweeks': 0,
+        'number_of_replies': 0,
+        'reply_to': reply_to_id,
+        'rekweek_info': None,
+        'liked_by_user': False,
+        'rekweeked_by_user': False
+    }))
+
+    query = """
+                SELECT ID FROM KWEEK WHERE USERNAME = 'test_user1'
+                AND TEXT = 'Test user 1, second kweek'
+            """
+    kweek_id = db_manager.execute_query(query)[0]['id']
+    expected_kweeks.append(Kweek({
+        'id': kweek_id,
+        'created_at': datetime.strptime('2013-01-01 00:00:00', '%Y-%m-%d %H:%M:%S'),
+        'text': 'Test user 1, second kweek',
+        'media_url': None,
+        'user': actions.get_user('test_user1', 'test_user1'),
+        'mentions': actions.get_kweek_mentions(kweek_id),
+        'hashtags': actions.get_kweek_hashtags(kweek_id),
+        'number_of_likes': 0,
+        'number_of_rekweeks': 0,
+        'number_of_replies': 1,
+        'reply_to': None,
+        'rekweek_info': None,
+        'liked_by_user': False,
+        'rekweeked_by_user': False
+    }))
+
+    actual_kweeks = actions.get_search_kweeks('test_user1', 'second', None)
+
+    for index, kweek in enumerate(actual_kweeks):
+        assert expected_kweeks[index].to_json() == kweek.to_json()
+
+    # Invalid ID
+    exception_caught = False
+    try:
+        actions.get_search_kweeks('test_user1', 'some search', 'invalid_id')
+    except ValueError:
+        exception_caught = True
+    assert exception_caught
+
+    actual_kweeks = actions.get_search_kweeks('test_user1', 'fourth', None)
+    assert actual_kweeks == []
+
+
 def test_get_all_trends():
     expected_trends = []
 
