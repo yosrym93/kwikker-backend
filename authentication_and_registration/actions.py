@@ -293,6 +293,9 @@ def authorize(f):
         if not verify(user['username'], user['password']):
             abort(403, message='User not found.')
 
+        if not is_confirmed(user['username']):
+            abort(404, message='A user with matching credentials is not confirmed')
+
         return f(authorized_username=user['username'], *args, **kwargs)
 
     return decorated  # pragma:no cover
