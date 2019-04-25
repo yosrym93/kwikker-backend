@@ -157,3 +157,37 @@ def is_notification(involved_username, notified_username, type_notification, kwe
                 """
     data = (involved_username, notified_username, type_notification, kweek_id)
     return db_manager.execute_query(query, data)
+
+
+def get_notifications_unseen_count(authorized_username):
+    """
+        Gets the count of the unseen replies and mentions of the authorized user.
+
+        *Parameters:*
+            -*authorized_username (string)*: The username of the authorized user.
+
+        *Returns:*
+            -*count (int)*: The number of unseen replies and mentions of the authorized user.
+    """
+    query = """
+                SELECT COUNT(*) FROM NOTIFICATION WHERE NOTIFIED_USERNAME = %s
+                AND IS_SEEN = FALSE AND  NOT (TYPE = 'MENTION' OR TYPE = 'REPLY') 
+            """
+    data = (authorized_username,)
+    response = db_manager.execute_query(query, data)
+    return response[0].get('count')
+
+
+def set_notifications_as_seen(authorized_username):
+    """
+        Sets the count of the notifications of the authorized user as seen.
+
+        *Parameters:*
+            -*authorized_username (string)*: The username of the authorized user.
+    """
+    query = """
+                UPDATE NOTIFICATION SET IS_SEEN = TRUE WHERE NOTIFIED_USERNAME = %s
+                AND IS_SEEN = FALSE  AND NOT (TYPE = 'REPLY' OR TYPE = 'MENTION')
+            """
+    data = (authorized_username, )
+    db_manager.execute_query_no_return(query, data)

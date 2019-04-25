@@ -60,18 +60,18 @@ def create_notifications(involved_username, notified_username, type_notification
          - *Exception* object: If the query produced an error.
      """
     if kweek_id is not None and is_kweek(kweek_id) is False:
-        raise Exception('A kweek with this username does not exist')
+        raise Exception('A kweek with this id does not exist')
     if actions.is_user(involved_username) is False:
         raise Exception('Involved_username does not exist')
     if actions.is_user(notified_username) is False:
         raise Exception('Notified_username does not exist')
-    if type_notification == 'REPLY' or type_notification == 'MENTION':
-        return query_factory.create_notifications(involved_username, notified_username, type_notification,
-                                                  kweek_id, datetime.datetime.now(), True)
-    if type_notification != 'FOLLOW' and type_notification != 'REKWEEK' and type_notification != 'LIKE':
-        raise Exception('Type does not exist')
     if is_notification(involved_username, notified_username, type_notification, kweek_id) is True:
         return "already exists"
+    #if type_notification == 'REPLY' or type_notification == 'MENTION':
+        #return query_factory.create_notifications(involved_username, notified_username, type_notification,
+                                                 # kweek_id, datetime.datetime.now(), False)
+    #if type_notification != 'FOLLOW' and type_notification != 'REKWEEK' and type_notification != 'LIKE':
+        #raise Exception('Type does not exist')
     return query_factory.create_notifications(involved_username, notified_username, type_notification,
                                               kweek_id, datetime.datetime.now(), False)
 
@@ -119,3 +119,26 @@ def is_notification(involved_username, notified_username, type_notification, kwe
             return False  # if expired
         else:
             return True  # if not expired
+
+
+def get_notifications_unseen_count(authorized_username):
+    """
+    Gets the count of the unseen notifications of the authorized user.
+
+    *Parameters:*
+        -*authorized_username (string)*: The username of the authorized user.
+
+    *Returns:*
+        -*count (int)*: The number of unseen notifications of the authorized user.
+    """
+    return query_factory.get_notifications_unseen_count(authorized_username)
+
+
+def set_notifications_as_seen(authorized_username):
+    """
+        Sets the count of the unseen notifications of the authorized user as seen.
+
+        *Parameters:*
+            -*authorized_username (string)*: The username of the authorized user.
+    """
+    return query_factory.set_notifications_as_seen(authorized_username)
