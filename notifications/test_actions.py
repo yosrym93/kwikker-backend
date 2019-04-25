@@ -45,16 +45,6 @@ def test_get_notifications_value_error():
     assert exception_caught is True
 
 
-def test_create_notifications_type_error():
-    """
-        this function tests exception error of type of notification
-    """
-    try:
-        actions.create_notifications('ahly', 'zamalek', 'ASA')
-    except Exception as E:
-        assert str(E) == 'Type does not exist'
-
-
 def test_create_notifications_i_user_error():
     """
         this function tests exception error of involved_user
@@ -82,7 +72,7 @@ def test_create_notifications_kweek_id_error():
     try:
         actions.create_notifications('zamlek', 'qq', 'FOLLOW', 99999999)
     except Exception as E:
-        assert str(E) == 'A kweek with this username does not exist'
+        assert str(E) == 'A kweek with this id does not exist'
 
 
 @pytest.mark.parametrize("involved_username , notified_username, type_notification,"
