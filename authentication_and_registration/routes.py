@@ -87,6 +87,7 @@ class RegistrationConfirmation(Resource):
     @account_api.doc(security='KwikkerCode')
     def post(self):
         """ Confirm a user's registration and provide an access token. """
+        code = None
         if 'CODE' in request.headers:
             code = request.headers['CODE']
         else:
@@ -225,6 +226,7 @@ class ResetPassword(Resource):
     def put(self):
         """ Updates the user's password. """
         data = request.get_json()
+        code = None
         if 'CODE' in request.headers:
             code = request.headers['CODE']
         else:
@@ -264,18 +266,15 @@ class UpdateEmail(Resource):
             abort(404, message='Email already exists.')
         pass
 
-
-@account_api.route('/get_email')
-class GetEmail(Resource):
-    @account_api.response(code=200, description='Email returned successfully.', model=create_model('Email', model={
+    @user_api.response(code=200, description='Email returned successfully.', model=create_model('Email', model={
         'email': fields.String(description='Holds the value of Email requested.')
     }))
-    @account_api.response(code=404, description='An unconfirmed user with the given confirmation code does not exist.')
+    @user_api.response(code=404, description='An unconfirmed user with the given confirmation code does not exist.')
     @user_api.response(code=401, description='Unauthorized access.')
     @user_api.response(code=404, description='Invalid username')
-    @account_api.doc(security='KwikkerKey')
+    @user_api.doc(security='KwikkerKey')
     @authorize
-    def post(self, authorized_username):
+    def get(self, authorized_username):
         """ Get the user email"""
         user = actions.get_user_by_username(authorized_username)
         if not user:
