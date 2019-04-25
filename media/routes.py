@@ -38,7 +38,7 @@ class Media(Resource):
 
 
 
-@media_api.route('/get/<filename>')
+@media_api.route('/get/<filename>',doc=False)
 class get_Media (Resource):
     @staticmethod
     def get(filename):
