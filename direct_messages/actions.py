@@ -28,10 +28,9 @@ def create_message(from_username, to_username, text, media_url=None):
         raise Exception('Username who sent this message does not exist.')
     if actions.is_user(to_username) is False:
         raise Exception('Username who want to receive this message does not exist.')
+    media_url = media_actions.create_url(media_url)
     response = query_factory.create_message(from_username, to_username, datetime.datetime.now(), text, media_url)
     message=  query_factory.get_messages(from_username,to_username)[0]
-    filename = message["media_url"]
-    message["media_url"] = media_actions.create_url(filename)
     if(from_username<to_username):
         channel=from_username+to_username
     else:
@@ -67,8 +66,6 @@ def get_messages(from_username, to_username, last_message_retrieved_id=None):
     if actions.is_user(to_username) is False:
         raise Exception('Username who want to receive this message does not exist.')
     messages = query_factory.get_messages(from_username, to_username)
-    for message in messages:
-        message["media_url"] = media_actions.create_url(str(message["media_url"]))
     try:
         messages = actions.paginate(dictionaries_list=messages, required_size=20,
                                     start_after_key='id', start_after_value=last_message_retrieved_id)
