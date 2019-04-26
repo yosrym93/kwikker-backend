@@ -54,8 +54,9 @@ class DirectMessages(Resource):
     @messages_api.response(code=201, description='Message created successfully.')
     @messages_api.response(code=401, description='Unauthorized access.')
     @messages_api.response(code=404, description='User does not exist.')
+    @messages_api.response(code=400, description='message is empty or media_id is invalid and there is not text.')
     @messages_api.expect(create_model('Sent Message', model={
-        'text': fields.String(description='The content of the message.'),
+        'text': NullableString(description='The content of the message.'),
         'username': fields.String(description='Username that will receive the message.'),
         'media_id': NullableString(description='Id of the media, provided when uploaded.')
     }))
@@ -74,6 +75,8 @@ class DirectMessages(Resource):
                 abort(404, message='Username who want to receive this message does not exist.')
             elif str(E) == 'Username who sent this message does not exist.':
                 abort(404, message='Username who sent this message does not exist.')
+            elif str(E) =='message is empty or media_id is invalid and there is not text':
+                abort(400,message='message is empty or media_id is invalid and there is not text')
         return {'message': 'message created successfully'}, 200
 
 
