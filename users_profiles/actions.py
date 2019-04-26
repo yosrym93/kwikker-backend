@@ -54,13 +54,11 @@ def get_user_profile(authorized_username, username):
     if not check_user:
         return -1
     profile = query_factory.get_user_profile(username)
-    check_block = user_interaction_query_factory.if_blocked(username,authorized_username)
+    check_block = user_interaction_query_factory.if_blocked(username, authorized_username)['count']
     if check_block == 1:
-        dict_blocked = {
-            'screen_name': profile['screen_name'], 'profile_image_url':profile['profile_image_url'], 'profile_banner_url':profile['profile_banner_url']
-        }
+        dict_blocked = {'username': profile['username'], 'screen_name': profile['screen_name'],
+                        'profile_image_url': profile['profile_image_url'], 'profile_banner_url': profile['profile_banner_url']}
         return dict_blocked
-
     profile["followers_count"] = query_factory.get_user_followers(username)["count"]
     profile["following_count"] = query_factory.get_user_following(username)["count"]
     profile["kweeks_count"] = query_factory.get_number_of_kweeks(username)['count']
