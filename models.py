@@ -260,7 +260,7 @@ class Notification:
         'kweek_id': fields.String(description='Nullable,a unique string representing the kweek id.',
                                   nullable=True),  # Nullable
         'kweek_text': fields.String(description='The text of the kweek.'),
-        'profile_pic_URL': fields.String(description='The profile picture URL of the involved person who liked,'
+        'profile_pic_url': fields.String(description='The profile picture URL of the involved person who liked,'
                                                      'followed,etc).')
     })
 
