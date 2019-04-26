@@ -1,6 +1,8 @@
 from . import query_factory
 import datetime
 from timelines_and_trends import actions
+from app import socketio
+from flask_restplus import  marshal
 from models import DirectMessage, Conversation, User
 
 
@@ -25,7 +27,14 @@ def create_message(from_username, to_username, text, media_url=None):
         raise Exception('Username who sent this message does not exist.')
     if actions.is_user(to_username) is False:
         raise Exception('Username who want to receive this message does not exist.')
-    return query_factory.create_message(from_username, to_username, datetime.datetime.now(), text, media_url)
+    response = query_factory.create_message(from_username, to_username, datetime.datetime.now(), text, media_url)
+    message=  query_factory.get_messages(from_username,to_username)[0]
+    if(from_username<to_username):
+        channel=from_username+to_username
+    else:
+        channel=to_username+from_username
+    socketio.emit(channel,marshal(message, DirectMessage.api_model))
+    return response
 
 
 def get_messages(from_username, to_username, last_message_retrieved_id=None):

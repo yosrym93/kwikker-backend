@@ -1,8 +1,10 @@
 from . import query_factory
 import datetime
+from app import socketio
 from models import Notification
 from timelines_and_trends import actions
 from direct_messages import actions as action
+from flask_restplus import  marshal
 
 
 def get_notifications(notified_username, last_notification_retrieved_id=None):
@@ -67,13 +69,12 @@ def create_notifications(involved_username, notified_username, type_notification
         raise Exception('Notified_username does not exist')
     if is_notification(involved_username, notified_username, type_notification, kweek_id) is True:
         return "already exists"
-    #if type_notification == 'REPLY' or type_notification == 'MENTION':
-        #return query_factory.create_notifications(involved_username, notified_username, type_notification,
-                                                 # kweek_id, datetime.datetime.now(), False)
-    #if type_notification != 'FOLLOW' and type_notification != 'REKWEEK' and type_notification != 'LIKE':
-        #raise Exception('Type does not exist')
-    return query_factory.create_notifications(involved_username, notified_username, type_notification,
-                                              kweek_id, datetime.datetime.now(), False)
+    response = query_factory.create_notifications(involved_username, notified_username,
+                                                  type_notification,kweek_id, datetime.datetime.now(), False)
+    message = query_factory.get_notifications(involved_username, notified_username)[0]
+    channel = notified_username
+    socketio.emit(channel, marshal(message, Notification.api_model))
+    return response
 
 
 # function for testing
