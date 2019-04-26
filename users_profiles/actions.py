@@ -1,5 +1,6 @@
 from . import query_factory
 from timelines_and_trends import actions
+from users_interactions import query_factory as user_interaction_query_factory
 from models import UserProfile
 import datetime
 from app import app
@@ -8,7 +9,7 @@ import os
 APP_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 Server_path = app.config['SERVER_PATH']
-size = 5
+size = 20
 
 
 def create_url(upload_type, filename):
@@ -53,7 +54,11 @@ def get_user_profile(authorized_username, username):
     if not check_user:
         return -1
     profile = query_factory.get_user_profile(username)
-
+    check_block = user_interaction_query_factory.if_blocked(username, authorized_username)['count']
+    if check_block == 1:
+        dict_blocked = {'username': profile['username'], 'screen_name': profile['screen_name'],
+                        'profile_image_url': profile['profile_image_url'], 'profile_banner_url': profile['profile_banner_url']}
+        return dict_blocked
     profile["followers_count"] = query_factory.get_user_followers(username)["count"]
     profile["following_count"] = query_factory.get_user_following(username)["count"]
     profile["kweeks_count"] = query_factory.get_number_of_kweeks(username)['count']
