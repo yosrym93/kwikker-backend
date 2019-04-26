@@ -2,6 +2,7 @@ from . import query_factory
 from models import UserProfile, User
 from timelines_and_trends import actions as timelines_and_trends_actions
 from users_profiles import actions as users_profile_actions, query_factory as users_profile_query_factory
+from notifications import actions as notif_actions
 
 size = 3
 """
@@ -10,7 +11,7 @@ size = 3
 """
 
 
-def get_profile_followers(username, last_retrieved_username):
+def get_profile_followers(username, last_retrieved_username, authorized_username):
     """
                     The function returns a list of UserProfile objects of the followers users.
 
@@ -42,13 +43,13 @@ def get_profile_followers(username, last_retrieved_username):
         follower["following_count"] = users_profile_query_factory.get_user_following(follower['username'])["count"]
         follower["kweeks_count"] = users_profile_query_factory.get_number_of_kweeks(follower['username'])['count']
         follower["likes_count"] = users_profile_query_factory.get_number_of_likes(follower['username'])['count']
-        friendship = timelines_and_trends_actions.get_friendship(username, follower['username'])
+        friendship = timelines_and_trends_actions.get_friendship(authorized_username, follower['username'])
         follower.update(friendship)
         user_profile_list.append(UserProfile(follower))
     return user_profile_list
 
 
-def get_profile_following(username, last_retrieved_username):
+def get_profile_following(username, last_retrieved_username, authorized_username):
     """
                         The function returns a list of UserProfile objects of the followed users.
 
@@ -80,7 +81,7 @@ def get_profile_following(username, last_retrieved_username):
         follower["following_count"] = users_profile_query_factory.get_user_following(follower['username'])["count"]
         follower["kweeks_count"] = users_profile_query_factory.get_number_of_kweeks(follower['username'])['count']
         follower["likes_count"] = users_profile_query_factory.get_number_of_likes(follower['username'])['count']
-        friendship = timelines_and_trends_actions.get_friendship(username, follower['username'])
+        friendship = timelines_and_trends_actions.get_friendship(authorized_username, follower['username'])
         follower.update(friendship)
         user_profile_list.append(UserProfile(follower))
     return user_profile_list
@@ -107,6 +108,7 @@ def follow(username, authorized_username):
     if check == 1:
         return "you already following that user."
     response = query_factory.follow(authorized_username, username)
+    notif_actions.create_notifications(authorized_username, username, 'FOLLOW')
     return response
 
 
@@ -121,9 +123,8 @@ def unfollow(username, authorized_username):
                         *Returns*:
                             - *response*: indicate the successful or failure of action.
     """
-    blocked = query_factory.if_blocked(authorized_username, username)['count']
     check = query_factory.check_if_follow(authorized_username, username)['count']
-    if check == 0 or blocked == 1:
+    if check == 0:
         return "you already not following that user"
     response = query_factory.unfollow(authorized_username, username)
     return response
@@ -140,7 +141,6 @@ def get_muted_users(authorized_username):
                             - *response*: a list of user objects of muted users.
     """
     muted = query_factory.get_muted_list(authorized_username)
-    print(muted)
     user_list = []
     for muted_user in muted:
         muted_user["profile_image_url"] = users_profile_actions.create_url('picture', muted_user[
@@ -224,7 +224,8 @@ def block(authorized_username, username):
         return "user already blocked"
     response = query_factory.block(authorized_username, username)
     if response is None:
-        response = query_factory.unfollow(username, authorized_username)
+        query_factory.unfollow(username, authorized_username)
+        response = query_factory.unfollow(authorized_username, username)
     return response
 
 
@@ -244,4 +245,3 @@ def unblock(authorized_username, username):
         return "user already unblocked"
     response = query_factory.unblock(authorized_username, username)
     return response
-

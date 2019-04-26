@@ -4,7 +4,7 @@ from database_manager import db_manager
 import click
 
 all_modules = ['timelines_and_trends', 'authentication_and_registration', 'notifications',
-               'direct_messages', 'users_profiles', 'kweeks']
+               'direct_messages', 'users_profiles', 'kweeks', 'users_interactions']
 
 
 @click.command()
