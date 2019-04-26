@@ -18,7 +18,9 @@ class Followers(Resource):
     @interactions_api.param(name='last_retrieved_username', type='str', required=True, description="Nullable. Normally the request returns the first 20 users when null."
                             "To retrieve more send the username of the last user retrieved.")
     @interactions_api.marshal_with(UserProfile.api_model, as_list=True)
-    def get(self):
+    @interactions_api.doc(security='KwikkerKey')
+    @authorize
+    def get(self, authorized_username):
         """ Retrieve a list of users that follow the username. """
         if 'username' not in request.args.keys():
             abort(404, message='No username was sent.')
@@ -28,7 +30,7 @@ class Followers(Resource):
             if not trends_actions.is_user(username):
                 abort(404, message='A user with this username does not exist.')
             try:
-                followers_list = actions.get_profile_followers(username=username, last_retrieved_username=last_retrieved_username)
+                followers_list = actions.get_profile_followers(username=username, last_retrieved_username=last_retrieved_username, authorized_username=authorized_username)
                 if followers_list is None:
                     abort(404, message='A user with the provided last_retrieved_username does not exist.')
                 return followers_list, 200
@@ -47,7 +49,9 @@ class Following(Resource):
                             description="Nullable. Normally the request returns the first 20 users when null."
                                         "To retrieve more send the username of the last user retrieved.")
     @interactions_api.marshal_with(UserProfile.api_model, as_list=True)
-    def get(self):
+    @interactions_api.doc(security='KwikkerKey')
+    @authorize
+    def get(self, authorized_username):
         """ Retrieve a list of users that are followed by the username. """
 
         if 'username' not in request.args.keys():
@@ -59,7 +63,7 @@ class Following(Resource):
                 abort(404, message='A user with this username does not exist.')
             try:
                 following_list = actions.get_profile_following(username=username,
-                                                               last_retrieved_username=last_retrieved_username)
+                                                               last_retrieved_username=last_retrieved_username, authorized_username=authorized_username)
                 if following_list is None:
                     abort(404, message='A user with the provided last_retrieved_username does not exist.')
                 return following_list, 200
@@ -224,4 +228,3 @@ class Mute(Resource):
         if response is None:
             return "user is unmuted successfully", 200
         return response, 400
-

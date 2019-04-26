@@ -60,7 +60,8 @@ def test_get_friendship(authorized_username, required_username, expected_output)
                              ('test_user1', 'test_user2', User({
                                  'username': 'test_user2',
                                  'screen_name': 'test2',
-                                 'profile_image_url': 'profile.jpg',
+                                 'profile_image_url': 'http://kwikkerbackend.eu-central-1.elasticbeanstalk.com/'
+                                                      'user/upload/picture/profile.jpg',
                                  'following': False,
                                  'follows_you': False,
                                  'muted': False,
@@ -835,3 +836,14 @@ def test_get_all_trends():
     except ValueError:
         exception_caught = True
     assert exception_caught
+
+
+@pytest.mark.parametrize("blocker, blocked, expected_output",
+                         [
+                             ('test_user1', 'test_user1', False),
+                             ('test_user1', 'test_user2', False),
+                             ('test_user2', 'test_user1', True)
+                         ])
+def test_check_blocked(blocker, blocked, expected_output):
+    is_blocked = actions.check_blocked(blocker, blocked)
+    assert is_blocked == expected_output

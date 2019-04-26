@@ -1,8 +1,11 @@
 from . import query_factory
 import datetime
+from app import socketio
 from models import Notification
 from timelines_and_trends import actions
 from direct_messages import actions as action
+from flask import json
+from timelines_and_trends import actions as tt_action
 
 
 def get_notifications(notified_username, last_notification_retrieved_id=None):
@@ -67,13 +70,13 @@ def create_notifications(involved_username, notified_username, type_notification
         raise Exception('Notified_username does not exist')
     if is_notification(involved_username, notified_username, type_notification, kweek_id) is True:
         return "already exists"
-    #if type_notification == 'REPLY' or type_notification == 'MENTION':
-        #return query_factory.create_notifications(involved_username, notified_username, type_notification,
-                                                 # kweek_id, datetime.datetime.now(), False)
-    #if type_notification != 'FOLLOW' and type_notification != 'REKWEEK' and type_notification != 'LIKE':
-        #raise Exception('Type does not exist')
-    return query_factory.create_notifications(involved_username, notified_username, type_notification,
-                                              kweek_id, datetime.datetime.now(), False)
+    response = query_factory.create_notifications(involved_username, notified_username,
+                                                  type_notification,kweek_id, datetime.datetime.now(), False)
+    num_notification = get_notifications_unseen_count(notified_username)
+    num_replies_mentions = tt_action.get_replies_and_mentions_unseen_count(notified_username)
+    channel = notified_username
+    socketio.emit(channel, json.dumps({"num_notification":num_notification,"num_replies_mentions":num_replies_mentions}))
+    return response
 
 
 # function for testing

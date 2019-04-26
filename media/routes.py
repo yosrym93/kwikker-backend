@@ -34,8 +34,7 @@ class Media(Resource):
             return abort(404, message=response)
         if response == 'not allowed extensions':
             return abort(400, message=response)
-        return {"filename":response}, 200
-
+        return {"media_id": response}, 200
 
 
 @media_api.route('/get/<filename>',doc=False)
@@ -44,7 +43,7 @@ class get_Media (Resource):
     def get(filename):
         """ this endpoint gets the image given the url """
         try:
-            filename =actions.get_extension_file(filename)
+            #filename =actions.get_extension_file(filename)
             os.chdir(os.path.dirname(APP_ROOT))
             return send_from_directory('images/media', filename)
         except Exception as E:
