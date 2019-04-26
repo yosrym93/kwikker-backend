@@ -4,7 +4,8 @@ from app import socketio
 from models import Notification
 from timelines_and_trends import actions
 from direct_messages import actions as action
-from flask_restplus import  marshal
+#from flask_restplus import  marshal
+from timelines_and_trends import actions as tt_action
 
 
 def get_notifications(notified_username, last_notification_retrieved_id=None):
@@ -71,9 +72,10 @@ def create_notifications(involved_username, notified_username, type_notification
         return "already exists"
     response = query_factory.create_notifications(involved_username, notified_username,
                                                   type_notification,kweek_id, datetime.datetime.now(), False)
-    message = query_factory.get_notifications(notified_username)[0]
+    num_notification = get_notifications_unseen_count(notified_username)
+    num_replies_mentions = tt_action.get_replies_and_mentions_unseen_count(notified_username)
     channel = notified_username
-    socketio.emit(channel, marshal(message, Notification.api_model))
+    socketio.emit(channel, num_notification,num_replies_mentions)
     return response
 
 
