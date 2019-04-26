@@ -468,3 +468,7 @@ def get_search_kweeks(authorized_username, search_text, last_retrieved_kweek_id)
                       last_retrieved_kweek_id=last_retrieved_kweek_id,
                       db_kweeks_fetcher=query_factory.get_search_kweeks,
                       args=[search_text])
+
+
+def check_blocked(blocker_username, blocked_username):
+    return query_factory.check_blocked(blocker_username, blocked_username)

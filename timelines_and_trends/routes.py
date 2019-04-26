@@ -52,6 +52,7 @@ class ProfileTimeline(Resource):
     @timelines_api.response(code=404, description='Username or kweek id does not exist.')
     @timelines_api.response(code=500, description='An error occurred in the server.')
     @timelines_api.response(code=400, description='Invalid ID provided.')
+    @timelines_api.response(code=403, description='The authorized user is blocked by this user.')
     @timelines_api.marshal_with(Kweek.api_model, as_list=True)
     @timelines_api.doc(security='KwikkerKey')
     @authorize
@@ -64,6 +65,8 @@ class ProfileTimeline(Resource):
             last_retrieved_kweek_id = request.args.get('last_retrieved_kweek_id')
             if not actions.is_user(required_username):
                 abort(404, message='A user with this username does not exist.')
+            if actions.check_blocked(required_username, authorized_username):
+                abort(403, message='The authorized user is blocked by this user.')
             try:
                 kweeks = actions.get_profile_kweeks(authorized_username=authorized_username,
                                                     required_username=required_username,
