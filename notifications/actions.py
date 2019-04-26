@@ -4,7 +4,7 @@ from app import socketio
 from models import Notification
 from timelines_and_trends import actions
 from direct_messages import actions as action
-#from flask_restplus import  marshal
+from flask import json
 from timelines_and_trends import actions as tt_action
 
 
@@ -75,7 +75,7 @@ def create_notifications(involved_username, notified_username, type_notification
     num_notification = get_notifications_unseen_count(notified_username)
     num_replies_mentions = tt_action.get_replies_and_mentions_unseen_count(notified_username)
     channel = notified_username
-    socketio.emit(channel, num_notification,num_replies_mentions)
+    socketio.emit(channel, json.dumps({"num_notification":num_notification,"num_replies_mentions":num_replies_mentions}))
     return response
 
 
