@@ -11,6 +11,7 @@ from timelines_and_trends import actions as tre_time_actions
 
 messages_api = api_namespaces.messages_api
 
+
 @messages_api.route('/')
 class DirectMessages(Resource):
     @messages_api.response(code=200, description='Messages returned successfully.', model=[DirectMessage.api_model])
@@ -56,7 +57,7 @@ class DirectMessages(Resource):
     @messages_api.expect(create_model('Sent Message', model={
         'text': fields.String(description='The content of the message.'),
         'username': fields.String(description='Username that will receive the message.'),
-        'media_url':NullableString(description='url of the media')
+        'media_id': NullableString(description='Id of the media, provided when uploaded.')
     }))
     @messages_api.doc(security='KwikkerKey')
     @authorize
@@ -65,9 +66,9 @@ class DirectMessages(Resource):
         data = request.get_json()
         to_username = data['username']
         text = data['text']
-        media_url = data['media_url']
+        media_id = data['media_id']
         try:
-            actions.create_message(authorized_username, to_username, text, media_url)
+            actions.create_message(authorized_username, to_username, text, media_id)
         except Exception as E:
             if str(E) == 'Username who want to receive this message does not exist.':
                 abort(404, message='Username who want to receive this message does not exist.')

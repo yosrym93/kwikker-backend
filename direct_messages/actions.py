@@ -7,7 +7,7 @@ from models import DirectMessage, Conversation, User
 from media import actions as media_actions
 
 
-def create_message(from_username, to_username, text, media_url=None):
+def create_message(from_username, to_username, text, media_id=None):
     """
            This function create a message in the database.
 
@@ -17,7 +17,7 @@ def create_message(from_username, to_username, text, media_url=None):
                - *from_username*: user who is send the message .
                - *to_username*: user who is received the message.
                - *text*: body of text.
-               - *media_url*: url of the media.
+               - *media_id*: url of the media.
 
            *Returns:*
 
@@ -28,8 +28,8 @@ def create_message(from_username, to_username, text, media_url=None):
         raise Exception('Username who sent this message does not exist.')
     if actions.is_user(to_username) is False:
         raise Exception('Username who want to receive this message does not exist.')
-    media_url = media_actions.create_url(media_url)
-    response = query_factory.create_message(from_username, to_username, datetime.datetime.now(), text, media_url)
+    response = query_factory.create_message(from_username, to_username, datetime.datetime.now(), text,
+                                            media_actions.create_url(media_id))
     message=  query_factory.get_messages(from_username,to_username)[0]
     if(from_username<to_username):
         channel=from_username+to_username

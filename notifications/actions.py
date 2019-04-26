@@ -71,7 +71,7 @@ def create_notifications(involved_username, notified_username, type_notification
         return "already exists"
     response = query_factory.create_notifications(involved_username, notified_username,
                                                   type_notification,kweek_id, datetime.datetime.now(), False)
-    message = query_factory.get_notifications(involved_username, notified_username)[0]
+    message = query_factory.get_notifications(notified_username)[0]
     channel = notified_username
     socketio.emit(channel, marshal(message, Notification.api_model))
     return response

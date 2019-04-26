@@ -34,8 +34,7 @@ class Media(Resource):
             return abort(404, message=response)
         if response == 'not allowed extensions':
             return abort(400, message=response)
-        return {"filename":response}, 200
-
+        return {"media_id": response}, 200
 
 
 @media_api.route('/get/<filename>',doc=False)
