@@ -207,13 +207,13 @@ def search_user(search_key):
             - *response*: a list of dictionary contains search result.
     """
     query: str = """
-                         select username, screen_name , profile_image_url from profile
-                         where( lower(username) like lower( '%%' || %s || '%%') OR 
-                         lower(screen_name) like lower( '%%' || %s || '%%') )
-                         
+                         select * from profile
+                         where( lower(username) like lower( '%%' || %s || '%%')
+                         OR 
+                            lower(screen_name) like lower( '%%' || %s || '%%') )
+                         order by username,screen_name;             
                  """
     data = (search_key, search_key)
-    print(data)
     response = db_manager.execute_query(query, data)
     return response
 

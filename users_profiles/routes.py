@@ -1,6 +1,6 @@
 from flask_restplus import Resource, abort
 from flask import request, send_from_directory
-from models import User, UserProfile, NullableString
+from models import UserProfile, NullableString
 from app import create_model
 import api_namespaces
 from .import actions
@@ -14,14 +14,14 @@ search_api = api_namespaces.search_api
 
 @search_api.route('/users')
 class UsersSearch(Resource):
-    @search_api.response(code=200, description='Users returned successfully.', model=[User.api_model])
+    @search_api.response(code=200, description='Users returned successfully.', model=[UserProfile.api_model])
     @search_api.response(code=400, description='Parameters type does not match.')
     @search_api.response(code=401, description='Unauthorized access.')
     @search_api.param(name='search_text', type='str', description='The text entered by the user in the search bar.')
     @search_api.param(name='last_retrieved_username', type='str',
                       description="Nullable. Normally the request returns the first 20 users when null."
                                   "To retrieve more send the username of the last user retrieved.")
-    @search_api.marshal_with(User.api_model, as_list=True)
+    @search_api.marshal_with(UserProfile.api_model, as_list=True)
     @search_api.doc(security='KwikkerKey')
     @authorize
     def get(self, authorized_username):
