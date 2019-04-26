@@ -140,5 +140,4 @@ def run(env):
             Attempts to initialize the app, and runs it if the initialization was successful.
     """
     if initialize(env):
-        # socketio.run(app)
         socketio.run(app, host='0.0.0.0')
