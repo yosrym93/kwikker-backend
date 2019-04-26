@@ -43,7 +43,7 @@ class get_Media (Resource):
     def get(filename):
         """ this endpoint gets the image given the url """
         try:
-            filename =actions.get_extension_file(filename)
+            #filename =actions.get_extension_file(filename)
             os.chdir(os.path.dirname(APP_ROOT))
             return send_from_directory('images/media', filename)
         except Exception as E:
