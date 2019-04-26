@@ -34,7 +34,6 @@ class Notifications(Resource):
         last_notification_retrieved_id = request.args.get('last_notification_retrieved_id')
         try:
             notifications = actions.get_notifications(authorized_username, last_notification_retrieved_id)
-            print(notifications[0].profile_pic_url)
             if notifications is None:
                 abort(404, message='A notification with the provided ID does not exist.')
             else:
