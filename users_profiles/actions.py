@@ -1,6 +1,6 @@
 from . import query_factory
 from timelines_and_trends import actions
-from models import UserProfile, User
+from models import UserProfile
 import datetime
 from app import app
 import os
@@ -244,7 +244,7 @@ def search_user(authorized_username, search_key, username, results_size=size):
                     - *username (string)*: The last username retrieve. Results after this one are fetched.
 
                 *Returns*:
-                    - *User_list*: a list of objects of user.
+                    - *User_list*: a list of objects of user_profile.
     """
     if search_key == "":
         return []
@@ -259,10 +259,15 @@ def search_user(authorized_username, search_key, username, results_size=size):
         return None
     user_list = []
     for result in results:
-        # print(result['username'])
         result["profile_image_url"] = create_url('picture', result[
             "profile_image_url"])
+        result["profile_banner_url"] = create_url('banner', result[
+            "profile_banner_url"])
+        result["followers_count"] = query_factory.get_user_followers(result['username'])["count"]
+        result["following_count"] = query_factory.get_user_following(result['username'])["count"]
+        result["kweeks_count"] = query_factory.get_number_of_kweeks(result['username'])['count']
+        result["likes_count"] = query_factory.get_number_of_likes(result['username'])['count']
         friendship = actions.get_friendship(authorized_username, result['username'])
         result.update(friendship)
-        user_list.append(User(result))
+        user_list.append(UserProfile(result))
     return user_list
