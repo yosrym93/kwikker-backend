@@ -212,42 +212,51 @@ def test_insert_kweek():
                              ('false_username', {
                                  'text': "#first tweet",
                                  'reply_to': None,
+                                 'media_id': None
                              }, (False, 'The authorized user does not exist in the data base')),
                              ('user1', {
                                  'text': "#first tweet",
-                                 'reply_to': None
+                                 'reply_to': None,
+                                  'media_id': None
                              }, (True, 'success')),
                              ('user1', {
                                  'text': "#first tweet",
                                  'reply_to': str(db_manager.execute_query
-                                                 ("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
+                                                 ("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id']),
+                                 'media_id': None
+
                              }, (True, 'success')),
                              ('user1', {
                                  'text': "",
                                  'reply_to': str(db_manager.execute_query
-                                                 ("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
+                                                 ("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id']),
+                                 'media_id': None
                              }, (False, 'No text body found')),
                              ('user1', {
                                  'text': "  ",
                                  'reply_to': str(db_manager.execute_query
-                                                 ("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
+                                                 ("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id']),
+                                 'media_id' : None
                              }, (False, 'No text body found')),
                              ('user1', {
                                  'text': "test",
-                                 'reply_to': "ahmed"
+                                 'reply_to': "ahmed",
+                                 'media_id' : None
                              }, (False, 'Not valid id')),
                              ('user1', {
                                  'text': "test",
-                                 'reply_to': ''
+                                 'reply_to': '',
+                                 'media_id': None
                              }, (False, 'No reply body found')),
                              ('user1', {
                                  'text': "#first tweet",
-                                 'reply_to': ' '
+                                 'reply_to': ' ',
+                                 'media_id': None
                              }, (False, 'No reply body found')),
                              ('user1', {
                                  'text': "#first tweet",
-                                 'reply_to': '1000000000'
-
+                                 'reply_to': '1000000000',
+                                 'media_id': None
                              }, (False, 'Kweek does not exist '))
 
 

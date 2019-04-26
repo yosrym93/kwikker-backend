@@ -35,10 +35,6 @@ def get_profile_followers(username, last_retrieved_username, authorized_username
         return None
     user_profile_list = []
     for follower in followers:
-        follower["profile_image_url"] = users_profile_actions.create_url('picture', follower[
-            "profile_image_url"])
-        follower["profile_banner_url"] = users_profile_actions.create_url('banner', follower[
-            "profile_banner_url"])
         follower["followers_count"] = users_profile_query_factory.get_user_followers(follower['username'])["count"]
         follower["following_count"] = users_profile_query_factory.get_user_following(follower['username'])["count"]
         follower["kweeks_count"] = users_profile_query_factory.get_number_of_kweeks(follower['username'])['count']
@@ -73,10 +69,6 @@ def get_profile_following(username, last_retrieved_username, authorized_username
         return None
     user_profile_list = []
     for follower in followed:
-        follower["profile_image_url"] = users_profile_actions.create_url('picture', follower[
-            "profile_image_url"])
-        follower["profile_banner_url"] = users_profile_actions.create_url('banner', follower[
-            "profile_banner_url"])
         follower["followers_count"] = users_profile_query_factory.get_user_followers(follower['username'])["count"]
         follower["following_count"] = users_profile_query_factory.get_user_following(follower['username'])["count"]
         follower["kweeks_count"] = users_profile_query_factory.get_number_of_kweeks(follower['username'])['count']
@@ -143,8 +135,6 @@ def get_muted_users(authorized_username):
     muted = query_factory.get_muted_list(authorized_username)
     user_list = []
     for muted_user in muted:
-        muted_user["profile_image_url"] = users_profile_actions.create_url('picture', muted_user[
-            "profile_image_url"])
         friendship = timelines_and_trends_actions.get_friendship(authorized_username, muted_user['username'])
         muted_user.update(friendship)
         user_list.append(User(muted_user))
@@ -200,8 +190,6 @@ def get_blocked_users(authorized_username):
     blocked = query_factory.get_blocked_list(authorized_username)
     user_list = []
     for blocked_user in blocked:
-        blocked_user["profile_image_url"] = users_profile_actions.create_url('picture', blocked_user[
-            "profile_image_url"])
         friendship = timelines_and_trends_actions.get_friendship(authorized_username, blocked_user['username'])
         blocked_user.update(friendship)
         user_list.append(User(blocked_user))

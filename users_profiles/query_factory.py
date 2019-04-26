@@ -58,38 +58,38 @@ def update_user_profile(username, bio, screen_name):
         return response
 
 
-def update_user_profile_picture(username, filename):
+def update_user_profile_picture(username, url):
     """
                                 Query updates profile picture.
 
                                 *Parameters*:
                                     - *username (string)*: The username attribute in user_profile table .
-                                    - *filename (file)*: The profile image name which will be updated in database.
+                                    - *url (string)*: The profile image url which will be updated in database.
                                 *Returns*:
                                     - *response*: which is none of case in successful update .
     """
     query: str = """
                         update profile set profile_image_url = %s where username = %s
                  """
-    data = (filename, username)
+    data = (url, username)
     response = db_manager.execute_query_no_return(query, data)
     return response
 
 
-def update_user_banner_picture(username, filename):
+def update_user_banner_picture(username, url):
     """
                                 Query updates profile banner.
 
                                 *Parameters*:
                                     - *username (string)*: The username attribute in user_profile table .
-                                    - *filename (file)*: The profile banner name which will be updated in database.
+                                    - *url (string)*: The profile banner url which will be updated in database.
                                 *Returns*:
                                     - *response*: which is none of case in successful update .
     """
     query: str = """
                       update profile set profile_banner_url = %s where username = %s
                  """
-    data = (filename, username)
+    data = (url, username)
     response = db_manager.execute_query_no_return(query, data)
     return response
 
@@ -218,7 +218,7 @@ def search_user(search_key):
     return response
 
 
-def create_profile(username, screen_name, birth, time):
+def create_profile(username, screen_name, birth, time, profile_image_url, banner_url):
     """
                                             Query to insert new profile tuple.
 
@@ -230,10 +230,11 @@ def create_profile(username, screen_name, birth, time):
                                                 - *response*: which is none of case in successful insert .
     """
     query: str = """ 
-                        insert into profile(username, screen_name, profile_image_url, profile_banner_url, bio, birth_date, created_at)
+                        insert into profile(username, screen_name, profile_image_url, profile_banner_url, bio,
+                         birth_date, created_at)
                         VALUES (%s,%s,%s,%s,%s,%s,%s);
                  """
-    data = (username, screen_name, 'profile.jpg', 'banner.png', '', birth, time)
+    data = (username, screen_name, profile_image_url, banner_url, '', birth, time)
     print(data)
     response = db_manager.execute_query_no_return(query, data)
     return response

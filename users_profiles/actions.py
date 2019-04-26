@@ -54,10 +54,6 @@ def get_user_profile(authorized_username, username):
         return -1
     profile = query_factory.get_user_profile(username)
 
-    profile["profile_image_url"] = create_url('picture', profile[
-        "profile_image_url"])
-    profile["profile_banner_url"] = create_url('banner', profile[
-        "profile_banner_url"])
     profile["followers_count"] = query_factory.get_user_followers(username)["count"]
     profile["following_count"] = query_factory.get_user_following(username)["count"]
     profile["kweeks_count"] = query_factory.get_number_of_kweeks(username)['count']
@@ -85,7 +81,9 @@ def create_profile(username, screen_name, birth_date):
     if not check_user:
         return False
     time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    response = query_factory.create_profile(username, screen_name, birth_date, time)
+    response = query_factory.create_profile(username, screen_name, birth_date, time,
+                                            profile_image_url=create_url('profile', 'profile.jpg'),
+                                            banner_url=create_url('banner', 'banner.jpg'))
     if response is None:
         return True
     return False
@@ -134,7 +132,7 @@ def update_profile_picture(file, authorized_username):  # pragma:no cover
 
         filename, ext = os.path.splitext(file.filename)
         filename = authorized_username + 'profile' + ext
-        response = query_factory.update_user_profile_picture(authorized_username, filename)
+        response = query_factory.update_user_profile_picture(authorized_username, create_url('picture', filename))
         if response is None:
             destination = "/".join([target, filename])
             file.save(destination)
@@ -161,7 +159,7 @@ def delete_profile_picture(authorized_username):
     if filename == default_filename:
         return 'default image'
     path = APP_ROOT + '/images/profile'
-    response = query_factory.update_user_profile_picture(authorized_username, default_filename)
+    response = query_factory.update_user_profile_picture(authorized_username, create_url('picture', default_filename))
     if response is None:
         os.chdir(path)
         if os.path.exists(filename):
@@ -196,7 +194,7 @@ def update_profile_banner(file, authorized_username):  # pragma:no cover
 
         filename, ext = os.path.splitext(file.filename)  # ------------------------
         filename = authorized_username + 'banner' + ext
-        response = query_factory.update_user_banner_picture(authorized_username, filename)
+        response = query_factory.update_user_banner_picture(authorized_username, create_url('banner', filename))
         if response is None:
             destination = "/".join([target, filename])
             file.save(destination)
@@ -222,7 +220,7 @@ def delete_banner_picture(authorized_username):
     if filename == default_filename:
         return 'default image'
     path = APP_ROOT + '/images/banner'
-    response = query_factory.update_user_banner_picture(authorized_username, default_filename)
+    response = query_factory.update_user_banner_picture(authorized_username, create_url('banner', filename))
     if response is None:
         os.chdir(path)
         if os.path.exists(filename):
@@ -259,10 +257,6 @@ def search_user(authorized_username, search_key, username, results_size=size):
         return None
     user_list = []
     for result in results:
-        result["profile_image_url"] = create_url('picture', result[
-            "profile_image_url"])
-        result["profile_banner_url"] = create_url('banner', result[
-            "profile_banner_url"])
         result["followers_count"] = query_factory.get_user_followers(result['username'])["count"]
         result["following_count"] = query_factory.get_user_following(result['username'])["count"]
         result["kweeks_count"] = query_factory.get_number_of_kweeks(result['username'])['count']

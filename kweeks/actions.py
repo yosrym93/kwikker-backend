@@ -6,6 +6,7 @@ from kweeks.query_factory import add_kweek, delete_main_kweek, retrieve_hashtags
     get_kweek_id, update_hashtag, validate_id, check_kweek_writer, check_kweek_mention, check_kweek_owner, add_rekweek,\
     delete_rekweeks, check_kweek_rekweeker, add_like, delete_like
 from notifications.actions import create_notifications
+from media.actions import create_url
 
 
 def create_kweek(request, authorized_username):
@@ -54,7 +55,7 @@ def create_kweek(request, authorized_username):
     data['username'] = authorized_username
     data['hashtags'] = hashtags  # list of dics
     data['mentions'] = mentions  # list of dics
-    data['media_url'] = None
+    data['media_url'] = create_url(request['media_id'])
     data['number_of_likes'] = 0
     data['number_of_rekweeks'] = 0
     data['number_of_replies'] = 0

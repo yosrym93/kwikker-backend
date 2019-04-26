@@ -9,7 +9,7 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 Server_path = app.config['SERVER_PATH']
 
 
-def create_url( filename):
+def create_url(filename):
     """
                     The function return url of the image .
                     *Parameters*:
@@ -17,7 +17,21 @@ def create_url( filename):
                     *Returns*:
                         - url of image .
     """
-    url = Server_path + 'media/get/'+ filename
+    # Check that the file exists
+    if filename is None:
+        return None
+    search_path = os.path.join(APP_ROOT, 'images/media')
+    filename = filename + ".*"
+    file_found = False
+    for root, dirs, files in os.walk(search_path):
+        for name in files:
+            if fnmatch.fnmatch(name, filename):
+                file_found = True
+    # Create url
+    if file_found:
+        url = Server_path + 'media/get/'+ filename
+    else:
+        url = None
     return url
 
 

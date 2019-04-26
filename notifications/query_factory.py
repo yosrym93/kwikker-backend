@@ -2,14 +2,14 @@ import database_manager
 db_manager = database_manager.db_manager  # pragma:no cover
 
 
-def get_notifications(involved_username):
+def get_notifications(notified_username):
     """
             This function get list of notifications for a given username.
 
 
             *Parameter:*
 
-                - *username*: user who user who will be notified.
+                - *notified_username*: user who user who will be notified.
 
             *Returns*:
 
@@ -40,7 +40,7 @@ def get_notifications(involved_username):
                       
                  """
 
-    data = (involved_username,)
+    data = (notified_username,)
     response = db_manager.execute_query(query, data)
     return response
 
