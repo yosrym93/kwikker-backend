@@ -1,10 +1,10 @@
 from . import query_factory
 from models import UserProfile, User
 from timelines_and_trends import actions as timelines_and_trends_actions
-from users_profiles import actions as users_profile_actions, query_factory as users_profile_query_factory
+from users_profiles import query_factory as users_profile_query_factory
 from notifications import actions as notif_actions
 
-size = 3
+size = 20
 """
     All the functions containing the logic should reside here. 
     The routes functions should contain no logic, they should only call the functions in this module.

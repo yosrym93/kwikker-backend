@@ -9,61 +9,25 @@ server_path = app.config['SERVER_PATH']
 @pytest.mark.parametrize("test_username, test_last_retrieved_username, test_authorized_username, expected_output", [
                              ('khaled', None, 'khaled',
                               [
-                                 UserProfile({
-                                    "username": "amr",
-                                    "screen_name": "bogy",
-                                    "bio": "he is a doll",
-                                    "birth_date": date(1998, 3, 23),
-                                    "created_at": datetime(2006, 12, 19, 10, 10, 24),
-                                    "followers_count": 0,
-                                    "following_count": 1,
-                                    "kweeks_count": 0,
-                                    "likes_count": 0,
-                                    "profile_banner_url": "banner.png",
-                                    "profile_image_url": "profile.jpg",
-                                    "following": False,
-                                    "follows_you": True,
-                                    "blocked": False,
-                                    "muted": False
-                                 }),
-                                 UserProfile({
-                                     "username": "omar",
-                                     "screen_name": "3moar",
-                                     "bio": "he is a late man",
-                                     "birth_date": date(1998, 3, 23),
-                                     "created_at": datetime(2006, 12, 19, 10, 10, 24),
-                                     "followers_count": 0,
-                                     "following_count": 1,
-                                     "kweeks_count": 0,
-                                     "likes_count": 0,
-                                     "profile_banner_url": "banner.png",
-                                     "profile_image_url": "profile.jpg",
-                                     "following": False,
-                                     "follows_you": True,
-                                     "blocked": False,
-                                     "muted": False
-                                 }),
-                                 UserProfile({
-                                     "username": "omar@figo",
-                                     "screen_name": "omar_figo",
-                                     "bio": "",
-                                     "birth_date": date(1998, 3, 23),
-                                     "created_at": datetime(2006, 12, 19, 10, 10, 24),
-                                     "followers_count": 0,
-                                     "following_count": 1,
-                                     "kweeks_count": 0,
-                                     "likes_count": 0,
-                                     "profile_banner_url": "banner.png",
-                                     "profile_image_url": "profile.jpg",
-                                     "following": False,
-                                     "follows_you": True,
-                                     "blocked": False,
-                                     "muted": False
-                                 }),
-                              ]),
-                             ('khaled', 'omar@figo', 'khaled',
-                              [
-                                 UserProfile({
+
+                                  UserProfile({
+                                      "username": "ahmed",
+                                      "screen_name": "mido",
+                                      "bio": "",
+                                      "birth_date": date(1998, 3, 23),
+                                      "created_at": datetime(2006, 12, 19, 10, 10, 24),
+                                      "followers_count": 0,
+                                      "following_count": 1,
+                                      "kweeks_count": 0,
+                                      "likes_count": 0,
+                                      "profile_banner_url": "banner.png",
+                                      "profile_image_url": "profile.jpg",
+                                      "following": False,
+                                      "follows_you": True,
+                                      "blocked": False,
+                                      "muted": False
+                                  }),
+                                  UserProfile({
                                      "username": "ahmed_khaled",
                                      "screen_name": "@ahmed_khaled",
                                      "bio": "",
@@ -79,10 +43,44 @@ server_path = app.config['SERVER_PATH']
                                      "follows_you": True,
                                      "blocked": False,
                                      "muted": False
-                                 }),
-                                 UserProfile({
-                                     "username": "ahmed",
-                                     "screen_name": "mido",
+                                  }),
+                                  UserProfile({
+                                    "username": "amr",
+                                    "screen_name": "bogy",
+                                    "bio": "he is a doll",
+                                    "birth_date": date(1998, 3, 23),
+                                    "created_at": datetime(2006, 12, 19, 10, 10, 24),
+                                    "followers_count": 0,
+                                    "following_count": 1,
+                                    "kweeks_count": 0,
+                                    "likes_count": 0,
+                                    "profile_banner_url": "banner.png",
+                                    "profile_image_url": "profile.jpg",
+                                    "following": False,
+                                    "follows_you": True,
+                                    "blocked": False,
+                                    "muted": False
+                                  }),
+                                  UserProfile({
+                                     "username": "omar",
+                                     "screen_name": "3moar",
+                                     "bio": "he is a late man",
+                                     "birth_date": date(1998, 3, 23),
+                                     "created_at": datetime(2006, 12, 19, 10, 10, 24),
+                                     "followers_count": 0,
+                                     "following_count": 1,
+                                     "kweeks_count": 0,
+                                     "likes_count": 0,
+                                     "profile_banner_url": "banner.png",
+                                     "profile_image_url": "profile.jpg",
+                                     "following": False,
+                                     "follows_you": True,
+                                     "blocked": False,
+                                     "muted": False
+                                  }),
+                                  UserProfile({
+                                     "username": "omar@figo",
+                                     "screen_name": "omar_figo",
                                      "bio": "",
                                      "birth_date": date(1998, 3, 23),
                                      "created_at": datetime(2006, 12, 19, 10, 10, 24),
@@ -96,8 +94,8 @@ server_path = app.config['SERVER_PATH']
                                      "follows_you": True,
                                      "blocked": False,
                                      "muted": False
-                                 }),
-                                 UserProfile({
+                                  }),
+                                  UserProfile({
                                      "username": "yosry",
                                      "screen_name": "@yosry",
                                      "bio": "",
@@ -113,7 +111,7 @@ server_path = app.config['SERVER_PATH']
                                      "follows_you": True,
                                      "blocked": False,
                                      "muted": False
-                                 }),
+                                  }),
                               ]),
                              ('khaled', "", 'Khaled', None)
 ])
