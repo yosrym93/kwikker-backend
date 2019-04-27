@@ -130,7 +130,8 @@ def inject_cors_headers(response):
         response.headers.add('Access-Control-Allow-Origin', '*')
     response.headers.add('Access-Control-Allow-Credentials', 'true')
     response.headers.add('Access-Control-Allow-Methods', 'DELETE, GET, HEAD, OPTIONS, POST, PUT, PATCH')
-    response.headers.add('Access-Control-Allow-Headers', 'Origin, Content-Type, User-Agent, Content-Range, Token')
+    response.headers.add('Access-Control-Allow-Headers', 'Origin, Content-Type, User-Agent, Content-Range, Token',
+                         'Code')
     response.headers.add('Access-Control-Expose-Headers', 'DAV, content-length, Allow')
     return response
 
