@@ -61,19 +61,22 @@ def get_home_kweeks(authorized_username):
     """
     query = """
             SELECT ID, CREATED_AT, TEXT, MEDIA_URL, USERNAME, REPLY_TO, IS_REKWEEK, REKWEEKER FROM
-            ((SELECT *, FALSE AS IS_REKWEEK, NULL AS REKWEEKER, CREATED_AT AS SORT_BY FROM KWEEK WHERE USERNAME IN 
+            ((SELECT *, FALSE AS IS_REKWEEK, NULL AS REKWEEKER, CREATED_AT AS SORT_BY FROM KWEEK WHERE 
+                USERNAME = %s OR USERNAME IN 
                 (SELECT FOLLOWED_USERNAME FROM FOLLOW WHERE FOLLOWER_USERNAME = %s AND
                  FOLLOWED_USERNAME NOT IN (SELECT MUTED_USERNAME FROM MUTE WHERE MUTER_USERNAME = %s)))
                 
             UNION
             
             (SELECT K.*, TRUE AS IS_REKWEEK, R.USERNAME AS REKWEEKER, R.CREATED_AT AS SORT_BY
-             FROM KWEEK K JOIN REKWEEK R ON K.ID = R.KWEEK_ID WHERE R.USERNAME IN 
+             FROM KWEEK K JOIN REKWEEK R ON K.ID = R.KWEEK_ID WHERE 
+                R.USERNAME = %s OR R.USERNAME IN 
                 (SELECT FOLLOWED_USERNAME FROM FOLLOW WHERE FOLLOWER_USERNAME = %s AND
                  FOLLOWED_USERNAME NOT IN (SELECT MUTED_USERNAME FROM MUTE WHERE MUTER_USERNAME = %s)))) AS KWEEKS
             ORDER BY SORT_BY DESC
             """
-    data = (authorized_username, authorized_username, authorized_username, authorized_username)
+    data = (authorized_username, authorized_username, authorized_username,
+            authorized_username, authorized_username, authorized_username)
     home_kweeks = db_manager.execute_query(query, data)
     return home_kweeks
 
