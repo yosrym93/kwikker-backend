@@ -11,7 +11,6 @@ media_api = api_namespaces.media_api
 
 @media_api.route('/')
 class Media(Resource):
-    @media_api.param(name='image_file', description='Image file.', type='file')
     @media_api.response(code=201, description='Image has been uploaded successfully',
                         model=create_model('Media ID',
                                            model={'media_id':
@@ -26,6 +25,7 @@ class Media(Resource):
         """
         Post a new media file. and return id of the file without extension
         """
+        print(request)
         if 'file' not in request.files:
             return abort(404, message='No image file')
         file = request.files['file']
@@ -43,7 +43,6 @@ class get_Media (Resource):
     def get(filename):
         """ this endpoint gets the image given the url """
         try:
-            #filename =actions.get_extension_file(filename)
             os.chdir(os.path.dirname(APP_ROOT))
             return send_from_directory('images/media', filename)
         except Exception as E:
