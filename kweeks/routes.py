@@ -16,7 +16,8 @@ class Kweeks(Resource):
         'text': fields.String,
         'reply_to': NullableString(description='The id of the kweek that this kweek '
                                                'is a reply to. Null if the kweek is not'
-                                               ' a reply.')
+                                               ' a reply.'),
+        'media_id': NullableString(description='Id of the media, provided when uploaded.')
     }), validate=True)
     @kweeks_api.response(code=401, description='Unauthorized access.')
     @kweeks_api.response(code=400, description='Invalid ID to be replied to')

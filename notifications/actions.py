@@ -1,8 +1,11 @@
 from . import query_factory
 import datetime
+from app import socketio
 from models import Notification
 from timelines_and_trends import actions
 from direct_messages import actions as action
+from flask import json
+from timelines_and_trends import actions as tt_action
 
 
 def get_notifications(notified_username, last_notification_retrieved_id=None):
@@ -49,7 +52,7 @@ def create_notifications(involved_username, notified_username, type_notification
 
 
      *Parameter:*
-
+         - *notified_username* :user who is notified from the notification
          - *involved_username*: user who is responsible for the notification.
          - *type_notification*: type of the notification [FOLLOW-REKWEEK-LIKE].
          - *kweek_id*: the id of the kweek involved.
@@ -60,20 +63,20 @@ def create_notifications(involved_username, notified_username, type_notification
          - *Exception* object: If the query produced an error.
      """
     if kweek_id is not None and is_kweek(kweek_id) is False:
-        raise Exception('A kweek with this username does not exist')
+        raise Exception('A kweek with this id does not exist')
     if actions.is_user(involved_username) is False:
         raise Exception('Involved_username does not exist')
     if actions.is_user(notified_username) is False:
         raise Exception('Notified_username does not exist')
-    if type_notification == 'REPLY' or type_notification == 'MENTION':
-        return query_factory.create_notifications(involved_username, notified_username, type_notification,
-                                                  kweek_id, datetime.datetime.now(), True)
-    if type_notification != 'FOLLOW' and type_notification != 'REKWEEK' and type_notification != 'LIKE':
-        raise Exception('Type does not exist')
     if is_notification(involved_username, notified_username, type_notification, kweek_id) is True:
         return "already exists"
-    return query_factory.create_notifications(involved_username, notified_username, type_notification,
-                                              kweek_id, datetime.datetime.now(), False)
+    response = query_factory.create_notifications(involved_username, notified_username,
+                                                  type_notification,kweek_id, datetime.datetime.now(), False)
+    num_notification = get_notifications_unseen_count(notified_username)
+    num_replies_mentions = tt_action.get_replies_and_mentions_unseen_count(notified_username)
+    channel = notified_username
+    socketio.emit(channel, json.dumps({"num_notification":num_notification,"num_replies_mentions":num_replies_mentions}))
+    return response
 
 
 # function for testing
@@ -119,3 +122,26 @@ def is_notification(involved_username, notified_username, type_notification, kwe
             return False  # if expired
         else:
             return True  # if not expired
+
+
+def get_notifications_unseen_count(authorized_username):
+    """
+    Gets the count of the unseen notifications of the authorized user.
+
+    *Parameters:*
+        -*authorized_username (string)*: The username of the authorized user.
+
+    *Returns:*
+        -*count (int)*: The number of unseen notifications of the authorized user.
+    """
+    return query_factory.get_notifications_unseen_count(authorized_username)
+
+
+def set_notifications_as_seen(authorized_username):
+    """
+        Sets the count of the unseen notifications of the authorized user as seen.
+
+        *Parameters:*
+            -*authorized_username (string)*: The username of the authorized user.
+    """
+    return query_factory.set_notifications_as_seen(authorized_username)

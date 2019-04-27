@@ -1,7 +1,7 @@
-from flask import Flask
+from flask import Flask, request
 from flask_restplus import Api
 from flask_socketio import SocketIO
-from database_migration.migration import migrate_non_cli
+from database_migration.migrate import migrate_non_cli
 import api_namespaces
 import database_manager
 import config
@@ -123,8 +123,15 @@ def initialize(env):
 
 
 @app.after_request
-def apply_cors(response):
-    response.headers.add('Access-Control-Allow-Origin', '*')
+def inject_cors_headers(response):
+    if 'Origin' in request.headers:
+        response.headers.add('Access-Control-Allow-Origin', request.headers.get('Origin'))
+    else:
+        response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    response.headers.add('Access-Control-Allow-Methods', 'DELETE, GET, HEAD, OPTIONS, POST, PUT, PATCH')
+    response.headers.add('Access-Control-Allow-Headers', 'Origin, Content-Type, User-Agent, Content-Range, Token, Code')
+    response.headers.add('Access-Control-Expose-Headers', 'DAV, content-length, Allow')
     return response
 
 
@@ -133,5 +140,4 @@ def run(env):
             Attempts to initialize the app, and runs it if the initialization was successful.
     """
     if initialize(env):
-        #socketio.run(app)
         socketio.run(app, host='0.0.0.0')

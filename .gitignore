@@ -5,8 +5,7 @@ docs/build/
 **/_static/
 **/_templates/
 **/_build/
-images/banner/**
-images/profile/**
 .coverage
 **/.pytest_cache/
 config_local.py
+images

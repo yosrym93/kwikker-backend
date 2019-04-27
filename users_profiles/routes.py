@@ -1,10 +1,11 @@
-from flask_restplus import Resource, abort
+from flask_restplus import Resource, abort, fields
 from flask import request, send_from_directory
-from models import User, UserProfile, NullableString
+from models import UserProfile, NullableString
 from app import create_model
 import api_namespaces
 from .import actions
 from authentication_and_registration.actions import authorize
+from users_interactions import query_factory as user_interaction_query_factory
 import os
 APP_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 user_api = api_namespaces.user_api
@@ -14,14 +15,14 @@ search_api = api_namespaces.search_api
 
 @search_api.route('/users')
 class UsersSearch(Resource):
-    @search_api.response(code=200, description='Users returned successfully.', model=[User.api_model])
+    @search_api.response(code=200, description='Users returned successfully.', model=[UserProfile.api_model])
     @search_api.response(code=400, description='Parameters type does not match.')
     @search_api.response(code=401, description='Unauthorized access.')
     @search_api.param(name='search_text', type='str', description='The text entered by the user in the search bar.')
     @search_api.param(name='last_retrieved_username', type='str',
                       description="Nullable. Normally the request returns the first 20 users when null."
                                   "To retrieve more send the username of the last user retrieved.")
-    @search_api.marshal_with(User.api_model, as_list=True)
+    @search_api.marshal_with(UserProfile.api_model, as_list=True)
     @search_api.doc(security='KwikkerKey')
     @authorize
     def get(self, authorized_username):
@@ -163,6 +164,12 @@ class UserProfile(Resource):
     @user_api.response(code=404, description='User does not exist.')
     @user_api.response(code=401, description='Unauthorized access.')
     @user_api.response(code=400, description='Parameters type does not match.')
+    @user_api.response(code=403, description='Profile of a blocking user.', model=create_model('Blocking profile', model={
+                                'username': fields.String(description='The user name.'),
+                                'screen_name': fields.String(description='The name shown on profile screen.'),
+                                'profile_banner_url': fields.String(description='Url for profile banner'),
+                                'profile_image_url': fields.String(description='Url for profile image.')
+                            }))
     @user_api.marshal_with(UserProfile.api_model, as_list=True)
     @user_api.param(name='username', type='str', required=True, description='The username.')
     @user_api.doc(security='KwikkerKey')
@@ -175,4 +182,8 @@ class UserProfile(Resource):
             return abort(404, message='User does not exist.')
         if response == Exception:
             return abort(409, message='conflict happened.')
+        check_block = user_interaction_query_factory.if_blocked(username, authorized_username)['count']
+        if check_block == 1:
+            print(response)
+            return response, 403
         return response, 200

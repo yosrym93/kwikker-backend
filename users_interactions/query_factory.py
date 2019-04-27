@@ -15,6 +15,7 @@ def get_followers(username):
         query: str = """
                                     SELECT * FROM PROFILE WHERE USERNAME IN
                                     (SELECT FOLLOWER_USERNAME FROM FOLLOW WHERE FOLLOWED_USERNAME = %s)
+                                    order by username;
                      """
         data = (username,)
         response = db_manager.execute_query(query, data)
@@ -33,6 +34,7 @@ def get_following(username):
         query: str = """
                                        SELECT * FROM PROFILE WHERE USERNAME IN
                                        (SELECT FOLLOWED_USERNAME FROM FOLLOW WHERE FOLLOWER_USERNAME = %s)
+                                       order by username;
                      """
         data = (username,)
         response = db_manager.execute_query(query, data)
@@ -105,6 +107,7 @@ def get_muted_list(authorized_username):
     query: str = """
                                     SELECT USERNAME,SCREEN_NAME,PROFILE_IMAGE_URL FROM PROFILE WHERE USERNAME IN
                                     (SELECT MUTED_USERNAME FROM MUTE  WHERE MUTER_USERNAME = %s)
+                                    order by username;
                  """
     data = (authorized_username,)
     response = db_manager.execute_query(query, data)
@@ -177,6 +180,7 @@ def get_blocked_list(authorized_username):
     query: str = """
                                     SELECT USERNAME,SCREEN_NAME,PROFILE_IMAGE_URL FROM PROFILE WHERE USERNAME IN
                                     (SELECT BLOCKED_USERNAME FROM BLOCK  WHERE BLOCKER_USERNAME = %s)
+                                    order by username;
                  """
     data = (authorized_username,)
     response = db_manager.execute_query(query, data)

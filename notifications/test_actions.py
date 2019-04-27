@@ -45,22 +45,12 @@ def test_get_notifications_value_error():
     assert exception_caught is True
 
 
-def test_create_notifications_type_error():
-    """
-        this function tests exception error of type of notification
-    """
-    try:
-        actions.create_notifications('ahly', 'zamalek', 'ASA')
-    except Exception as E:
-        assert str(E) == 'Type does not exist'
-
-
 def test_create_notifications_i_user_error():
     """
         this function tests exception error of involved_user
     """
     try:
-        actions.create_notifications('qq', 'zamalek', 'FOLLOW')
+        actions.create_notifications('qqq', 'zamalek', 'FOLLOW')
     except Exception as E:
         assert str(E) == 'Involved_username does not exist'
 
@@ -70,9 +60,9 @@ def test_create_notifications_n_user_error():
         this function tests exception error of notified_user
     """
     try:
-        actions.create_notifications('zamlek', 'qq', 'FOLLOW')
+        actions.create_notifications('zamalek', 'qqq', 'FOLLOW')
     except Exception as E:
-        assert str(E) == 'Involved_username does not exist'
+        assert str(E) == 'Notified_username does not exist'
 
 
 def test_create_notifications_kweek_id_error():
@@ -82,7 +72,7 @@ def test_create_notifications_kweek_id_error():
     try:
         actions.create_notifications('zamlek', 'qq', 'FOLLOW', 99999999)
     except Exception as E:
-        assert str(E) == 'A kweek with this username does not exist'
+        assert str(E) == 'A kweek with this id does not exist'
 
 
 @pytest.mark.parametrize("involved_username , notified_username, type_notification,"
@@ -125,3 +115,14 @@ def test_is_kweek_exists():
     kweek_id = db_manager.execute_query(query)[0]['id']
     expected_output = actions.is_kweek(kweek_id)
     assert expected_output is True
+
+
+def test_set_notifications_as_seen():
+    """
+        this function sets notifications to seen
+    """
+    count_before = actions.get_notifications_unseen_count('degla')
+    actions.set_notifications_as_seen('degla')
+    count_after = actions.get_notifications_unseen_count('degla')
+    assert count_before > count_after
+
