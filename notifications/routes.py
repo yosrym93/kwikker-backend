@@ -5,6 +5,7 @@ import api_namespaces
 from . import actions
 from flask import request
 from authentication_and_registration.actions import authorize
+from timelines_and_trends import actions as ttactions
 
 notifications_api = api_namespaces.notifications_api
 
@@ -54,13 +55,15 @@ class Notifications(Resource):
             abort(400, message='Invalid ID provided.')
 
 
-# @notifications_api.route('/TEST')
-# class Notifications(Resource):
-#     def get(self):
-#         try:
-#             actions.create_notifications('ahly', 'zamalek', 'LIKE')
-#         except Exception as e:
-#
-#             print(e)
-#             if e == Exception('Involved_username does not exist'):
-#                 print(1)
+@notifications_api.route('/unseen_count')
+class Notifications(Resource):
+    @notifications_api.response(code=200, description='number of unseen notifications returned successfully.')
+    @notifications_api.response(code=401, description='Unauthorized access.')
+    @notifications_api.response(code=500, description='An error occurred in the server.')
+    @notifications_api.doc(security='KwikkerKey')
+    @authorize
+    def get(self, authorized_username):
+        """ Retrieves a number of unseen notifications. """
+        unseen_count = actions.get_notifications_unseen_count(authorized_username) + \
+                       ttactions.get_replies_and_mentions_unseen_count(authorized_username)
+        return unseen_count ,200
