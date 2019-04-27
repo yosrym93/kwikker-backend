@@ -1,8 +1,9 @@
 
 INSERT INTO USER_CREDENTIALS(USERNAME, PASSWORD, EMAIL, IS_CONFIRMED) VALUES
 ('user1', '$2b$12$/naY78xtO3Za9yefRig8Ueh/6qHIUt5wXSrFaHd96pwhZgRoWTiVm', 'test_user1@test.com', TRUE),
-('user2', '$2b$12$/naY78xtO3Za9yefRig8Ueh/6qHIUt5wXSrFaHd96pwhZgRoWTiVm', 'test_user3@test.com', TRUE),
-('user3', '$2b$12$/naY78xtO3Za9yefRig8Ueh/6qHIUt5wXSrFaHd96pwhZgRoWTiVm', 'test_user3@test.com', TRUE);
+('user2', '$2b$12$/naY78xtO3Za9yefRig8Ueh/6qHIUt5wXSrFaHd96pwhZgRoWTiVm', 'test_user2@test.com', TRUE),
+('user3', '$2b$12$/naY78xtO3Za9yefRig8Ueh/6qHIUt5wXSrFaHd96pwhZgRoWTiVm', 'test_user3@test.com', TRUE),
+('user4', '$2b$12$/naY78xtO3Za9yefRig8Ueh/6qHIUt5wXSrFaHd96pwhZgRoWTiVm', 'test_user4@test.com', TRUE);
 
 INSERT INTO PROFILE(USERNAME, SCREEN_NAME, PROFILE_IMAGE_URL, PROFILE_BANNER_URL, BIO, CREATED_AT, BIRTH_DATE)
 VALUES
@@ -11,6 +12,8 @@ VALUES
 ('user2', 'test2', 'image_url', 'banner_url', 'bio', TO_DATE('01-01-2019', 'DD/MM/YYYY'),
  TO_DATE('01-01-1999', 'DD/MM/YYYY')),
 ('user3', 'test3', 'image_url', 'banner_url', 'bio', TO_DATE('01-01-2019', 'DD/MM/YYYY'),
+ TO_DATE('01-01-1999', 'DD/MM/YYYY')),
+ ('user4', 'test4', 'image_url', 'banner_url', 'bio', TO_DATE('01-01-2019', 'DD/MM/YYYY'),
  TO_DATE('01-01-1999', 'DD/MM/YYYY'));
 
 INSERT INTO FOLLOW VALUES
