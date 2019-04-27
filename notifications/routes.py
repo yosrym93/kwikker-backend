@@ -38,7 +38,10 @@ class Notifications(Resource):
                 abort(404, message='A notification with the provided ID does not exist.')
             else:
                 if len(notifications) == 0:
-                    return [], 200
+                    return {
+                        'unseen_count': 0,
+                        'Notifications': []
+                    }
                 unseen_count = actions.get_notifications_unseen_count(authorized_username)
                 actions.set_notifications_as_seen(authorized_username)
                 return {
