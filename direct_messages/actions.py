@@ -28,8 +28,12 @@ def create_message(from_username, to_username, text, media_id=None):
         raise Exception('Username who sent this message does not exist.')
     if actions.is_user(to_username) is False:
         raise Exception('Username who want to receive this message does not exist.')
+    media_id = media_actions.create_url(media_id)
+    if text is None and media_id is None:
+        raise Exception('message is empty or media_id is invalid and there is not text')
+    media_url =media_id
     response = query_factory.create_message(from_username, to_username, datetime.datetime.now(), text,
-                                            media_actions.create_url(media_id))
+                                            media_url)
     message=  query_factory.get_messages(from_username,to_username)[0]
     if(from_username<to_username):
         channel=from_username+to_username
