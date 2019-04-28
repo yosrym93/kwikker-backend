@@ -5,6 +5,7 @@ from models import UserProfile
 import datetime
 from app import app
 import os
+import fnmatch
 
 APP_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
@@ -270,3 +271,43 @@ def search_user(authorized_username, search_key, username, results_size=size):
         result.update(friendship)
         user_list.append(UserProfile(result))
     return user_list
+
+
+def update_profile_images_on_username_update(old_username, new_username):  # pragma:no cover
+    """
+            Updates the file names and the urls of the profile and banner pictures of the user on username change.
+
+            *Parameters*:
+                - *old_username (string)*: The old username of the user.
+                - *new_username (string)*: The new username of the user.
+
+            *Returns*:
+                - *False*: If updating the url in the database yielded an error.
+                - *True*: Otherwise.
+    """
+    # Update URL in database
+    response = query_factory.update_images_url_on_username_update(old_username, new_username)
+    if response is not None:
+        return False
+
+    # Update the profile image file name
+    search_path = os.path.join(APP_ROOT, 'images/profile')
+    filename = old_username + 'profile' + '.*'
+    new_filename = new_username + 'profile'
+    for root, dirs, files in os.walk(search_path):
+        for name in files:
+            if fnmatch.fnmatch(name, filename):
+                dummy, ext = os.path.splitext(name)
+                os.rename(search_path + '/' + name, search_path + '/' + new_filename + ext)
+
+    # Update the banner image file name
+    search_path = os.path.join(APP_ROOT, 'images/banner')
+    filename = old_username + 'banner' + '.*'
+    new_filename = new_username + 'banner'
+    for root, dirs, files in os.walk(search_path):
+        for name in files:
+            if fnmatch.fnmatch(name, filename):
+                dummy, ext = os.path.splitext(name)
+                os.rename(search_path + '/' + name, search_path + '/' + new_filename + ext)
+
+    return True

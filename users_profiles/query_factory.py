@@ -235,6 +235,28 @@ def create_profile(username, screen_name, birth, time, profile_image_url, banner
                         VALUES (%s,%s,%s,%s,%s,%s,%s);
                  """
     data = (username, screen_name, profile_image_url, banner_url, '', birth, time)
-    print(data)
+    response = db_manager.execute_query_no_return(query, data)
+    return response
+
+
+def update_images_url_on_username_update(old_username, new_username):
+    """
+            Updates the urls of the profile and banner pictures of the user on username change.
+
+            *Parameters*:
+                - *old_username (string)*: The old username of the user.
+                - *new_username (string)*: The new username of the user.
+
+            *Returns*:
+                - *False*: If updating the url in the database yielded an error.
+                - *True*: Otherwise.
+    """
+    query = """
+                UPDATE PROFILE
+                SET
+                PROFILE_IMAGE_URL = REPLACE(PROFILE_IMAGE_URL, %s, %s),
+                PROFILE_BANNER_URL = REPLACE(PROFILE_BANNER_URL, %s, %s)
+            """
+    data = (old_username, new_username, old_username, new_username)
     response = db_manager.execute_query_no_return(query, data)
     return response

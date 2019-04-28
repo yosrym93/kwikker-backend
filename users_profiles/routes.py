@@ -63,7 +63,7 @@ class ProfileBanner(Resource):
     @user_api.response(code=404, description='Update failed.')
     @user_api.response(code=400, description='Parameters type does not match.')
     @user_api.response(code=401, description='Unauthorized access.')
-    @user_api.param(name='file', description='The new profile banner.', required=True, type='file')
+    @user_api.param(name='file', description='The new profile banner.', required=True, type='file', _in='form-Data')
     @user_api.doc(security='KwikkerKey')
     @authorize
     def post(self, authorized_username):
@@ -103,7 +103,7 @@ class ProfilePicture(Resource):
     @user_api.response(code=404, description='Update failed.')
     @user_api.response(code=400, description='Parameters type does not match.')
     @user_api.response(code=401, description='Unauthorized access.')
-    @user_api.param(name='file', description='The new profile picture.', required=True, type='file')
+    @user_api.param(name='file', description='The new profile picture.', required=True, type='file', _in='form-Data')
     @user_api.doc(security='KwikkerKey')
     @authorize
     def post(self, authorized_username):
