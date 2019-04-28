@@ -14,7 +14,7 @@
     "Volumes":[
                     {
                       "HostDirectory": "/home/kwikker-media",
-                      "ContainerDirectory": "/path/images/"
+                      "ContainerDirectory": "/app/images/"
                     }
             ]
            
