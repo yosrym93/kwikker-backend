@@ -10,6 +10,12 @@
                     "HostPort": 80,
                     "ContainerPort": 5000
                 }
+            ],
+    "Volumes":[
+                    {
+                      "HostDirectory": "/home/kwikker-media",
+                      "ContainerDirectory": "/path/images/"
+                    }
             ]
            
 
