@@ -10,6 +10,7 @@ from flask_mail import Mail, Message
 from threading import Thread
 import bcrypt
 import re
+from users_profiles.actions import update_profile_images_on_username_update
 mail = Mail(app)
 root = app.config['FRONT_END_ROOT']
 
@@ -157,7 +158,10 @@ def update_user_username(username, new_username):
     if query_factory.username_exists(new_username):
         return False
     else:
-        return query_factory.update_user_username(username, new_username)
+        if query_factory.update_user_username(username, new_username):
+            update_profile_images_on_username_update(username, new_username)
+            return True
+        return False
 
 
 def update_user_password(username, new_password):
