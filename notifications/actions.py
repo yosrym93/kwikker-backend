@@ -62,6 +62,7 @@ def create_notifications(involved_username, notified_username, type_notification
          - *None*: If the query was executed successfully.
          - *Exception* object: If the query produced an error.
      """
+
     if kweek_id is not None and is_kweek(kweek_id) is False:
         raise Exception('A kweek with this id does not exist')
     if actions.is_user(involved_username) is False:
@@ -72,10 +73,20 @@ def create_notifications(involved_username, notified_username, type_notification
         return "already exists"
     response = query_factory.create_notifications(involved_username, notified_username,
                                                   type_notification,kweek_id, datetime.datetime.now(), False)
-    num_notification = get_notifications_unseen_count(notified_username)
-    num_replies_mentions = tt_action.get_replies_and_mentions_unseen_count(notified_username)
+    #num_notification = get_notifications_unseen_count(notified_username)
+    #num_replies_mentions = tt_action.get_replies_and_mentions_unseen_count(notified_username)
+    if type_notification == "REWEEK":
+        result =  involved_username+ " rekweeked your kweek."
+    elif type_notification == "LIKE":
+        result = involved_username +" liked your kweek."
+    elif type_notification == "FOLLOW":
+        result = involved_username + " followed you."
+    elif type_notification == "REPLY":
+        result = involved_username +" replied to your kweek"
+    else:
+        result = involved_username +" mentioned you."
     channel = notified_username
-    socketio.emit(channel, json.dumps({"num_notification":num_notification,"num_replies_mentions":num_replies_mentions}))
+    socketio.emit(channel, result)
     return response
 
 
