@@ -73,9 +73,7 @@ def create_notifications(involved_username, notified_username, type_notification
         return "already exists"
     response = query_factory.create_notifications(involved_username, notified_username,
                                                   type_notification,kweek_id, datetime.datetime.now(), False)
-    #num_notification = get_notifications_unseen_count(notified_username)
-    #num_replies_mentions = tt_action.get_replies_and_mentions_unseen_count(notified_username)
-    if type_notification == "REWEEK":
+    if type_notification == "REKWEEK":
         result =  involved_username+ " rekweeked your kweek."
     elif type_notification == "LIKE":
         result = involved_username +" liked your kweek."
