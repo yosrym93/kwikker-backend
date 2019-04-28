@@ -433,7 +433,7 @@ def test_get_kweek():
 
     query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
 
-    data = ('01-01-2010', 'test3', None, 'user3', None)
+    data = ('2010-01-01', 'test3', None, 'user3', None)
 
     db_manager.execute_query_no_return(query, data)
     kid1 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
@@ -455,18 +455,18 @@ def test_get_kweek():
     db_manager.execute_query_no_return(query, data)
 
     query: str = """INSERT INTO REKWEEK VALUES(%s,%s,%s) """
-    data = ('user1', kid1, '01-01-2010')
+    data = ('user1', kid1, '2010-01-01')
     db_manager.execute_query_no_return(query, data)
 
     query: str = """INSERT INTO FAVORITE VALUES(%s,%s,%s) """
-    data = ('user1', kid1, '01-01-2010')
+    data = ('user1', kid1, '2010-01-01')
 
     db_manager.execute_query_no_return(query, data)
 
     # second kweek #
 
     query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
-    data = ('01-01-2010', 'test1', None, 'user1', kid1)
+    data = ('2010-01-01', 'test1', None, 'user1', kid1)
     db_manager.execute_query_no_return(query, data)
     kid2 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
 
@@ -811,7 +811,7 @@ def test_get_kweek_with_replies():
 
 def test_rekweek():
     query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
-    data = ('01-01-2010', 'test_rekweek', None, 'user2', None)
+    data = ('2010-01-01', 'test_rekweek', None, 'user2', None)
     db_manager.execute_query_no_return(query, data)
     kid = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
     check1, message1, code = actions.create_rekweek({"id": ""}, 'user4')  # no id found
@@ -906,7 +906,7 @@ def test_delete_rekweek():
 
 def test_get_rekweekers():
     query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
-    data = ('01-01-2010', 'test_rekweek', None, 'user1', None)
+    data = ('2010-01-01', 'test_rekweek', None, 'user1', None)
     db_manager.execute_query_no_return(query, data)
     kid1 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
     actions.create_rekweek({"id": kid1}, 'user3')
@@ -922,7 +922,7 @@ def test_get_rekweekers():
             'blocked': False
         })]
     query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
-    data = ('01-01-2010', 'test_rekweek', None, 'user2', None)
+    data = ('2010-01-01', 'test_rekweek', None, 'user2', None)
     db_manager.execute_query_no_return(query, data)
     kid2 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
     actions.create_rekweek({"id": kid2}, 'user1')
