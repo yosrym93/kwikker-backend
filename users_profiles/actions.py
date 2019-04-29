@@ -286,9 +286,25 @@ def update_profile_images_on_username_update(old_username, new_username):  # pra
                 - *True*: Otherwise.
     """
     # Update URL in database
-    response = query_factory.update_images_url_on_username_update(old_username, new_username)
-    if response is not None:
-        return False
+    # Profile image url
+    profile_image_url = query_factory.get_user_profile_picture(new_username)['profile_image_url']
+    fixed_url_part = Server_path + 'user/upload/profile/'
+    file_name = profile_image_url[len(fixed_url_part):]
+    default_file_name = 'profile.jpg'
+    if file_name != default_file_name:
+        dummy, ext = os.path.splitext(file_name)
+        new_file_name = new_username + 'profile' + ext
+        query_factory.update_user_profile_picture(new_username, create_url('profile', new_file_name))
+
+    # Banner image url
+    banner_image_url = query_factory.get_user_banner_picture(new_username)['profile_banner_url']
+    fixed_url_part = Server_path + 'user/upload/banner/'
+    file_name = banner_image_url[len(fixed_url_part):]
+    default_file_name = 'banner.jpg'
+    if file_name != default_file_name:
+        dummy, ext = os.path.splitext(file_name)
+        new_file_name = new_username + 'banner' + ext
+        query_factory.update_user_banner_picture(new_username, create_url('banner', new_file_name))
 
     # Update the profile image file name
     search_path = os.path.join(APP_ROOT, 'images/profile')
@@ -297,6 +313,7 @@ def update_profile_images_on_username_update(old_username, new_username):  # pra
     for root, dirs, files in os.walk(search_path):
         for name in files:
             if fnmatch.fnmatch(name, filename):
+                print(name, 'filename')
                 dummy, ext = os.path.splitext(name)
                 os.rename(search_path + '/' + name, search_path + '/' + new_filename + ext)
 

@@ -69,14 +69,18 @@ def get_home_kweeks(authorized_username):
             UNION
             
             (SELECT K.*, TRUE AS IS_REKWEEK, R.USERNAME AS REKWEEKER, R.CREATED_AT AS SORT_BY
-             FROM KWEEK K JOIN REKWEEK R ON K.ID = R.KWEEK_ID WHERE 
-                R.USERNAME = %s OR R.USERNAME IN 
+             FROM KWEEK K JOIN REKWEEK R ON K.ID = R.KWEEK_ID WHERE R.USERNAME IN 
                 (SELECT FOLLOWED_USERNAME FROM FOLLOW WHERE FOLLOWER_USERNAME = %s AND
-                 FOLLOWED_USERNAME NOT IN (SELECT MUTED_USERNAME FROM MUTE WHERE MUTER_USERNAME = %s)))) AS KWEEKS
+                 FOLLOWED_USERNAME NOT IN (SELECT MUTED_USERNAME FROM MUTE WHERE MUTER_USERNAME = %s))
+             AND K.USERNAME NOT IN 
+             ((SELECT MUTED_USERNAME FROM MUTE WHERE MUTER_USERNAME = %s)
+             UNION (SELECT BLOCKED_USERNAME FROM BLOCK WHERE BLOCKER_USERNAME = %s))
+             )) AS KWEEKS
             ORDER BY SORT_BY DESC
             """
     data = (authorized_username, authorized_username, authorized_username,
-            authorized_username, authorized_username, authorized_username)
+            authorized_username, authorized_username, authorized_username,
+            authorized_username)
     home_kweeks = db_manager.execute_query(query, data)
     return home_kweeks
 
