@@ -123,7 +123,7 @@ def get_all_trends(last_retrieved_trend_id):
     database_trends = query_factory.get_all_trends()
     # Paginate the results
     try:
-        database_trends = paginate(dictionaries_list=database_trends, required_size=20,
+        database_trends = paginate(dictionaries_list=database_trends, required_size=10,
                                    start_after_key='id', start_after_value=last_retrieved_trend_id)
     except TypeError as E:
         print(E)
