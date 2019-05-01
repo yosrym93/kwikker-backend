@@ -161,11 +161,14 @@ def delete_profile_picture(authorized_username):
     """
 
     default_filename = 'profile.jpg'
+    default_path = create_url('picture', default_filename)
     filename = query_factory.get_user_profile_picture(authorized_username)['profile_image_url']
-    if filename == default_filename:
+    if filename == default_path:
         return 'default image'
+    filename = filename.rsplit('/', 1)
+    filename = filename[1]
     path = APP_ROOT + '/images/profile'
-    response = query_factory.update_user_profile_picture(authorized_username, create_url('picture', default_filename))
+    response = query_factory.update_user_profile_picture(authorized_username, default_path)
     if response is None:
         os.chdir(path)
         if os.path.exists(filename):
@@ -222,11 +225,14 @@ def delete_banner_picture(authorized_username):
                             - *response*: which is none of case in successful deletion .
     """
     default_filename = 'banner.jpg'
+    default_path = create_url('banner', default_filename)
     filename = query_factory.get_user_banner_picture(authorized_username)['profile_banner_url']
-    if filename == default_filename:
+    if filename == default_path:
         return 'default image'
+    filename = filename.rsplit('/', 1)
+    filename = filename[1]
     path = APP_ROOT + '/images/banner'
-    response = query_factory.update_user_banner_picture(authorized_username, create_url('banner', filename))
+    response = query_factory.update_user_banner_picture(authorized_username, default_path)
     if response is None:
         os.chdir(path)
         if os.path.exists(filename):
