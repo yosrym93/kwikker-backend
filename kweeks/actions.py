@@ -6,6 +6,7 @@ from kweeks.query_factory import add_kweek, delete_main_kweek, retrieve_hashtags
     get_kweek_id, update_hashtag, validate_id, check_kweek_writer, check_kweek_liker, check_kweek_owner, add_rekweek,\
     delete_rekweeks, check_kweek_rekweeker, add_like, delete_like,  check_kweek_mention
 from notifications.actions import create_notifications
+from timelines_and_trends.actions import get_reply_to_info
 from media.actions import create_url
 
 
@@ -55,6 +56,7 @@ def create_kweek(request, authorized_username):
     data['number_of_rekweeks'] = 0
     data['number_of_replies'] = 0
     data['rekweek_info'] = None
+    data['reply_info'] = None
     data['liked_by_user'] = False
     data['rekweeked_by_user'] = False
     data['user'] = user
@@ -344,6 +346,7 @@ def get_kweek(kid, authorized_username, replies_only):
     kweek = retrieve_kweek(kid)  # a row of kweek table
     kweek = kweek[0]
     kweekdic.update(kweek)
+    kweekdic['reply_info'] = get_reply_to_info(kid)
     kweekobj = Kweek(kweekdic)
     return True, 'success.', kweekobj, replies, 200
 

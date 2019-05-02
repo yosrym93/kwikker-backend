@@ -237,6 +237,8 @@ class Kweek:
         self.liked_by_user = json['liked_by_user']
         self.rekweeked_by_user = json['rekweeked_by_user']
         self.rekweek_info = (json['rekweek_info'])
+        if 'reply_to' in json:
+            self.reply_to = json['reply_to']
 
     def __repr__(self):
         return "<Test id:%s created_at:%s text:%s media_url:%s user:%s" \

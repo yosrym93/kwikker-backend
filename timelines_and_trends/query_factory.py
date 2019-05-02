@@ -550,7 +550,7 @@ def get_search_kweeks(search_text):
     return db_manager.execute_query(query, data)
 
 
-def get_reply_info(kweek_id):
+def get_reply_to_info(kweek_id):
     """
         Gets the information of the kweek whose the kweek with kweek_id is a reply to.
 

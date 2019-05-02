@@ -1,7 +1,7 @@
 import pytest
 from . import actions
 from database_manager import db_manager
-from models import User, Mention, Hashtag, Kweek, RekweekInfo, Trend, ReplyInfo
+from models import User, Mention, Hashtag, Kweek, RekweekInfo, Trend
 from datetime import datetime
 
 
@@ -378,7 +378,7 @@ def test_get_home_kweeks():
                 AND TEXT = 'Test user 3, third kweek'
             """
     kweek_id = db_manager.execute_query(query)[0]['id']
-    reply_info = actions.get_reply_info(kweek_id)
+    reply_info = actions.get_reply_to_info(kweek_id)
     expected_kweeks.append(Kweek({
         'id': kweek_id,
         'created_at': datetime.strptime('2018-01-01 00:00:00', '%Y-%m-%d %H:%M:%S'),
@@ -390,7 +390,7 @@ def test_get_home_kweeks():
         'number_of_likes': 0,
         'number_of_rekweeks': 0,
         'number_of_replies': 0,
-        'reply_info': ReplyInfo(reply_info),
+        'reply_info': reply_info,
         'rekweek_info': None,
         'liked_by_user': False,
         'rekweeked_by_user': False
@@ -682,7 +682,7 @@ def test_get_replies_and_mentions():
                 AND TEXT = 'Test user 3, third kweek'
             """
     kweek_id = db_manager.execute_query(query)[0]['id']
-    reply_info = actions.get_reply_info(kweek_id)
+    reply_info = actions.get_reply_to_info(kweek_id)
     expected_kweeks.append(Kweek({
         'id': kweek_id,
         'created_at': datetime.strptime('2018-01-01 00:00:00', '%Y-%m-%d %H:%M:%S'),
@@ -694,7 +694,7 @@ def test_get_replies_and_mentions():
         'number_of_likes': 0,
         'number_of_rekweeks': 0,
         'number_of_replies': 0,
-        'reply_info': ReplyInfo(reply_info),
+        'reply_info': reply_info,
         'rekweek_info': None,
         'liked_by_user': False,
         'rekweeked_by_user': False
@@ -705,7 +705,7 @@ def test_get_replies_and_mentions():
                 AND TEXT = 'Test user 2, second kweek'
             """
     kweek_id = db_manager.execute_query(query)[0]['id']
-    reply_info = actions.get_reply_info(kweek_id)
+    reply_info = actions.get_reply_to_info(kweek_id)
     expected_kweeks.append(Kweek({
         'id': kweek_id,
         'created_at': datetime.strptime('2014-01-01 00:00:00', '%Y-%m-%d %H:%M:%S'),
@@ -717,7 +717,7 @@ def test_get_replies_and_mentions():
         'number_of_likes': 0,
         'number_of_rekweeks': 0,
         'number_of_replies': 0,
-        'reply_info': ReplyInfo(reply_info),
+        'reply_info': reply_info,
         'rekweek_info': None,
         'liked_by_user': False,
         'rekweeked_by_user': False
@@ -802,7 +802,7 @@ def test_search_kweeks():
                 AND TEXT = 'Test user 2, second kweek'
             """
     kweek_id = db_manager.execute_query(query)[0]['id']
-    reply_info = actions.get_reply_info(kweek_id)
+    reply_info = actions.get_reply_to_info(kweek_id)
     expected_kweeks.append(Kweek({
         'id': kweek_id,
         'created_at': datetime.strptime('2014-01-01 00:00:00', '%Y-%m-%d %H:%M:%S'),
@@ -814,7 +814,7 @@ def test_search_kweeks():
         'number_of_likes': 0,
         'number_of_rekweeks': 0,
         'number_of_replies': 0,
-        'reply_info': ReplyInfo(reply_info),
+        'reply_info': reply_info,
         'rekweek_info': None,
         'liked_by_user': False,
         'rekweeked_by_user': False

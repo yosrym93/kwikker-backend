@@ -337,8 +337,7 @@ def kweeks_builder(db_kweeks, authorized_username):
             kweek['rekweek_info'] = None
         # Add reply info
         if kweek['reply_to']:
-            reply_info = get_reply_info(kweek['id'])
-            kweek['reply_info'] = ReplyInfo(reply_info)
+            kweek['reply_info'] = get_reply_to_info(kweek['id'])
         else:
             kweek['reply_info'] = None
         kweeks.append(Kweek(kweek))
@@ -490,7 +489,7 @@ def check_blocked(blocker_username, blocked_username):
     return query_factory.check_blocked(blocker_username, blocked_username)
 
 
-def get_reply_info(kweek_id):
+def get_reply_to_info(kweek_id):
     """
         Gets the information of the kweek whose the kweek with kweek_id is a reply to.
 
@@ -498,9 +497,9 @@ def get_reply_info(kweek_id):
             - *kweek_id (string)*: The id of the kweek.
 
         *Returns:*
-            - *Dictionary*: {
-                                | *reply_to_username (string)*: The username that is being replied to.,
-                                | *reply_to_kweek_id (string)*: The id of the kweek that is being replied to.,
-                                | }
+            - *models.ReplyInfo object*
     """
-    return query_factory.get_reply_info(kweek_id)[0]
+    response = query_factory.get_reply_to_info(kweek_id)
+    if not response:
+        return None
+    return ReplyInfo(response[0])
