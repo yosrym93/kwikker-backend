@@ -5,6 +5,8 @@ import shutil
 from models import UserProfile
 from app import app
 from . import actions
+from database_manager import db_manager
+
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 server_path = app.config['SERVER_PATH']
 
@@ -91,7 +93,7 @@ def test_update_user_profile(test_authorized_username, test_bio, test_screen_nam
 @pytest.mark.parametrize("test_authorized_username,expected_output",
                          [
                              ('khaled', server_path + 'user/upload/picture/profile.jpg'),
-                             ('amr', 'default image'),
+                             ('special', 'default image'),
                              ('omar', 'file does not exist')
 
                          ])
@@ -102,6 +104,17 @@ def test_delete_profile_picture(test_authorized_username, expected_output):
         destination_profile = path + '/images/profile'
         os.chdir(os.path.dirname(path))
         shutil.copy(source_profile, destination_profile)
+    if test_authorized_username == 'special':
+        query = """
+                    UPDATE PROFILE
+                    SET
+                    PROFILE_IMAGE_URL = %s,
+                    PROFILE_BANNER_URL = %s
+                    WHERE USERNAME = 'special'
+                """
+        data = (actions.create_url('picture', 'profile.jpg'),
+                actions.create_url('banner', 'banner.jpg'))
+        db_manager.execute_query_no_return(query, data)
     output = actions.delete_profile_picture(test_authorized_username)
     assert output == expected_output
 
@@ -109,7 +122,7 @@ def test_delete_profile_picture(test_authorized_username, expected_output):
 @pytest.mark.parametrize("test_authorized_username,expected_output",
                          [
                              ('khaled', server_path + 'user/upload/banner/banner.jpg'),
-                             ('amr', 'default image'),
+                             ('special', 'default image'),
                              ('omar', 'file does not exist')
                          ])
 def test_delete_profile_banner(test_authorized_username, expected_output):

@@ -239,7 +239,7 @@ def create_profile(username, screen_name, birth, time, profile_image_url, banner
     return response
 
 
-def update_images_url_on_username_update(old_username, new_username):
+def update_images_url_on_username_update(old_username, new_username):  # pragma:no cover
     """
             Updates the urls of the profile and banner pictures of the user on username change.
 
