@@ -548,3 +548,25 @@ def get_search_kweeks(search_text):
             """
     data = (search_text, search_text)
     return db_manager.execute_query(query, data)
+
+
+def get_reply_info(kweek_id):
+    """
+        Gets the information of the kweek whose the kweek with kweek_id is a reply to.
+
+        *Parameters:*
+            - *kweek_id (string)*: The id of the kweek.
+
+        *Returns:*
+            - *Dictionary*: {
+                                | *reply_to_username (string)*: The username that is being replied to.,
+                                | *reply_to_kweek_id (string)*: The id of the kweek that is being replied to.,
+                                | }
+    """
+    query = """
+                SELECT K.ID AS REPLY_TO_KWEEK_ID, K.USERNAME AS REPLY_TO_USERNAME FROM KWEEK K 
+                JOIN KWEEK R ON K.ID = R.REPLY_TO
+                WHERE R.ID = %s
+            """
+    data = (kweek_id,)
+    return db_manager.execute_query(query, data)
