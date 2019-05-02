@@ -1,5 +1,5 @@
 from . import query_factory
-from models import User, Mention, Hashtag, Kweek, RekweekInfo, Trend
+from models import User, Mention, Hashtag, Kweek, RekweekInfo, Trend, ReplyInfo
 
 
 def get_friendship(authorized_username, required_username):
@@ -335,8 +335,12 @@ def kweeks_builder(db_kweeks, authorized_username):
             kweek['rekweek_info'] = rekweek_info
         else:
             kweek['rekweek_info'] = None
+        # Add reply info
+        if kweek['reply_to']:
+            kweek['reply_info'] = get_reply_to_info(kweek['id'])
+        else:
+            kweek['reply_info'] = None
         kweeks.append(Kweek(kweek))
-
     return kweeks
 
 
@@ -471,4 +475,31 @@ def get_search_kweeks(authorized_username, search_text, last_retrieved_kweek_id)
 
 
 def check_blocked(blocker_username, blocked_username):
+    """
+        Checks if a user blocks another one.
+
+        *Parameters:*
+            - *blocker_username (string)*: The username of the user to check if they block the blocked user.
+            - *blocked_username (string)*: The username of the user to check if they are blocked by the blocker user.
+
+        *Returns:*
+            - *True*: if blocker user does block blocked user.
+            - *False*: Otherwise.
+    """
     return query_factory.check_blocked(blocker_username, blocked_username)
+
+
+def get_reply_to_info(kweek_id):
+    """
+        Gets the information of the kweek whose the kweek with kweek_id is a reply to.
+
+        *Parameters:*
+            - *kweek_id (string)*: The id of the kweek.
+
+        *Returns:*
+            - *models.ReplyInfo object*
+    """
+    response = query_factory.get_reply_to_info(kweek_id)
+    if not response:
+        return None
+    return ReplyInfo(response[0])

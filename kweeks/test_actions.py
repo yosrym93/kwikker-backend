@@ -1,5 +1,6 @@
 import pytest
 from . import actions
+from timelines_and_trends.actions import get_reply_to_info
 from database_manager import db_manager
 from models import User, Mention, Hashtag, Kweek
 from datetime import datetime
@@ -39,6 +40,7 @@ def test_insert_kweek():
         'number_of_likes': 0,
         'number_of_rekweeks': 0,
         'number_of_replies': 0,
+        'reply_info': None,
         'reply_to': None,
         'rekweek_info': None,
         'liked_by_user': False,
@@ -76,6 +78,7 @@ def test_insert_kweek():
         'number_of_likes': 0,
         'number_of_rekweeks': 0,
         'number_of_replies': 0,
+        'reply_info': None,
         'reply_to': None,
         'rekweek_info': None,
         'liked_by_user': False,
@@ -114,6 +117,7 @@ def test_insert_kweek():
         'number_of_likes': 0,
         'number_of_rekweeks': 0,
         'number_of_replies': 0,
+        'reply_info': None,
         'reply_to': None,
         'rekweek_info': None,
         'liked_by_user': False,
@@ -152,6 +156,7 @@ def test_insert_kweek():
         'number_of_likes': 0,
         'number_of_rekweeks': 0,
         'number_of_replies': 0,
+        'reply_info': None,
         'reply_to': None,
         'rekweek_info': None,
         'liked_by_user': False,
@@ -525,7 +530,7 @@ def test_get_kweek():
         'number_of_likes': 1,
         'number_of_rekweeks': 1,
         'number_of_replies': 2,
-        'reply_to': None,
+        'reply_info': None,
         'rekweek_info': None,
         'liked_by_user': True,
         'rekweeked_by_user': True
@@ -554,7 +559,7 @@ def test_get_kweek():
         'number_of_likes': 0,
         'number_of_rekweeks': 0,
         'number_of_replies': 0,
-        'reply_to': int(kid1),
+        'reply_info': get_reply_to_info(kid2),
         'rekweek_info': None,
         'liked_by_user': False,
         'rekweeked_by_user': False
@@ -690,7 +695,7 @@ def test_get_kweek_with_replies():
         'number_of_likes': 1,
         'number_of_rekweeks': 1,
         'number_of_replies': 2,
-        'reply_to': None,
+        'reply_info': None,
         'rekweek_info': None,
         'liked_by_user': False,
         'rekweeked_by_user': False
@@ -721,7 +726,7 @@ def test_get_kweek_with_replies():
         'number_of_likes': 1,
         'number_of_rekweeks': 0,
         'number_of_replies': 0,
-        'reply_to': int(kid1),
+        'reply_info': get_reply_to_info(kid2),
         'rekweek_info': None,
         'liked_by_user': False,
         'rekweeked_by_user': False
@@ -753,7 +758,7 @@ def test_get_kweek_with_replies():
             'number_of_likes': 1,
             'number_of_rekweeks': 0,
             'number_of_replies': 0,
-            'reply_to': int(kid1),
+            'reply_info': get_reply_to_info(kid2),
             'rekweek_info': None,
             'liked_by_user': False,
             'rekweeked_by_user': False
@@ -783,7 +788,7 @@ def test_get_kweek_with_replies():
             'number_of_likes': 1,
             'number_of_rekweeks': 0,
             'number_of_replies': 0,
-            'reply_to': int(kid1),
+            'reply_info': get_reply_to_info(kid3),
             'rekweek_info': None,
             'liked_by_user': True,
             'rekweeked_by_user': False

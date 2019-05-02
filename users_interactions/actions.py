@@ -35,13 +35,19 @@ def get_profile_followers(username, last_retrieved_username, authorized_username
         return None
     user_profile_list = []
     for follower in followers:
-        follower["followers_count"] = users_profile_query_factory.get_user_followers(follower['username'])["count"]
-        follower["following_count"] = users_profile_query_factory.get_user_following(follower['username'])["count"]
-        follower["kweeks_count"] = users_profile_query_factory.get_number_of_kweeks(follower['username'])['count']
-        follower["likes_count"] = users_profile_query_factory.get_number_of_likes(follower['username'])['count']
-        friendship = timelines_and_trends_actions.get_friendship(authorized_username, follower['username'])
-        follower.update(friendship)
-        user_profile_list.append(UserProfile(follower))
+        check = query_factory.if_blocked(follower['username'], authorized_username)['count']
+        if check == 0:
+            follower["followers_count"] = users_profile_query_factory.get_user_followers(follower['username'])[
+                "count"]
+            follower["following_count"] = users_profile_query_factory.get_user_following(follower['username'])[
+                "count"]
+            follower["kweeks_count"] = users_profile_query_factory.get_number_of_kweeks(follower['username'])[
+                'count']
+            follower["likes_count"] = users_profile_query_factory.get_number_of_likes(follower['username'])[
+                'count']
+            friendship = timelines_and_trends_actions.get_friendship(authorized_username, follower['username'])
+            follower.update(friendship)
+            user_profile_list.append(UserProfile(follower))
     return user_profile_list
 
 
@@ -69,13 +75,15 @@ def get_profile_following(username, last_retrieved_username, authorized_username
         return None
     user_profile_list = []
     for follower in followed:
-        follower["followers_count"] = users_profile_query_factory.get_user_followers(follower['username'])["count"]
-        follower["following_count"] = users_profile_query_factory.get_user_following(follower['username'])["count"]
-        follower["kweeks_count"] = users_profile_query_factory.get_number_of_kweeks(follower['username'])['count']
-        follower["likes_count"] = users_profile_query_factory.get_number_of_likes(follower['username'])['count']
-        friendship = timelines_and_trends_actions.get_friendship(authorized_username, follower['username'])
-        follower.update(friendship)
-        user_profile_list.append(UserProfile(follower))
+        check = query_factory.if_blocked(follower['username'], authorized_username)['count']
+        if check == 0:
+            follower["followers_count"] = users_profile_query_factory.get_user_followers(follower['username'])["count"]
+            follower["following_count"] = users_profile_query_factory.get_user_following(follower['username'])["count"]
+            follower["kweeks_count"] = users_profile_query_factory.get_number_of_kweeks(follower['username'])['count']
+            follower["likes_count"] = users_profile_query_factory.get_number_of_likes(follower['username'])['count']
+            friendship = timelines_and_trends_actions.get_friendship(authorized_username, follower['username'])
+            follower.update(friendship)
+            user_profile_list.append(UserProfile(follower))
     return user_profile_list
 
 
