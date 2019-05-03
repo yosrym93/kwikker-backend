@@ -92,13 +92,37 @@ class Kweeks(Resource):
             abort(code, message)
 
 
+@kweeks_api.route('/kweek')
+class KweekReplies(Resource):
+    @kweeks_api.response(code=200, description='kweek has been returned successfully.',
+                         model=Kweek.api_model)
+    @kweeks_api.response(code=401, description='Unauthorized access.')
+    @kweeks_api.response(code=400, description='Invalid kweek ID.')
+    @kweeks_api.response(code=404, description='Kweek does not exist.')
+    @kweeks_api.param(name='id', type='str', description='Id of the Kweek to be retrieved', required=True)
+    @kweeks_api.marshal_with(Kweek.api_model, as_list=False)
+    @kweeks_api.doc(security='KwikkerKey')
+    @authorize
+    def get(self, authorized_username):
+        """
+        Retrieve the kweek without its replies.
+        """
+        if not request.args.get('id'):
+            abort(400, 'please provide the kweek id')
+        check, message, kweek_obj, replies_obj_list, code = \
+        get_kweek_with_replies(request.args.get('id'), authorized_username, False)
+        if check:
+            return kweek_obj, 200
+        else:
+            abort(code, message)
+
+
 @kweeks_api.route('/replies')
 class KweekReplies(Resource):
     @kweeks_api.response(code=200, description='Replies have been returned successfully.',
                          model=[Kweek.api_model])
     @kweeks_api.response(code=401, description='Unauthorized access.')
     @kweeks_api.response(code=400, description='Invalid kweek ID.')
-    @kweeks_api.response(code=404, description='Kweek does not exist.')
     @kweeks_api.response(code=404, description='Kweek does not exist.')
     @kweeks_api.param(name='reply_to', type='str',
                       description='Id of the Kweek that the replies belong to.', required=True)
