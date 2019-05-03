@@ -79,7 +79,15 @@ def test_create_notifications_kweek_id_error():
                          " expected_output, last_notification_retrieved_id",
                          [
                              ('ahly', 'degla', "FOLLOW", True, None),
-                             ('ahly', 'degla', "FOLLOW", False, None)
+                             ('ahly', 'degla', "FOLLOW", False, None),
+                             ('ahly', 'degla', "MENTION", True, None),
+                             ('ahly', 'degla', "MENTION", False, None),
+                             ('ahly', 'degla', "LIKE", True, None),
+                             ('ahly', 'degla', "LIKE", False, None),
+                             ('ahly', 'degla', "REKWEEK", True, None),
+                             ('ahly', 'degla', "REKWEEK", False, None),
+                             ('ahly', 'degla', "REPLY", True, None),
+                             ('ahly', 'degla', "REPLY", False, None),
                          ])
 def test_create_notifications(involved_username, notified_username, type_notification,
                               expected_output, last_notification_retrieved_id):
