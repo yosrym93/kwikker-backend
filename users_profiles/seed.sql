@@ -39,13 +39,13 @@ INSERT INTO profile(
 	VALUES ('special', 'Special', 'profile.jpg', 'banner.jpg', 'he is special', '1998-3-23', '2006-12-19 10:10:24');
 INSERT INTO profile(
 	username, screen_name, profile_image_url, profile_banner_url, bio, birth_date, created_at)
-	VALUES ('khaled', 'gellesh', 'server/khaledprofile.jpg', 'server/khaledbanner.jpg', 'he is a man', '1998-12-23', '2004-10-19 10:23:54');
+	VALUES ('khaled', 'gellesh', 'server/khaledprofile.jpg?11111111111111111111', 'server/khaledbanner.jpg?11111111111111111111', 'he is a man', '1998-12-23', '2004-10-19 10:23:54');
 INSERT INTO profile(
 	username, screen_name, profile_image_url, profile_banner_url, bio, birth_date, created_at)
 	VALUES ('amr', 'bogy', 'http://127.0.0.1:5000/user/upload/picture/profile.jpg', 'http://127.0.0.1:5000/user/upload/banner/banner.jpg', 'he is a doll', '1998-3-23', '2006-12-19 10:10:24');
 INSERT INTO profile(
 	username, screen_name, profile_image_url, profile_banner_url, bio, birth_date, created_at)
-	VALUES ('omar', '3moar', 'server/profil.jpg', 'server/banne.png', 'he is a late man', '1998-3-23', '2001-12-19 10:10:24');
+	VALUES ('omar', '3moar', 'server/profil.jpg?11111111111111111111', 'server/banne.png?11111111111111111111', 'he is a late man', '1998-3-23', '2001-12-19 10:10:24');
 insert into profile(
 	username, screen_name, profile_image_url, profile_banner_url, bio, birth_date, created_at)
 	VALUES ('omar@figo', 'omar_figo', 'profile.jpg', 'banner.png', '', '1998-3-23', '2006-12-19 10:10:24');
