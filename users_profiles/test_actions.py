@@ -23,8 +23,10 @@ server_path = app.config['SERVER_PATH']
                                                              "following_count": 2,
                                                              "kweeks_count": 1,
                                                              "likes_count": 1,
-                                                             "profile_banner_url": "server/banne.png",
-                                                             "profile_image_url": "server/profil.jpg",
+                                                             "profile_banner_url": "server/banne.png"
+                                                                                   "?11111111111111111111",
+                                                             "profile_image_url": "server/profil.jpg"
+                                                                                  "?11111111111111111111",
                                                              "following": False,
                                                              "follows_you": True,
                                                              "blocked": False,
@@ -39,8 +41,10 @@ server_path = app.config['SERVER_PATH']
                                                             "following_count": 2,
                                                             "kweeks_count": 1,
                                                             "likes_count": 2,
-                                                            "profile_banner_url": "http://127.0.0.1:5000/user/upload/banner/banner.jpg",
-                                                            "profile_image_url": "http://127.0.0.1:5000/user/upload/picture/profile.jpg",
+                                                            "profile_banner_url":
+                                                                "http://127.0.0.1:5000/user/upload/banner/banner.jpg",
+                                                            "profile_image_url":
+                                                                "http://127.0.0.1:5000/user/upload/picture/profile.jpg",
                                                             "following": False,
                                                             "follows_you": True,
                                                             "blocked": False,
@@ -55,8 +59,10 @@ server_path = app.config['SERVER_PATH']
                                                              "following_count": 0,
                                                              "kweeks_count": 3,
                                                              "likes_count": 3,
-                                                             "profile_banner_url": "server/khaledbanner.jpg",
-                                                             "profile_image_url": "server/khaledprofile.jpg",
+                                                             "profile_banner_url":
+                                                                 "server/khaledbanner.jpg?11111111111111111111",
+                                                             "profile_image_url":
+                                                                 "server/khaledprofile.jpg?11111111111111111111",
                                                              "following": True,
                                                              "follows_you": False,
                                                              "blocked": False,
