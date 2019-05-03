@@ -13,7 +13,7 @@ Server_path = app.config['SERVER_PATH']
 size = 20
 
 
-def create_url(upload_type, filename):
+def create_url(upload_type, filename, add_dummy_value=False):
     """
                     The function return url of profile image .
                     *Parameters*:
@@ -23,6 +23,9 @@ def create_url(upload_type, filename):
                         - url of profile image .
     """
     url = Server_path + 'user/upload/' + upload_type + '/' + filename
+    if add_dummy_value:
+        url += '?'
+        url += ''.join(c for c in str(datetime.datetime.utcnow()) if c.isalnum())
     return url
 
 
@@ -58,7 +61,8 @@ def get_user_profile(authorized_username, username):
     check_block = user_interaction_query_factory.if_blocked(username, authorized_username)['count']
     if check_block == 1:
         dict_blocked = {'username': profile['username'], 'screen_name': profile['screen_name'],
-                        'profile_image_url': profile['profile_image_url'], 'profile_banner_url': profile['profile_banner_url']}
+                        'profile_image_url': profile['profile_image_url'],
+                        'profile_banner_url': profile['profile_banner_url']}
         return dict_blocked
     profile["followers_count"] = query_factory.get_user_followers(username)["count"]
     profile["following_count"] = query_factory.get_user_following(username)["count"]
@@ -138,11 +142,12 @@ def update_profile_picture(file, authorized_username):  # pragma:no cover
 
         filename, ext = os.path.splitext(file.filename)
         filename = authorized_username + 'profile' + ext
-        response = query_factory.update_user_profile_picture(authorized_username, create_url('picture', filename))
+        response = query_factory.update_user_profile_picture(authorized_username, create_url('picture', filename,
+                                                                                             add_dummy_value=True))
         if response is None:
             destination = "/".join([target, filename])
             file.save(destination)
-            return create_url('picture', filename)
+            return create_url('picture', filename, add_dummy_value=True)
 
         else:
             return response
@@ -165,6 +170,7 @@ def delete_profile_picture(authorized_username):
     filename = query_factory.get_user_profile_picture(authorized_username)['profile_image_url']
     if filename == default_path:
         return 'default image'
+    filename = filename[:-21]  # Remove the ? and the dummy value from the end of the url
     filename = filename.rsplit('/', 1)
     filename = filename[1]
     path = APP_ROOT + '/images/profile'
@@ -203,11 +209,13 @@ def update_profile_banner(file, authorized_username):  # pragma:no cover
 
         filename, ext = os.path.splitext(file.filename)  # ------------------------
         filename = authorized_username + 'banner' + ext
-        response = query_factory.update_user_banner_picture(authorized_username, create_url('banner', filename))
+        response = query_factory.update_user_banner_picture(authorized_username, create_url('banner', filename,
+                                                                                            add_dummy_value=True))
         if response is None:
             destination = "/".join([target, filename])
             file.save(destination)
-            return create_url('banner', filename)
+            return create_url('banner', filename,
+                              add_dummy_value=True)
 
         else:
             return response
@@ -300,7 +308,8 @@ def update_profile_images_on_username_update(old_username, new_username):  # pra
     if file_name != default_file_name:
         dummy, ext = os.path.splitext(file_name)
         new_file_name = new_username + 'profile' + ext
-        query_factory.update_user_profile_picture(new_username, create_url('picture', new_file_name))
+        query_factory.update_user_profile_picture(new_username, create_url('picture', new_file_name,
+                                                                           add_dummy_value=True))
 
     # Banner image url
     banner_image_url = query_factory.get_user_banner_picture(new_username)['profile_banner_url']
@@ -310,7 +319,8 @@ def update_profile_images_on_username_update(old_username, new_username):  # pra
     if file_name != default_file_name:
         dummy, ext = os.path.splitext(file_name)
         new_file_name = new_username + 'banner' + ext
-        query_factory.update_user_banner_picture(new_username, create_url('banner', new_file_name))
+        query_factory.update_user_banner_picture(new_username, create_url('banner', new_file_name,
+                                                                          add_dummy_value=True))
 
     # Update the profile image file name
     search_path = os.path.join(APP_ROOT, 'images/profile')
