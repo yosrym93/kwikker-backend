@@ -62,7 +62,8 @@ def create_notifications(involved_username, notified_username, type_notification
          - *None*: If the query was executed successfully.
          - *Exception* object: If the query produced an error.
      """
-
+    if involved_username == notified_username :
+        return None
     if kweek_id is not None and is_kweek(kweek_id) is False:
         raise Exception('A kweek with this id does not exist')
     if actions.is_user(involved_username) is False:
