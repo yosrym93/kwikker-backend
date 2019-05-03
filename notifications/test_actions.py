@@ -134,3 +134,9 @@ def test_set_notifications_as_seen():
     count_after = actions.get_notifications_unseen_count('degla')
     assert count_before > count_after
 
+
+def test_create_notifications_same_user():
+    """
+        this function tests if the auth_user is the same as the notified user.
+    """
+    assert actions.create_notifications("ahmed", "ahmed", "FOLLOW", None) is None
