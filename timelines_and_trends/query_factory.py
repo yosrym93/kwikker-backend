@@ -22,16 +22,16 @@ def get_profile_kweeks(username):
                                         | *is_rekweek (bool)*: Whether the user rekweeked the kweek or created it.}
     """
     query = """
-                SELECT ID, CREATED_AT, TEXT, MEDIA_URL, USERNAME, REPLY_TO, IS_REKWEEK, %s AS REKWEEKER FROM
+                SELECT ID, CREATED_AT, TEXT, MEDIA_URL, USERNAME, REPLY_TO, IS_REKWEEK, REKWEEKER FROM
                 (
                 (SELECT TRUE as IS_REKWEEK, K.ID, K.CREATED_AT, K.TEXT, K.MEDIA_URL, K.USERNAME, K.REPLY_TO, 
-                        RK.CREATED_AT AS SORT_BY 
+                        RK.CREATED_AT AS SORT_BY, %s AS REKWEEKER 
                  FROM KWEEK K
                  JOIN REKWEEK RK ON RK.KWEEK_ID = K.ID
                  WHERE RK.USERNAME = %s)
                 UNION
-                (SELECT FALSE as IS_REKWEEK, *, CREATED_AT AS SORT_BY FROM KWEEK WHERE USERNAME = %s)
-                ) AS KWEEKS
+                (SELECT FALSE as IS_REKWEEK, *, CREATED_AT AS SORT_BY, NULL AS REKWEEKER FROM KWEEK 
+                WHERE USERNAME = %s)) AS KWEEKS
                 ORDER BY SORT_BY DESC
             """
 

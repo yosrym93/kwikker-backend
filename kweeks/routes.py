@@ -92,8 +92,8 @@ class Kweeks(Resource):
             abort(code, message)
 
 
-@kweeks_api.route('/kweek')
-class KweekReplies(Resource):
+@kweeks_api.route('/kweek_ony')
+class KweekOnly(Resource):
     @kweeks_api.response(code=200, description='kweek has been returned successfully.',
                          model=Kweek.api_model)
     @kweeks_api.response(code=401, description='Unauthorized access.')
