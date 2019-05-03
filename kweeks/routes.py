@@ -92,7 +92,7 @@ class Kweeks(Resource):
             abort(code, message)
 
 
-@kweeks_api.route('/kweek_ony')
+@kweeks_api.route('/kweek_only')
 class KweekOnly(Resource):
     @kweeks_api.response(code=200, description='kweek has been returned successfully.',
                          model=Kweek.api_model)
