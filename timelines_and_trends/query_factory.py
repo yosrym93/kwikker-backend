@@ -538,6 +538,7 @@ def get_search_kweeks(search_text):
 
     # Escape all whitespace characters and add & between words
     search_text = '&'.join(search_text.split())
+    search_text = search_text.replace("\\", "").replace(r"'", r"\'")
     query = """
                 SELECT K.*
                 FROM KWEEK K JOIN KWEEK_SEARCH_TOKENS KS ON K.ID = KS.KWEEK_ID
