@@ -5,6 +5,8 @@ import shutil
 from models import UserProfile
 from app import app
 from . import actions
+from database_manager import db_manager
+
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 server_path = app.config['SERVER_PATH']
 
@@ -21,8 +23,8 @@ server_path = app.config['SERVER_PATH']
                                                              "following_count": 2,
                                                              "kweeks_count": 1,
                                                              "likes_count": 1,
-                                                             "profile_banner_url": "banne.png",
-                                                             "profile_image_url": "profil.jpg",
+                                                             "profile_banner_url": "server/banne.png",
+                                                             "profile_image_url": "server/profil.jpg",
                                                              "following": False,
                                                              "follows_you": True,
                                                              "blocked": False,
@@ -37,8 +39,8 @@ server_path = app.config['SERVER_PATH']
                                                             "following_count": 2,
                                                             "kweeks_count": 1,
                                                             "likes_count": 2,
-                                                            "profile_banner_url": "banner.jpg",
-                                                            "profile_image_url": "profile.jpg",
+                                                            "profile_banner_url": "http://127.0.0.1:5000/user/upload/banner/banner.jpg",
+                                                            "profile_image_url": "http://127.0.0.1:5000/user/upload/picture/profile.jpg",
                                                             "following": False,
                                                             "follows_you": True,
                                                             "blocked": False,
@@ -53,8 +55,8 @@ server_path = app.config['SERVER_PATH']
                                                              "following_count": 0,
                                                              "kweeks_count": 3,
                                                              "likes_count": 3,
-                                                             "profile_banner_url": "khaledbanner.jpg",
-                                                             "profile_image_url": "khaledprofile.jpg",
+                                                             "profile_banner_url": "server/khaledbanner.jpg",
+                                                             "profile_image_url": "server/khaledprofile.jpg",
                                                              "following": True,
                                                              "follows_you": False,
                                                              "blocked": False,
@@ -91,7 +93,7 @@ def test_update_user_profile(test_authorized_username, test_bio, test_screen_nam
 @pytest.mark.parametrize("test_authorized_username,expected_output",
                          [
                              ('khaled', server_path + 'user/upload/picture/profile.jpg'),
-                             ('amr', 'default image'),
+                             ('special', 'default image'),
                              ('omar', 'file does not exist')
 
                          ])
@@ -102,6 +104,17 @@ def test_delete_profile_picture(test_authorized_username, expected_output):
         destination_profile = path + '/images/profile'
         os.chdir(os.path.dirname(path))
         shutil.copy(source_profile, destination_profile)
+    if test_authorized_username == 'special':
+        query = """
+                    UPDATE PROFILE
+                    SET
+                    PROFILE_IMAGE_URL = %s,
+                    PROFILE_BANNER_URL = %s
+                    WHERE USERNAME = 'special'
+                """
+        data = (actions.create_url('picture', 'profile.jpg'),
+                actions.create_url('banner', 'banner.jpg'))
+        db_manager.execute_query_no_return(query, data)
     output = actions.delete_profile_picture(test_authorized_username)
     assert output == expected_output
 
@@ -109,7 +122,7 @@ def test_delete_profile_picture(test_authorized_username, expected_output):
 @pytest.mark.parametrize("test_authorized_username,expected_output",
                          [
                              ('khaled', server_path + 'user/upload/banner/banner.jpg'),
-                             ('amr', 'default image'),
+                             ('special', 'default image'),
                              ('omar', 'file does not exist')
                          ])
 def test_delete_profile_banner(test_authorized_username, expected_output):
@@ -196,7 +209,7 @@ def test_create_profile(test_username, test_screen_name, test_birth_date, expect
                                      "following_count": 0,
                                      "kweeks_count": 3,
                                      "likes_count": 3,
-                                     "profile_banner_url": server_path + "user/upload/banner/khaledbanner.jpg",
+                                     "profile_banner_url": server_path + "user/upload/banner/banner.jpg",
                                      "profile_image_url": server_path + "user/upload/picture/profile.jpg",
                                      "following": None,
                                      "follows_you": None,

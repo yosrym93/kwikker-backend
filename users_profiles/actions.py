@@ -5,6 +5,7 @@ from models import UserProfile
 import datetime
 from app import app
 import os
+import fnmatch
 
 APP_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
@@ -87,7 +88,7 @@ def create_profile(username, screen_name, birth_date):
         return False
     time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     response = query_factory.create_profile(username, screen_name, birth_date, time,
-                                            profile_image_url=create_url('profile', 'profile.jpg'),
+                                            profile_image_url=create_url('picture', 'profile.jpg'),
                                             banner_url=create_url('banner', 'banner.jpg'))
     if response is None:
         return True
@@ -160,11 +161,14 @@ def delete_profile_picture(authorized_username):
     """
 
     default_filename = 'profile.jpg'
+    default_path = create_url('picture', default_filename)
     filename = query_factory.get_user_profile_picture(authorized_username)['profile_image_url']
-    if filename == default_filename:
+    if filename == default_path:
         return 'default image'
+    filename = filename.rsplit('/', 1)
+    filename = filename[1]
     path = APP_ROOT + '/images/profile'
-    response = query_factory.update_user_profile_picture(authorized_username, create_url('picture', default_filename))
+    response = query_factory.update_user_profile_picture(authorized_username, default_path)
     if response is None:
         os.chdir(path)
         if os.path.exists(filename):
@@ -221,11 +225,14 @@ def delete_banner_picture(authorized_username):
                             - *response*: which is none of case in successful deletion .
     """
     default_filename = 'banner.jpg'
+    default_path = create_url('banner', default_filename)
     filename = query_factory.get_user_banner_picture(authorized_username)['profile_banner_url']
-    if filename == default_filename:
+    if filename == default_path:
         return 'default image'
+    filename = filename.rsplit('/', 1)
+    filename = filename[1]
     path = APP_ROOT + '/images/banner'
-    response = query_factory.update_user_banner_picture(authorized_username, create_url('banner', filename))
+    response = query_factory.update_user_banner_picture(authorized_username, default_path)
     if response is None:
         os.chdir(path)
         if os.path.exists(filename):
@@ -270,3 +277,60 @@ def search_user(authorized_username, search_key, username, results_size=size):
         result.update(friendship)
         user_list.append(UserProfile(result))
     return user_list
+
+
+def update_profile_images_on_username_update(old_username, new_username):  # pragma:no cover
+    """
+            Updates the file names and the urls of the profile and banner pictures of the user on username change.
+
+            *Parameters*:
+                - *old_username (string)*: The old username of the user.
+                - *new_username (string)*: The new username of the user.
+
+            *Returns*:
+                - *False*: If updating the url in the database yielded an error.
+                - *True*: Otherwise.
+    """
+    # Update URL in database
+    # Profile image url
+    profile_image_url = query_factory.get_user_profile_picture(new_username)['profile_image_url']
+    fixed_url_part = Server_path + 'user/upload/profile/'
+    file_name = profile_image_url[len(fixed_url_part):]
+    default_file_name = 'profile.jpg'
+    if file_name != default_file_name:
+        dummy, ext = os.path.splitext(file_name)
+        new_file_name = new_username + 'profile' + ext
+        query_factory.update_user_profile_picture(new_username, create_url('picture', new_file_name))
+
+    # Banner image url
+    banner_image_url = query_factory.get_user_banner_picture(new_username)['profile_banner_url']
+    fixed_url_part = Server_path + 'user/upload/banner/'
+    file_name = banner_image_url[len(fixed_url_part):]
+    default_file_name = 'banner.jpg'
+    if file_name != default_file_name:
+        dummy, ext = os.path.splitext(file_name)
+        new_file_name = new_username + 'banner' + ext
+        query_factory.update_user_banner_picture(new_username, create_url('banner', new_file_name))
+
+    # Update the profile image file name
+    search_path = os.path.join(APP_ROOT, 'images/profile')
+    filename = old_username + 'profile' + '.*'
+    new_filename = new_username + 'profile'
+    for root, dirs, files in os.walk(search_path):
+        for name in files:
+            if fnmatch.fnmatch(name, filename):
+                print(name, 'filename')
+                dummy, ext = os.path.splitext(name)
+                os.rename(search_path + '/' + name, search_path + '/' + new_filename + ext)
+
+    # Update the banner image file name
+    search_path = os.path.join(APP_ROOT, 'images/banner')
+    filename = old_username + 'banner' + '.*'
+    new_filename = new_username + 'banner'
+    for root, dirs, files in os.walk(search_path):
+        for name in files:
+            if fnmatch.fnmatch(name, filename):
+                dummy, ext = os.path.splitext(name)
+                os.rename(search_path + '/' + name, search_path + '/' + new_filename + ext)
+
+    return True

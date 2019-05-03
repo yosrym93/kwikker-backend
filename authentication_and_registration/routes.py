@@ -53,7 +53,7 @@ class Registration(Resource):
         'password': fields.String(description='The password of the new user.'),
         'email': fields.String(description='The email of the new user.'),
         'screen_name': fields.String(description='The screen name of the new user.'),
-        'birth_date': fields.String(description='The birth-date of the new user.')
+        'birth_date': fields.Date(description='The birth-date of the new user.')
     }), validate=True)
     def post(self):
         """ Register a new user. The user then is required to confirm their email address. """

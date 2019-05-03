@@ -1,5 +1,6 @@
 import pytest
 from . import actions
+from timelines_and_trends.actions import get_reply_to_info
 from database_manager import db_manager
 from models import User, Mention, Hashtag, Kweek
 from datetime import datetime
@@ -39,6 +40,7 @@ def test_insert_kweek():
         'number_of_likes': 0,
         'number_of_rekweeks': 0,
         'number_of_replies': 0,
+        'reply_info': None,
         'reply_to': None,
         'rekweek_info': None,
         'liked_by_user': False,
@@ -76,6 +78,7 @@ def test_insert_kweek():
         'number_of_likes': 0,
         'number_of_rekweeks': 0,
         'number_of_replies': 0,
+        'reply_info': None,
         'reply_to': None,
         'rekweek_info': None,
         'liked_by_user': False,
@@ -114,6 +117,7 @@ def test_insert_kweek():
         'number_of_likes': 0,
         'number_of_rekweeks': 0,
         'number_of_replies': 0,
+        'reply_info': None,
         'reply_to': None,
         'rekweek_info': None,
         'liked_by_user': False,
@@ -152,6 +156,7 @@ def test_insert_kweek():
         'number_of_likes': 0,
         'number_of_rekweeks': 0,
         'number_of_replies': 0,
+        'reply_info': None,
         'reply_to': None,
         'rekweek_info': None,
         'liked_by_user': False,
@@ -433,7 +438,7 @@ def test_get_kweek():
 
     query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
 
-    data = ('01-01-2010', 'test3', None, 'user3', None)
+    data = ('2010-01-01', 'test3', None, 'user3', None)
 
     db_manager.execute_query_no_return(query, data)
     kid1 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
@@ -455,18 +460,18 @@ def test_get_kweek():
     db_manager.execute_query_no_return(query, data)
 
     query: str = """INSERT INTO REKWEEK VALUES(%s,%s,%s) """
-    data = ('user1', kid1, '01-01-2010')
+    data = ('user1', kid1, '2010-01-01')
     db_manager.execute_query_no_return(query, data)
 
     query: str = """INSERT INTO FAVORITE VALUES(%s,%s,%s) """
-    data = ('user1', kid1, '01-01-2010')
+    data = ('user1', kid1, '2010-01-01')
 
     db_manager.execute_query_no_return(query, data)
 
     # second kweek #
 
     query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
-    data = ('01-01-2010', 'test1', None, 'user1', kid1)
+    data = ('2010-01-01', 'test1', None, 'user1', kid1)
     db_manager.execute_query_no_return(query, data)
     kid2 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
 
@@ -525,7 +530,7 @@ def test_get_kweek():
         'number_of_likes': 1,
         'number_of_rekweeks': 1,
         'number_of_replies': 2,
-        'reply_to': None,
+        'reply_info': None,
         'rekweek_info': None,
         'liked_by_user': True,
         'rekweeked_by_user': True
@@ -554,7 +559,7 @@ def test_get_kweek():
         'number_of_likes': 0,
         'number_of_rekweeks': 0,
         'number_of_replies': 0,
-        'reply_to': int(kid1),
+        'reply_info': get_reply_to_info(kid2),
         'rekweek_info': None,
         'liked_by_user': False,
         'rekweeked_by_user': False
@@ -690,7 +695,7 @@ def test_get_kweek_with_replies():
         'number_of_likes': 1,
         'number_of_rekweeks': 1,
         'number_of_replies': 2,
-        'reply_to': None,
+        'reply_info': None,
         'rekweek_info': None,
         'liked_by_user': False,
         'rekweeked_by_user': False
@@ -721,7 +726,7 @@ def test_get_kweek_with_replies():
         'number_of_likes': 1,
         'number_of_rekweeks': 0,
         'number_of_replies': 0,
-        'reply_to': int(kid1),
+        'reply_info': get_reply_to_info(kid2),
         'rekweek_info': None,
         'liked_by_user': False,
         'rekweeked_by_user': False
@@ -753,7 +758,7 @@ def test_get_kweek_with_replies():
             'number_of_likes': 1,
             'number_of_rekweeks': 0,
             'number_of_replies': 0,
-            'reply_to': int(kid1),
+            'reply_info': get_reply_to_info(kid2),
             'rekweek_info': None,
             'liked_by_user': False,
             'rekweeked_by_user': False
@@ -783,7 +788,7 @@ def test_get_kweek_with_replies():
             'number_of_likes': 1,
             'number_of_rekweeks': 0,
             'number_of_replies': 0,
-            'reply_to': int(kid1),
+            'reply_info': get_reply_to_info(kid3),
             'rekweek_info': None,
             'liked_by_user': True,
             'rekweeked_by_user': False
@@ -811,7 +816,7 @@ def test_get_kweek_with_replies():
 
 def test_rekweek():
     query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
-    data = ('01-01-2010', 'test_rekweek', None, 'user2', None)
+    data = ('2010-01-01', 'test_rekweek', None, 'user2', None)
     db_manager.execute_query_no_return(query, data)
     kid = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
     check1, message1, code = actions.create_rekweek({"id": ""}, 'user4')  # no id found
@@ -906,7 +911,7 @@ def test_delete_rekweek():
 
 def test_get_rekweekers():
     query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
-    data = ('01-01-2010', 'test_rekweek', None, 'user1', None)
+    data = ('2010-01-01', 'test_rekweek', None, 'user1', None)
     db_manager.execute_query_no_return(query, data)
     kid1 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
     actions.create_rekweek({"id": kid1}, 'user3')
@@ -922,7 +927,7 @@ def test_get_rekweekers():
             'blocked': False
         })]
     query: str = """INSERT INTO  KWEEK (CREATED_AT,TEXT,MEDIA_URL,USERNAME,REPLY_TO) VALUES(%s, %s, %s, %s,%s) """
-    data = ('01-01-2010', 'test_rekweek', None, 'user2', None)
+    data = ('2010-01-01', 'test_rekweek', None, 'user2', None)
     db_manager.execute_query_no_return(query, data)
     kid2 = str(db_manager.execute_query("""SELECT ID FROM KWEEK ORDER BY ID DESC LIMIT 1 """)[0]['id'])
     actions.create_rekweek({"id": kid2}, 'user1')

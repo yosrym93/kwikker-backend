@@ -18,7 +18,7 @@ class Media(Resource):
     @media_api.response(code=404, description='Media not found. Uploading failed.')
     @media_api.response(code=401, description='Unauthorized access.')
     @media_api.response(code=400, description='Not allowed extensions.')
-    @media_api.param(name='file', description='image file.', required=True, type='file')
+    @media_api.param(name='file', description='image file.', required=True, type='file', _in='form-Data')
     @media_api.doc(security='KwikkerKey')
     @authorize
     def post(self,authorized_username):
@@ -37,7 +37,7 @@ class Media(Resource):
         return {"media_id": response}, 200
 
 
-@media_api.route('/get/<filename>',doc=False)
+@media_api.route('/get/<filename>', doc=False)
 class get_Media (Resource):
     @staticmethod
     def get(filename):
