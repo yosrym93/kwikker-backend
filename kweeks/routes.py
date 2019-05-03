@@ -110,7 +110,7 @@ class KweekOnly(Resource):
         if not request.args.get('id'):
             abort(400, 'please provide the kweek id')
         check, message, kweek_obj, replies_obj_list, code = \
-        get_kweek_with_replies(request.args.get('id'), authorized_username, False)
+            get_kweek_with_replies(request.args.get('id'), authorized_username, False)
         if check:
             return kweek_obj, 200
         else:
