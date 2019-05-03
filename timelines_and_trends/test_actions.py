@@ -180,19 +180,33 @@ def test_paginate():
     dictionaries_list = [
         {
             'id': 1,
+            'username': 'user1',
             'text': 'one'
         },
         {
             'id': 2,
+            'username': 'user2',
             'text': 'two'
         },
         {
             'id': 3,
+            'username': 'user3',
             'text': 'three'
         },
         {
             'id': 4,
+            'username': 'user4',
             'text': 'four'
+        },
+        {
+            'id': 1,
+            'username': 'user5',
+            'text': 'one'
+        },
+        {
+            'id': 5,
+            'username': 'user2',
+            'text': 'one'
         }
     ]
     # Normal operation
@@ -202,30 +216,56 @@ def test_paginate():
     assert new_list == [
         {
             'id': 3,
+            'username': 'user3',
             'text': 'three'
         },
         {
             'id': 4,
+            'username': 'user4',
             'text': 'four'
         }
     ]
-    # ID does not exist
+    # Empty list
     new_list = actions.paginate(dictionaries_list=dictionaries_list,
                                 required_size=2, start_after_key='id', start_after_value=5)
 
+    assert new_list == []
+
+    # ID does not exist
+    new_list = actions.paginate(dictionaries_list=dictionaries_list,
+                                required_size=2, start_after_key='id', start_after_value=6)
+
     assert new_list is None
+
     # Start after value is None
     new_list = actions.paginate(dictionaries_list=dictionaries_list,
                                 required_size=2, start_after_key='id', start_after_value=None)
 
-    assert new_list == [{
+    assert new_list == [
+        {
             'id': 1,
+            'username': 'user1',
             'text': 'one'
         },
         {
             'id': 2,
+            'username': 'user2',
             'text': 'two'
-        }]
+        }
+    ]
+    # With secondary key and value
+    new_list = actions.paginate(dictionaries_list=dictionaries_list,
+                                required_size=1, start_after_key='id', start_after_value=1,
+                                secondary_start_after_key='username', secondary_start_after_value='user5')
+
+    assert new_list == [
+        {
+            'id': 5,
+            'username': 'user2',
+            'text': 'one'
+        }
+    ]
+
     # Invalid key
     exception_caught = False
     try:
@@ -237,6 +277,20 @@ def test_paginate():
         assert str(E) == 'One or more dictionary in dictionaries_list do not contain the provided key.'
 
     assert exception_caught
+
+    # Invalid secondary key
+    exception_caught = False
+    try:
+        actions.paginate(dictionaries_list=dictionaries_list,
+                         required_size=2, start_after_key='id',
+                         start_after_value=5, secondary_start_after_key='not_a_key',
+                         secondary_start_after_value='user1')
+    except TypeError as E:
+        exception_caught = True
+        assert str(E) == 'One or more dictionary in dictionaries_list do not contain the provided key(s).'
+
+    assert exception_caught
+
     # Invalid list
     exception_caught = False
     try:
@@ -248,12 +302,39 @@ def test_paginate():
         assert str(E) == 'dictionaries_list parameter passed was not a list.'
 
     assert exception_caught
+
+    # Invalid list with secondary key
+    exception_caught = False
+    try:
+        actions.paginate(dictionaries_list=None,
+                         required_size=2, start_after_key='id',
+                         start_after_value=5, secondary_start_after_key='username',
+                         secondary_start_after_value='user1')
+    except TypeError as E:
+        exception_caught = True
+        assert str(E) == 'dictionaries_list parameter passed was not a list.'
+
+    assert exception_caught
+
     # Invalid list items
     exception_caught = False
     try:
         actions.paginate(dictionaries_list=[1, 2, 3],
                          required_size=2, start_after_key='id',
                          start_after_value=5)
+    except TypeError as E:
+        exception_caught = True
+        assert str(E) == 'One or more values in dictionaries_list are not a dictionary.'
+
+    assert exception_caught
+
+    # Invalid list items with secondary key
+    exception_caught = False
+    try:
+        actions.paginate(dictionaries_list=[1, 2, 3],
+                         required_size=2, start_after_key='id',
+                         start_after_value=5, secondary_start_after_key='username',
+                         secondary_start_after_value='user1')
     except TypeError as E:
         exception_caught = True
         assert str(E) == 'One or more values in dictionaries_list are not a dictionary.'
@@ -356,7 +437,7 @@ def test_get_profile_kweeks():
     }))
 
     # Normal case
-    actual_kweeks = actions.get_profile_kweeks('test_user2', 'test_user1', None)
+    actual_kweeks = actions.get_profile_kweeks('test_user2', 'test_user1', None, None)
 
     for index, kweek in enumerate(actual_kweeks):
         assert expected_kweeks[index].to_json() == kweek.to_json()
@@ -364,7 +445,7 @@ def test_get_profile_kweeks():
     # Invalid ID
     exception_caught = False
     try:
-        actions.get_profile_kweeks('test_user2', 'test_user1', 'invalid_id')
+        actions.get_profile_kweeks('test_user2', 'test_user1', 'invalid_id', None)
     except ValueError:
         exception_caught = True
     assert exception_caught
@@ -532,7 +613,7 @@ def test_get_home_kweeks():
     }))
 
     # Normal case
-    actual_kweeks = actions.get_home_kweeks('test_user3', None)
+    actual_kweeks = actions.get_home_kweeks('test_user3', None, None)
 
     for index, kweek in enumerate(actual_kweeks):
         assert expected_kweeks[index].to_json() == kweek.to_json()
@@ -540,7 +621,7 @@ def test_get_home_kweeks():
     # Invalid ID
     exception_caught = False
     try:
-        actions.get_home_kweeks('test_user3', 'invalid_id')
+        actions.get_home_kweeks('test_user3', 'invalid_id', None)
     except ValueError:
         exception_caught = True
     assert exception_caught
