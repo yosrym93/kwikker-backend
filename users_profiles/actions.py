@@ -88,7 +88,7 @@ def create_profile(username, screen_name, birth_date):
         return False
     time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     response = query_factory.create_profile(username, screen_name, birth_date, time,
-                                            profile_image_url=create_url('profile', 'profile.jpg'),
+                                            profile_image_url=create_url('picture', 'profile.jpg'),
                                             banner_url=create_url('banner', 'banner.jpg'))
     if response is None:
         return True
@@ -300,7 +300,7 @@ def update_profile_images_on_username_update(old_username, new_username):  # pra
     if file_name != default_file_name:
         dummy, ext = os.path.splitext(file_name)
         new_file_name = new_username + 'profile' + ext
-        query_factory.update_user_profile_picture(new_username, create_url('profile', new_file_name))
+        query_factory.update_user_profile_picture(new_username, create_url('picture', new_file_name))
 
     # Banner image url
     banner_image_url = query_factory.get_user_banner_picture(new_username)['profile_banner_url']
