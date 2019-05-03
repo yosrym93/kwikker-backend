@@ -237,6 +237,7 @@ def delete_banner_picture(authorized_username):
     filename = query_factory.get_user_banner_picture(authorized_username)['profile_banner_url']
     if filename == default_path:
         return 'default image'
+    filename = filename[:-21]  # Remove the ? and the dummy value from the end of the url
     filename = filename.rsplit('/', 1)
     filename = filename[1]
     path = APP_ROOT + '/images/banner'
