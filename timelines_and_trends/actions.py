@@ -1,5 +1,5 @@
 from . import query_factory
-from models import User, Mention, Hashtag, Kweek, RekweekInfo, Trend
+from models import User, Mention, Hashtag, Kweek, RekweekInfo, Trend, ReplyInfo
 
 
 def get_friendship(authorized_username, required_username):
@@ -123,7 +123,7 @@ def get_all_trends(last_retrieved_trend_id):
     database_trends = query_factory.get_all_trends()
     # Paginate the results
     try:
-        database_trends = paginate(dictionaries_list=database_trends, required_size=20,
+        database_trends = paginate(dictionaries_list=database_trends, required_size=10,
                                    start_after_key='id', start_after_value=last_retrieved_trend_id)
     except TypeError as E:
         print(E)
@@ -198,7 +198,8 @@ def get_kweek_statistics(authorized_username, kweek_id):
                                               kweek_id=kweek_id)
 
 
-def paginate(dictionaries_list, required_size, start_after_key, start_after_value):
+def paginate(dictionaries_list, required_size, start_after_key, start_after_value,
+             secondary_start_after_key=None, secondary_start_after_value=None):
     """
         Slices a list of dictionaries, starting at a given element and producing a new list
         with the required size. Should be called inside a try block, may raise TypeError.
@@ -225,13 +226,23 @@ def paginate(dictionaries_list, required_size, start_after_key, start_after_valu
         return dictionaries_list[: required_size]
 
     start_after_index = None
-    for index, value in enumerate(dictionaries_list):
-        if not isinstance(value, dict):
-            raise TypeError('One or more values in dictionaries_list are not a dictionary.')
-        if start_after_key not in value:
-            raise TypeError('One or more dictionary in dictionaries_list do not contain the provided key.')
-        if start_after_index is None and value[start_after_key] == start_after_value:
-            start_after_index = index
+    if secondary_start_after_key is None:
+        for index, value in enumerate(dictionaries_list):
+            if not isinstance(value, dict):
+                raise TypeError('One or more values in dictionaries_list are not a dictionary.')
+            if start_after_key not in value:
+                raise TypeError('One or more dictionary in dictionaries_list do not contain the provided key.')
+            if start_after_index is None and value[start_after_key] == start_after_value:
+                start_after_index = index
+    else:
+        for index, value in enumerate(dictionaries_list):
+            if not isinstance(value, dict):
+                raise TypeError('One or more values in dictionaries_list are not a dictionary.')
+            if start_after_key not in value or secondary_start_after_key not in value:
+                raise TypeError('One or more dictionary in dictionaries_list do not contain the provided key(s).')
+            if start_after_index is None and value[start_after_key] == start_after_value\
+                    and value[secondary_start_after_key] == secondary_start_after_value:
+                start_after_index = index
 
     if start_after_index is None:
         return None
@@ -263,7 +274,8 @@ def set_replies_and_mentions_as_seen(authorized_username):
     return query_factory.set_replies_and_mentions_as_seen(authorized_username)
 
 
-def get_kweeks(authorized_username, last_retrieved_kweek_id, db_kweeks_fetcher, args=None):
+def get_kweeks(authorized_username, last_retrieved_kweek_id, db_kweeks_fetcher, args=None,
+               pagination_secondary_key=None, pagination_secondary_value=None):
     """
         Gets kweeks fetched by a function and builds them into models.Kweek objects.
 
@@ -290,7 +302,9 @@ def get_kweeks(authorized_username, last_retrieved_kweek_id, db_kweeks_fetcher, 
     # Paginate the results
     try:
         db_kweeks = paginate(dictionaries_list=db_kweeks, required_size=20,
-                             start_after_key='id', start_after_value=last_retrieved_kweek_id)
+                             start_after_key='id', start_after_value=last_retrieved_kweek_id,
+                             secondary_start_after_key=pagination_secondary_key,
+                             secondary_start_after_value=pagination_secondary_value)
     except TypeError as E:
         print(E)
         raise
@@ -335,12 +349,16 @@ def kweeks_builder(db_kweeks, authorized_username):
             kweek['rekweek_info'] = rekweek_info
         else:
             kweek['rekweek_info'] = None
+        # Add reply info
+        if kweek['reply_to']:
+            kweek['reply_info'] = get_reply_to_info(kweek['id'])
+        else:
+            kweek['reply_info'] = None
         kweeks.append(Kweek(kweek))
-
     return kweeks
 
 
-def get_home_kweeks(authorized_username, last_retrieved_kweek_id):
+def get_home_kweeks(authorized_username, last_retrieved_kweek_id, last_retrieved_rekweeker_username):
     """
         Gets the kweeks that should appear on the authorized user's home timeline.
 
@@ -357,11 +375,14 @@ def get_home_kweeks(authorized_username, last_retrieved_kweek_id):
     """
     return get_kweeks(authorized_username=authorized_username,
                       last_retrieved_kweek_id=last_retrieved_kweek_id,
+                      pagination_secondary_key='rekweeker',
+                      pagination_secondary_value=last_retrieved_rekweeker_username,
                       db_kweeks_fetcher=query_factory.get_home_kweeks,
                       args=[authorized_username])
 
 
-def get_profile_kweeks(authorized_username, required_username, last_retrieved_kweek_id):
+def get_profile_kweeks(authorized_username, required_username, last_retrieved_kweek_id,
+                       last_retrieved_rekweeker_username):
     """
         Gets the kweeks that should appear on a specific user profile.
 
@@ -379,6 +400,8 @@ def get_profile_kweeks(authorized_username, required_username, last_retrieved_kw
     """
     return get_kweeks(authorized_username=authorized_username,
                       last_retrieved_kweek_id=last_retrieved_kweek_id,
+                      pagination_secondary_key='rekweeker',
+                      pagination_secondary_value=last_retrieved_rekweeker_username,
                       db_kweeks_fetcher=query_factory.get_profile_kweeks,
                       args=[required_username])
 
@@ -468,3 +491,34 @@ def get_search_kweeks(authorized_username, search_text, last_retrieved_kweek_id)
                       last_retrieved_kweek_id=last_retrieved_kweek_id,
                       db_kweeks_fetcher=query_factory.get_search_kweeks,
                       args=[search_text])
+
+
+def check_blocked(blocker_username, blocked_username):
+    """
+        Checks if a user blocks another one.
+
+        *Parameters:*
+            - *blocker_username (string)*: The username of the user to check if they block the blocked user.
+            - *blocked_username (string)*: The username of the user to check if they are blocked by the blocker user.
+
+        *Returns:*
+            - *True*: if blocker user does block blocked user.
+            - *False*: Otherwise.
+    """
+    return query_factory.check_blocked(blocker_username, blocked_username)
+
+
+def get_reply_to_info(kweek_id):
+    """
+        Gets the information of the kweek whose the kweek with kweek_id is a reply to.
+
+        *Parameters:*
+            - *kweek_id (string)*: The id of the kweek.
+
+        *Returns:*
+            - *models.ReplyInfo object*
+    """
+    response = query_factory.get_reply_to_info(kweek_id)
+    if not response:
+        return None
+    return ReplyInfo(response[0])

@@ -22,16 +22,16 @@ def get_profile_kweeks(username):
                                         | *is_rekweek (bool)*: Whether the user rekweeked the kweek or created it.}
     """
     query = """
-                SELECT ID, CREATED_AT, TEXT, MEDIA_URL, USERNAME, REPLY_TO, IS_REKWEEK, %s AS REKWEEKER FROM
+                SELECT ID, CREATED_AT, TEXT, MEDIA_URL, USERNAME, REPLY_TO, IS_REKWEEK, REKWEEKER FROM
                 (
                 (SELECT TRUE as IS_REKWEEK, K.ID, K.CREATED_AT, K.TEXT, K.MEDIA_URL, K.USERNAME, K.REPLY_TO, 
-                        RK.CREATED_AT AS SORT_BY 
+                        RK.CREATED_AT AS SORT_BY, %s AS REKWEEKER 
                  FROM KWEEK K
                  JOIN REKWEEK RK ON RK.KWEEK_ID = K.ID
                  WHERE RK.USERNAME = %s)
                 UNION
-                (SELECT FALSE as IS_REKWEEK, *, CREATED_AT AS SORT_BY FROM KWEEK WHERE USERNAME = %s)
-                ) AS KWEEKS
+                (SELECT FALSE as IS_REKWEEK, *, CREATED_AT AS SORT_BY, NULL AS REKWEEKER FROM KWEEK 
+                WHERE USERNAME = %s)) AS KWEEKS
                 ORDER BY SORT_BY DESC
             """
 
@@ -61,7 +61,8 @@ def get_home_kweeks(authorized_username):
     """
     query = """
             SELECT ID, CREATED_AT, TEXT, MEDIA_URL, USERNAME, REPLY_TO, IS_REKWEEK, REKWEEKER FROM
-            ((SELECT *, FALSE AS IS_REKWEEK, NULL AS REKWEEKER, CREATED_AT AS SORT_BY FROM KWEEK WHERE USERNAME IN 
+            ((SELECT *, FALSE AS IS_REKWEEK, NULL AS REKWEEKER, CREATED_AT AS SORT_BY FROM KWEEK WHERE 
+                USERNAME = %s OR USERNAME IN 
                 (SELECT FOLLOWED_USERNAME FROM FOLLOW WHERE FOLLOWER_USERNAME = %s AND
                  FOLLOWED_USERNAME NOT IN (SELECT MUTED_USERNAME FROM MUTE WHERE MUTER_USERNAME = %s)))
                 
@@ -70,10 +71,16 @@ def get_home_kweeks(authorized_username):
             (SELECT K.*, TRUE AS IS_REKWEEK, R.USERNAME AS REKWEEKER, R.CREATED_AT AS SORT_BY
              FROM KWEEK K JOIN REKWEEK R ON K.ID = R.KWEEK_ID WHERE R.USERNAME IN 
                 (SELECT FOLLOWED_USERNAME FROM FOLLOW WHERE FOLLOWER_USERNAME = %s AND
-                 FOLLOWED_USERNAME NOT IN (SELECT MUTED_USERNAME FROM MUTE WHERE MUTER_USERNAME = %s)))) AS KWEEKS
+                 FOLLOWED_USERNAME NOT IN (SELECT MUTED_USERNAME FROM MUTE WHERE MUTER_USERNAME = %s))
+             AND K.USERNAME NOT IN 
+             ((SELECT MUTED_USERNAME FROM MUTE WHERE MUTER_USERNAME = %s)
+             UNION (SELECT BLOCKED_USERNAME FROM BLOCK WHERE BLOCKER_USERNAME = %s))
+             )) AS KWEEKS
             ORDER BY SORT_BY DESC
             """
-    data = (authorized_username, authorized_username, authorized_username, authorized_username)
+    data = (authorized_username, authorized_username, authorized_username,
+            authorized_username, authorized_username, authorized_username,
+            authorized_username)
     home_kweeks = db_manager.execute_query(query, data)
     return home_kweeks
 
@@ -531,6 +538,7 @@ def get_search_kweeks(search_text):
 
     # Escape all whitespace characters and add & between words
     search_text = '&'.join(search_text.split())
+    search_text = search_text.replace("\\", "").replace(r"'", r"\'")
     query = """
                 SELECT K.*
                 FROM KWEEK K JOIN KWEEK_SEARCH_TOKENS KS ON K.ID = KS.KWEEK_ID
@@ -540,4 +548,26 @@ def get_search_kweeks(search_text):
                 CREATED_AT DESC 
             """
     data = (search_text, search_text)
+    return db_manager.execute_query(query, data)
+
+
+def get_reply_to_info(kweek_id):
+    """
+        Gets the information of the kweek whose the kweek with kweek_id is a reply to.
+
+        *Parameters:*
+            - *kweek_id (string)*: The id of the kweek.
+
+        *Returns:*
+            - *Dictionary*: {
+                                | *reply_to_username (string)*: The username that is being replied to.,
+                                | *reply_to_kweek_id (string)*: The id of the kweek that is being replied to.,
+                                | }
+    """
+    query = """
+                SELECT K.ID AS REPLY_TO_KWEEK_ID, K.USERNAME AS REPLY_TO_USERNAME FROM KWEEK K 
+                JOIN KWEEK R ON K.ID = R.REPLY_TO
+                WHERE R.ID = %s
+            """
+    data = (kweek_id,)
     return db_manager.execute_query(query, data)

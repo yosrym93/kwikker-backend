@@ -182,6 +182,23 @@ class RekweekInfo:
         }
 
 
+class ReplyInfo:
+    api_model = create_model('Reply Info', {
+        'reply_to_username': fields.String(description='The username of the user who this kweek is a reply to.'),
+        'reply_to_kweek_id': fields.String(description='The kweek id of the kweek which this kweek is a reply to.')
+    })
+
+    def __init__(self, json):
+            self.reply_to_username = json['reply_to_username']
+            self.reply_to_kweek_id = json['reply_to_kweek_id']
+
+    def to_json(self):
+        return {
+            'reply_to_username': self.reply_to_username,
+            'reply_to_kweek_id': self.reply_to_kweek_id
+        }
+
+
 class Kweek:
     api_model = create_model('Kweek', {
         'id': fields.String(description='The id of the kweek.'),
@@ -195,8 +212,9 @@ class Kweek:
         'number_of_likes': fields.Integer(description='The number of likes of the kweek.'),
         'number_of_rekweeks': fields.Integer(description='The number of rekweeks of the kweek.'),
         'number_of_replies': fields.Integer(description='The number of replies of the kweek.'),
-        'reply_to': fields.String(description='Nullable. The id of the kweek that this kweek is a reply to,'
-                                              ' if any.'),
+        'reply_info': fields.Nested(ReplyInfo.api_model, allow_null=True,
+                                    description='Nullable. The information of the kweek'
+                                                ' which this kweek is a reply to.'),
         'rekweek_info': fields.Nested(RekweekInfo.api_model, allow_null=True,
                                       description='Nullable. The information of who rekweeked this kweek,'
                                                   'if returned as a rekweek.'),
@@ -215,18 +233,20 @@ class Kweek:
         self.number_of_likes = json['number_of_likes']
         self.number_of_rekweeks = json['number_of_rekweeks']
         self.number_of_replies = json['number_of_replies']
-        self.reply_to = json['reply_to']
+        self.reply_info = (json['reply_info'])
         self.liked_by_user = json['liked_by_user']
         self.rekweeked_by_user = json['rekweeked_by_user']
         self.rekweek_info = (json['rekweek_info'])
+        if 'reply_to' in json:
+            self.reply_to = json['reply_to']
 
     def __repr__(self):
         return "<Test id:%s created_at:%s text:%s media_url:%s user:%s" \
                " hashtags:%s mentions:%s number_of_likes:%s number_of_rekweeks:%s number_of_replies:%s" \
-               " reply_to:%s rekweek_info:%s   >" % \
+               " reply_info:%s rekweek_info:%s   >" % \
                (self.id, self.created_at, self.text, self.media_url, self.user, self.hashtags,
                 self.mentions, self.number_of_likes, self.number_of_rekweeks, self.number_of_replies,
-                self.reply_to, self.rekweek_info)
+                self.reply_info, self.rekweek_info)
 
     def to_json(self):
         json = {'id': self.id, 'created_at': self.created_at, 'text': self.text, 'media_url': self.media_url,
@@ -239,7 +259,10 @@ class Kweek:
         json['number_of_likes'] = self.number_of_likes
         json['number_of_rekweeks'] = self.number_of_rekweeks
         json['number_of_replies'] = self.number_of_replies
-        json['reply_to'] = self.reply_to
+        if self.reply_info is not None:
+            json['reply_info'] = self.reply_info.to_json()
+        else:
+            json['reply_info'] = None
         if self.rekweek_info is not None:
             json['rekweek_info'] = self.rekweek_info.to_json()
         else:
@@ -260,7 +283,7 @@ class Notification:
         'kweek_id': fields.String(description='Nullable,a unique string representing the kweek id.',
                                   nullable=True),  # Nullable
         'kweek_text': fields.String(description='The text of the kweek.'),
-        'profile_pic_URL': fields.String(description='The profile picture URL of the involved person who liked,'
+        'profile_pic_url': fields.String(description='The profile picture URL of the involved person who liked,'
                                                      'followed,etc).')
     })
 

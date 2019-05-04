@@ -50,7 +50,7 @@ def test_create_notifications_i_user_error():
         this function tests exception error of involved_user
     """
     try:
-        actions.create_notifications('qq', 'zamalek', 'FOLLOW')
+        actions.create_notifications('qqq', 'zamalek', 'FOLLOW')
     except Exception as E:
         assert str(E) == 'Involved_username does not exist'
 
@@ -60,9 +60,9 @@ def test_create_notifications_n_user_error():
         this function tests exception error of notified_user
     """
     try:
-        actions.create_notifications('zamlek', 'qq', 'FOLLOW')
+        actions.create_notifications('zamalek', 'qqq', 'FOLLOW')
     except Exception as E:
-        assert str(E) == 'Involved_username does not exist'
+        assert str(E) == 'Notified_username does not exist'
 
 
 def test_create_notifications_kweek_id_error():
@@ -115,3 +115,14 @@ def test_is_kweek_exists():
     kweek_id = db_manager.execute_query(query)[0]['id']
     expected_output = actions.is_kweek(kweek_id)
     assert expected_output is True
+
+
+def test_set_notifications_as_seen():
+    """
+        this function sets notifications to seen
+    """
+    count_before = actions.get_notifications_unseen_count('degla')
+    actions.set_notifications_as_seen('degla')
+    count_after = actions.get_notifications_unseen_count('degla')
+    assert count_before > count_after
+

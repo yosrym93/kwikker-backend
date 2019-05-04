@@ -16,25 +16,31 @@ class Kweeks(Resource):
         'text': fields.String,
         'reply_to': NullableString(description='The id of the kweek that this kweek '
                                                'is a reply to. Null if the kweek is not'
-                                               ' a reply.')
+                                               ' a reply.'),
+        'media_id': NullableString(description='Id of the media, provided when uploaded.')
     }), validate=True)
     @kweeks_api.response(code=401, description='Unauthorized access.')
-    @kweeks_api.response(code=201, description='Kweek created successfully.')
+    @kweeks_api.response(code=400, description='Invalid ID to be replied to')
+    @kweeks_api.response(code=404, description='The kweek to be replied to does not exist.')
+    @kweeks_api.response(code=400, description='No text body found.')
+    @kweeks_api.response(code=200, description='Kweek has been created successfully.')
     @kweeks_api.doc(security='KwikkerKey')
     @authorize
     def post(self, authorized_username):
         """
         Create a new Kweek or reply.
         """
-        check, message = create_kweek(request.get_json(), authorized_username)
+        check, message, code = create_kweek(request.get_json(), authorized_username)
         if check:
-            return 'success', 201
+            return 'Kweek has been created successfully.', code
         else:
-            abort(404, message)
+            abort(code, message)
 
-    @kweeks_api.response(code=204, description='Kweek has been deleted successfully.')
-    @kweeks_api.response(code=404, description='Kweek does not exist.')
     @kweeks_api.response(code=401, description='Unauthorized access.')
+    @kweeks_api.response(code=400, description='Invalid kweek ID.')
+    @kweeks_api.response(code=404, description='Kweek does not exist.')
+    @kweeks_api.response(code=401, description='Deletion is not allowed.')
+    @kweeks_api.response(code=200, description='Kweek has been created successfully.')
     @kweeks_api.param(name='id', type='str', description='The id of the Kweek to be deleted.', required=True)
     @kweeks_api.doc(security='KwikkerKey')
     @authorize
@@ -44,11 +50,11 @@ class Kweeks(Resource):
         """
         if not request.args.get('id'):
             abort(400, 'please provide the kweek id')
-        check, message = delete_kweek(request.args.get('id'), authorized_username)
+        check, message, code = delete_kweek(request.args.get('id'), authorized_username)
         if check:
-            return 'success', 201
+            return 'Kweek has been deleted successfully.', code
         else:
-            abort(404, message)
+            abort(code, message)
 
     @kweeks_api.response(code=200, description='Kweek has been returned successfully.',
                          model=create_model('Kweek & Replies',
@@ -63,6 +69,8 @@ class Kweeks(Resource):
                                                  'replies': fields.List(fields.Nested(Kweek.api_model,
                                                                                       description='Direct replies '
                                                                                                   'of the Kweek'))}))
+    @kweeks_api.response(code=401, description='Unauthorized access.')
+    @kweeks_api.response(code=400, description='Invalid kweek ID.')
     @kweeks_api.response(code=404, description='Kweek does not exist.')
     @kweeks_api.param(name='id', type='str', description='Id of the Kweek to be retrieved', required=True)
     @kweeks_api.doc(security='KwikkerKey')
@@ -73,7 +81,7 @@ class Kweeks(Resource):
         """
         if not request.args.get('id'):
             abort(400, 'please provide the kweek id')
-        check, message, kweek_obj, replies_obj_list = \
+        check, message, kweek_obj, replies_obj_list, code = \
             get_kweek_with_replies(request.args.get('id'), authorized_username, False)
         if check:
             return {
@@ -81,13 +89,40 @@ class Kweeks(Resource):
                 'replies': replies_obj_list
             }
         else:
-            abort(404, message)
+            abort(code, message)
+
+
+@kweeks_api.route('/kweek_only')
+class KweekOnly(Resource):
+    @kweeks_api.response(code=200, description='kweek has been returned successfully.',
+                         model=Kweek.api_model)
+    @kweeks_api.response(code=401, description='Unauthorized access.')
+    @kweeks_api.response(code=400, description='Invalid kweek ID.')
+    @kweeks_api.response(code=404, description='Kweek does not exist.')
+    @kweeks_api.param(name='id', type='str', description='Id of the Kweek to be retrieved', required=True)
+    @kweeks_api.marshal_with(Kweek.api_model, as_list=False)
+    @kweeks_api.doc(security='KwikkerKey')
+    @authorize
+    def get(self, authorized_username):
+        """
+        Retrieve the kweek without its replies.
+        """
+        if not request.args.get('id'):
+            abort(400, 'please provide the kweek id')
+        check, message, kweek_obj, replies_obj_list, code = \
+            get_kweek_with_replies(request.args.get('id'), authorized_username, False)
+        if check:
+            return kweek_obj, 200
+        else:
+            abort(code, message)
 
 
 @kweeks_api.route('/replies')
 class KweekReplies(Resource):
     @kweeks_api.response(code=200, description='Replies have been returned successfully.',
                          model=[Kweek.api_model])
+    @kweeks_api.response(code=401, description='Unauthorized access.')
+    @kweeks_api.response(code=400, description='Invalid kweek ID.')
     @kweeks_api.response(code=404, description='Kweek does not exist.')
     @kweeks_api.param(name='reply_to', type='str',
                       description='Id of the Kweek that the replies belong to.', required=True)
@@ -100,12 +135,12 @@ class KweekReplies(Resource):
         """
         if not request.args.get('reply_to'):
             abort(400, 'please provide the kweek id')
-        check, message, kweek_obj, replies_obj_list = \
+        check, message, kweek_obj, replies_obj_list, code = \
             get_kweek_with_replies(request.args.get('reply_to'), authorized_username, True)
         if check:
-            return replies_obj_list
+            return replies_obj_list, 200
         else:
-            abort(404, message)
+            abort(code, message)
 
 
 @kweeks_api.route('/rekweek')
@@ -114,23 +149,25 @@ class Rekweek(Resource):
         'id': fields.String(description='The id of the kweek to be rekweeked.')
     }), validate=True)
     @kweeks_api.response(code=401, description='Unauthorized access.')
-    @kweeks_api.response(code=201, description='Reweek created successfully')
+    @kweeks_api.response(code=400, description='Invalid kweek ID.')
     @kweeks_api.response(code=404, description='Kweek does not exist.')
+    @kweeks_api.response(code=200, description='Rekweek has been created successfully.')
     @kweeks_api.doc(security='KwikkerKey')
     @authorize
     def post(self, authorized_username):
         """
         Create a new Rekweek.
         """
-        print(request.get_json(),'route')
-        check, message = create_rekweek(request.get_json(), authorized_username)
+        check, message, code = create_rekweek(request.get_json(), authorized_username)
         if check:
-            return 'success', 201
+            return 'Rekweek has been created successfully.', 200
         else:
-            abort(404, message)
+            abort(code, message)
 
-    @kweeks_api.response(code=204, description='Rekweek has been deleted successfully.')
+    @kweeks_api.response(code=200, description='Rekweek has been deleted successfully.')
+    @kweeks_api.response(code=400, description='Invalid kweek ID.')
     @kweeks_api.response(code=404, description='Kweek does not exist.')
+    @kweeks_api.response(code=401, description='Deletion is not allowed.')
     @kweeks_api.response(code=401, description='Unauthorized access.')
     @kweeks_api.param(name='id', type='string', description='Id of the rekweek to be deleted', required=True)
     @kweeks_api.doc(security='KwikkerKey')
@@ -141,18 +178,19 @@ class Rekweek(Resource):
         """
         if not request.args.get('id'):
             abort(400, 'please provide the kweek id')
-        check, message = delete_rekweek(request.args.get('id'), authorized_username)
+        check, message, code = delete_rekweek(request.args.get('id'), authorized_username)
         if check:
-            return 'success', 201
+            return 'Rekweek has been deleted successfully.', 200
         else:
-            abort(404, message)
+            abort(code, message)
 
 
 @kweeks_api.route('/like')
 class Like(Resource):
-    @kweeks_api.response(code=201, description='Kweek has been liked successfully.')
-    @kweeks_api.response(code=404, description='Kweek does not exist.')
     @kweeks_api.response(code=401, description='Unauthorized access.')
+    @kweeks_api.response(code=400, description='Invalid kweek ID.')
+    @kweeks_api.response(code=404, description='Kweek does not exist.')
+    @kweeks_api.response(code=200, description='Like has been created successfully.')
     @kweeks_api.expect(create_model('Kweek ID', {
         'id': fields.String(description='The id of the kweek to be liked.')
     }), validate=True)
@@ -162,14 +200,16 @@ class Like(Resource):
         """
          Like a rekweek.
         """
-        check, message = like_kweek(request.get_json(), authorized_username)
+        check, message, code = like_kweek(request.get_json(), authorized_username)
         if check:
-            return 'success', 201
+            return 'Like has been created successfully.', 200
         else:
-            abort(404, message)
+            abort(code, message)
 
-    @kweeks_api.response(code=204, description='Kweek has been unliked successfully.')
+    @kweeks_api.response(code=200, description='Like has been deleted successfully.')
+    @kweeks_api.response(code=400, description='Invalid kweek ID.')
     @kweeks_api.response(code=404, description='Kweek does not exist.')
+    @kweeks_api.response(code=401, description='Deletion is not allowed.')
     @kweeks_api.response(code=401, description='Unauthorized access.')
     @kweeks_api.param(name='id', type='str', description='The id of the kweek to be disliked', required=True)
     @kweeks_api.doc(security='KwikkerKey')
@@ -180,17 +220,20 @@ class Like(Resource):
         """
         if not request.args.get('id'):
             abort(400, 'please provide the kweek id')
-        check, message = dislike_kweek(request.args.get('id'), authorized_username)
+        check, message, code = dislike_kweek(request.args.get('id'), authorized_username)
         if check:
-            return 'success', 201
+            return 'Like has been deleted successfully.', 200
         else:
-            abort(404, message)
+            abort(code, message)
 
 
 @kweeks_api.route('/rekweekers')
 class KweekRekweekers(Resource):
     @kweeks_api.response(code=200, description='Rekweerkers have been returned successfully.',
                          model=[User.api_model])
+    @kweeks_api.response(code=401, description='Unauthorized access.')
+    @kweeks_api.response(code=400, description='Invalid kweek ID.')
+    @kweeks_api.response(code=404, description='Kweek does not exist.')
     @kweeks_api.param(name='id', type='str',
                       description='Id of the Kweek whose rekweekers are to be retrieved', required=True)
     @kweeks_api.marshal_with(User.api_model, as_list=True)
@@ -200,21 +243,22 @@ class KweekRekweekers(Resource):
         """
         Retrieve rekweekers of a kweek.
         """
-        print("i'm here")
         if not request.args.get('id'):
             abort(400, 'please provide the kweek id')
-        check, message, users_obj_list = get_rekweekers(request.args.get('id'), authorized_username)
-        print(check, message, users_obj_list)
+        check, message, users_obj_list, code = get_rekweekers(request.args.get('id'), authorized_username)
         if check:
-            return users_obj_list
+            return users_obj_list, 200
         else:
-            abort(404, message)
+            abort(code, message)
 
 
 @kweeks_api.route('/likers')
 class KweekLikers(Resource):
     @kweeks_api.response(code=200, description='Likers have been returned successfully.',
                          model=[User.api_model])
+    @kweeks_api.response(code=401, description='Unauthorized access.')
+    @kweeks_api.response(code=400, description='Invalid kweek ID.')
+    @kweeks_api.response(code=404, description='Kweek does not exist.')
     @kweeks_api.param(name='id', type='string', description='The kweek id to get its likers', required=True)
     @kweeks_api.marshal_with(User.api_model, as_list=True)
     @kweeks_api.doc(security='KwikkerKey')
@@ -223,11 +267,10 @@ class KweekLikers(Resource):
         """
         Retrieve likers of a kweek .
         """
-        print("i'm here")
         if not request.args.get('id'):
             abort(400, 'please provide the kweek id')
-        check, message, users_obj_list = get_likers(request.args.get('id'), authorized_username)
+        check, message, users_obj_list, code = get_likers(request.args.get('id'), authorized_username)
         if check:
-            return users_obj_list
+            return users_obj_list, 200
         else:
-            abort(404, message)
+            abort(code, message)

@@ -204,7 +204,6 @@ def delete_like(lid, authorized_username):
                        - *authorized_username(string)*: The user currently logged in.
 
     """
-    print(lid, authorized_username)
     query: str = """DELETE FROM FAVORITE WHERE KWEEK_ID=%s AND USERNAME=%s"""
     data = (lid, authorized_username)
     db_manager.execute_query_no_return(query, data)
@@ -415,7 +414,6 @@ def add_rekweek(kweek_id, authorized_username):
                        - *authorized_username(string)*: The user currently logged in.
 
     """
-    print(kweek_id, authorized_username,'q')
     query: str = """INSERT INTO  REKWEEK (USERNAME,KWEEK_ID,CREATED_AT) VALUES(%s,%s,%s) """
     data = (authorized_username, kweek_id, datetime.utcnow())
     db_manager.execute_query_no_return(query, data)
@@ -423,7 +421,7 @@ def add_rekweek(kweek_id, authorized_username):
 
 def check_kweek_rekweeker(kid, authorized_username):
     """
-                  Query to get the user if it was the writer of a particular kweek .
+                  Query to get the user if it was the rekweeker of a particular kweek .
 
                   *Parameters*:
                       - *kid*: The id of the kweek to be checked.
@@ -435,6 +433,25 @@ def check_kweek_rekweeker(kid, authorized_username):
         """
 
     query: str = """SELECT * FROM REKWEEK WHERE USERNAME =%s AND KWEEK_ID= %s  """
+    data = (authorized_username, kid)
+    response = db_manager.execute_query(query, data)
+    return response
+
+
+def check_kweek_liker(kid, authorized_username):
+    """
+                  Query to get the user if it was a liker of a particular kweek .
+
+                  *Parameters*:
+                      - *kid*: The id of the kweek to be checked.
+                      - *authorized_username(string)*: The user currently logged in.
+
+                  *Returns*:
+                      - *response*: A list of dictionary containing the rekweek tuple   .
+
+        """
+
+    query: str = """SELECT * FROM FAVORITE WHERE USERNAME =%s AND KWEEK_ID= %s  """
     data = (authorized_username, kid)
     response = db_manager.execute_query(query, data)
     return response

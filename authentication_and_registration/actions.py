@@ -10,6 +10,7 @@ from flask_mail import Mail, Message
 from threading import Thread
 import bcrypt
 import re
+from users_profiles.actions import update_profile_images_on_username_update
 mail = Mail(app)
 root = app.config['FRONT_END_ROOT']
 
@@ -105,7 +106,8 @@ def send_email(email, username, password, subject, url, html, confirm):  # pragm
         codee = create_token(username, password)
     link = root+url+codee.decode('utf-8')
     msg.html = html
-    msg.html += '<a href="'+link+'">Here</a>'
+    msg.html += '<a href="'+link+'"> Here </a>'
+    print(codee.decode('utf-8'))
     thr = Thread(target=async_send_email, args=[msg])
     thr.start()
 
@@ -157,7 +159,10 @@ def update_user_username(username, new_username):
     if query_factory.username_exists(new_username):
         return False
     else:
-        return query_factory.update_user_username(username, new_username)
+        if query_factory.update_user_username(username, new_username):
+            update_profile_images_on_username_update(username, new_username)
+            return True
+        return False
 
 
 def update_user_password(username, new_password):
@@ -294,7 +299,7 @@ def authorize(f):
             abort(401, message='No authorized user found.')
 
         if not is_confirmed(user['username']):
-            abort(401, message='The authorized user is not confirmed.')
+            abort(403, message='The authorized user is not confirmed.')
 
         return f(authorized_username=user['username'], *args, **kwargs)
 

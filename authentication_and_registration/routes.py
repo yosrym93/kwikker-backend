@@ -16,7 +16,7 @@ class Login(Resource):
     }))
     @account_api.response(code=404,
                           description='A user with matching credentials does not exist.')
-    @account_api.response(code=404,
+    @account_api.response(code=403,
                           description='A user with matching credentials is not confirmed.')
     @account_api.expect(create_model('User Credentials', {
                             'username': fields.String(description='The username of the user logging in.'),
@@ -30,7 +30,7 @@ class Login(Resource):
         if not is_verified:
             abort(404, message='A user with matching credentials does not exist.')
         if not is_confirmed:
-            abort(404, message='A user with matching credentials is not confirmed')
+            abort(403, message='A user with matching credentials is not confirmed')
         else:
             token = actions.create_token(data['username'], data['password'])
             token = token.decode('utf-8')
@@ -53,7 +53,7 @@ class Registration(Resource):
         'password': fields.String(description='The password of the new user.'),
         'email': fields.String(description='The email of the new user.'),
         'screen_name': fields.String(description='The screen name of the new user.'),
-        'birth_date': fields.String(description='The birth-date of the new user.')
+        'birth_date': fields.Date(description='The birth-date of the new user.')
     }), validate=True)
     def post(self):
         """ Register a new user. The user then is required to confirm their email address. """

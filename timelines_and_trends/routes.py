@@ -17,9 +17,12 @@ class HomeTimeline(Resource):
     @timelines_api.param(name='last_retrieved_kweek_id', type='str',
                          description="Nullable. Normally the request returns the first 20 kweeks when null."
                                      " To retrieve more send the id of the last kweek retrieved.")
+    @timelines_api.param(name='last_retrieved_rekweeker_username', type='str',
+                         description="Nullable. The rekweeker username of the last retrieved kweek."
+                                     "Used only when scrolling if the last retrieved kweek is a rekweek.")
     @timelines_api.response(code=200, description='Kweeks returned successfully.', model=[Kweek.api_model])
     @timelines_api.response(code=401, description='Unauthorized access.')
-    @timelines_api.response(code=404, description='Kweek id does not exist.')
+    @timelines_api.response(code=404, description='Kweek id or rekweeker username does not exist.')
     @timelines_api.response(code=500, description='An error occurred in the server.')
     @timelines_api.response(code=400, description='Invalid ID provided.')
     @timelines_api.marshal_with(Kweek.api_model, as_list=True)
@@ -28,9 +31,13 @@ class HomeTimeline(Resource):
     def get(self, authorized_username):
         """ Retrieves a list of kweeks in the home page of the authorized user. """
         last_retrieved_kweek_id = request.args.get('last_retrieved_kweek_id')
+        last_retrieved_rekweeker_username = request.args.get('last_retrieved_rekweeker_username')
+        if last_retrieved_rekweeker_username and not actions.is_user(last_retrieved_rekweeker_username):
+            abort(404, message='A user with this rekweeker username does not exist')
         try:
             kweeks = actions.get_home_kweeks(authorized_username=authorized_username,
-                                             last_retrieved_kweek_id=last_retrieved_kweek_id)
+                                             last_retrieved_kweek_id=last_retrieved_kweek_id,
+                                             last_retrieved_rekweeker_username=last_retrieved_rekweeker_username)
             if kweeks is None:
                 abort(404, message='A kweek with the provided ID does not exist.')
             return kweeks, 200
@@ -47,11 +54,15 @@ class ProfileTimeline(Resource):
     @timelines_api.param(name='last_retrieved_kweek_id', type='str',
                          description="Nullable. Normally the request returns the first 20 kweeks when null."
                                      "To retrieve more send the id of the last kweek retrieved.")
+    @timelines_api.param(name='last_retrieved_rekweeker_username', type='str',
+                         description="Nullable. The rekweeker username of the last retrieved kweek."
+                                     "Used only when scrolling if the last retrieved kweek is a rekweek.")
     @timelines_api.response(code=200, description='Kweeks returned successfully.', model=[Kweek.api_model])
     @timelines_api.response(code=401, description='Unauthorized access.')
-    @timelines_api.response(code=404, description='Username or kweek id does not exist.')
+    @timelines_api.response(code=404, description='Username, kweek id or rekweeker username does not exist.')
     @timelines_api.response(code=500, description='An error occurred in the server.')
     @timelines_api.response(code=400, description='Invalid ID provided.')
+    @timelines_api.response(code=403, description='The authorized user is blocked by this user.')
     @timelines_api.marshal_with(Kweek.api_model, as_list=True)
     @timelines_api.doc(security='KwikkerKey')
     @authorize
@@ -62,12 +73,18 @@ class ProfileTimeline(Resource):
         else:
             required_username = request.args.get('username')
             last_retrieved_kweek_id = request.args.get('last_retrieved_kweek_id')
+            last_retrieved_rekweeker_username = request.args.get('last_retrieved_rekweeker_username')
             if not actions.is_user(required_username):
                 abort(404, message='A user with this username does not exist.')
+            if last_retrieved_rekweeker_username and not actions.is_user(last_retrieved_rekweeker_username):
+                abort(404, message='A user with this rekweeker username does not exist')
+            if actions.check_blocked(required_username, authorized_username):
+                abort(403, message='The authorized user is blocked by this user.')
             try:
                 kweeks = actions.get_profile_kweeks(authorized_username=authorized_username,
                                                     required_username=required_username,
-                                                    last_retrieved_kweek_id=last_retrieved_kweek_id)
+                                                    last_retrieved_kweek_id=last_retrieved_kweek_id,
+                                                    last_retrieved_rekweeker_username=last_retrieved_rekweeker_username)
                 if kweeks is None:
                     abort(404, message='A kweek with the provided ID does not exist.')
                 return kweeks, 200

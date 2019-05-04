@@ -9,7 +9,7 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 Server_path = app.config['SERVER_PATH']
 
 
-def create_url( filename):
+def create_url(filename):
     """
                     The function return url of the image .
                     *Parameters*:
@@ -17,7 +17,15 @@ def create_url( filename):
                     *Returns*:
                         - url of image .
     """
-    url = Server_path + 'media/get/'+ filename
+    # Check that the file exists
+    if filename is None:
+        return None
+    filename = get_extension_file(filename)
+    # Create url
+    if filename == "file is not found":
+        url = None
+    else:
+        url = Server_path + 'media/get/'+ filename
     return url
 
 
@@ -78,7 +86,7 @@ def get_extension_file(filename):
         for name in files:
             if fnmatch.fnmatch(name, filename):
                 return name
-    raise Exception("file is not found")
+    return "file is not found"
 
 
 def send_file(filename):

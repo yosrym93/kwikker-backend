@@ -19,7 +19,7 @@ def is_confirmed(username):
                  """
     data = (username,)
     response = db_manager.execute_query(query, data)
-    if type(response) == Exception:
+    if isinstance(response, Exception):
         return False
     elif response:
         return response[0]['is_confirmed']
@@ -44,7 +44,7 @@ def get_user_by_email(email):
                  """
     data = (email,)
     response = db_manager.execute_query(query, data)
-    if type(response) == Exception:
+    if isinstance(response, Exception):
         return False
     elif response:
         return response[0]
@@ -67,7 +67,7 @@ def get_user_by_username(username):
                  """
     data = (username,)
     response = db_manager.execute_query(query, data)
-    if type(response) == Exception:
+    if isinstance(response, Exception):
         return False
     elif response:
         return response[0]
@@ -90,7 +90,7 @@ def username_exists(username):
                  """
     data = (username,)
     response = db_manager.execute_query(query, data)
-    if type(response) == Exception:
+    if isinstance(response, Exception):
         return False
     elif response:
         return True
@@ -113,7 +113,7 @@ def email_exists(email):
                  """
     data = (email,)
     response = db_manager.execute_query(query, data)
-    if type(response) == Exception:
+    if isinstance(response, Exception):
         return False
     if response:
         return True
@@ -160,7 +160,7 @@ def update_user_password(username, new_password):
                  """
     data = (new_password, username)
     response = db_manager.execute_query_no_return(query, data)
-    if type(response) == Exception:
+    if isinstance(response, Exception):
         return False
     else:
         return True
@@ -210,7 +210,7 @@ def update_user_email(username, new_email):
                  """
     data = (new_email, username)
     response = db_manager.execute_query_no_return(query, data)
-    if type(response) == Exception:
+    if isinstance(response, Exception):
         return False
     else:
         return True
@@ -234,7 +234,7 @@ def confirm_user(username):
                  """
     data = (username,)
     response = db_manager.execute_query_no_return(query, data)
-    if type(response) == Exception:
+    if isinstance(response, Exception):
         return False
     return True
 
@@ -257,7 +257,7 @@ def is_user(username, password):
                  """
     data = (username,)
     response = db_manager.execute_query(query, data)
-    if type(response) == Exception:
+    if isinstance(response, Exception):
         return False
     elif response:
         # Check that an un-hashed password matches one that has previously been hashed

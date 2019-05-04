@@ -60,7 +60,8 @@ def test_get_friendship(authorized_username, required_username, expected_output)
                              ('test_user1', 'test_user2', User({
                                  'username': 'test_user2',
                                  'screen_name': 'test2',
-                                 'profile_image_url': 'profile.jpg',
+                                 'profile_image_url': 'http://kwikkerbackend.eu-central-1.elasticbeanstalk.com/'
+                                                      'user/upload/picture/profile.jpg',
                                  'following': False,
                                  'follows_you': False,
                                  'muted': False,
@@ -179,19 +180,33 @@ def test_paginate():
     dictionaries_list = [
         {
             'id': 1,
+            'username': 'user1',
             'text': 'one'
         },
         {
             'id': 2,
+            'username': 'user2',
             'text': 'two'
         },
         {
             'id': 3,
+            'username': 'user3',
             'text': 'three'
         },
         {
             'id': 4,
+            'username': 'user4',
             'text': 'four'
+        },
+        {
+            'id': 1,
+            'username': 'user5',
+            'text': 'one'
+        },
+        {
+            'id': 5,
+            'username': 'user2',
+            'text': 'one'
         }
     ]
     # Normal operation
@@ -201,30 +216,56 @@ def test_paginate():
     assert new_list == [
         {
             'id': 3,
+            'username': 'user3',
             'text': 'three'
         },
         {
             'id': 4,
+            'username': 'user4',
             'text': 'four'
         }
     ]
-    # ID does not exist
+    # Empty list
     new_list = actions.paginate(dictionaries_list=dictionaries_list,
                                 required_size=2, start_after_key='id', start_after_value=5)
 
+    assert new_list == []
+
+    # ID does not exist
+    new_list = actions.paginate(dictionaries_list=dictionaries_list,
+                                required_size=2, start_after_key='id', start_after_value=6)
+
     assert new_list is None
+
     # Start after value is None
     new_list = actions.paginate(dictionaries_list=dictionaries_list,
                                 required_size=2, start_after_key='id', start_after_value=None)
 
-    assert new_list == [{
+    assert new_list == [
+        {
             'id': 1,
+            'username': 'user1',
             'text': 'one'
         },
         {
             'id': 2,
+            'username': 'user2',
             'text': 'two'
-        }]
+        }
+    ]
+    # With secondary key and value
+    new_list = actions.paginate(dictionaries_list=dictionaries_list,
+                                required_size=1, start_after_key='id', start_after_value=1,
+                                secondary_start_after_key='username', secondary_start_after_value='user5')
+
+    assert new_list == [
+        {
+            'id': 5,
+            'username': 'user2',
+            'text': 'one'
+        }
+    ]
+
     # Invalid key
     exception_caught = False
     try:
@@ -236,6 +277,20 @@ def test_paginate():
         assert str(E) == 'One or more dictionary in dictionaries_list do not contain the provided key.'
 
     assert exception_caught
+
+    # Invalid secondary key
+    exception_caught = False
+    try:
+        actions.paginate(dictionaries_list=dictionaries_list,
+                         required_size=2, start_after_key='id',
+                         start_after_value=5, secondary_start_after_key='not_a_key',
+                         secondary_start_after_value='user1')
+    except TypeError as E:
+        exception_caught = True
+        assert str(E) == 'One or more dictionary in dictionaries_list do not contain the provided key(s).'
+
+    assert exception_caught
+
     # Invalid list
     exception_caught = False
     try:
@@ -247,12 +302,39 @@ def test_paginate():
         assert str(E) == 'dictionaries_list parameter passed was not a list.'
 
     assert exception_caught
+
+    # Invalid list with secondary key
+    exception_caught = False
+    try:
+        actions.paginate(dictionaries_list=None,
+                         required_size=2, start_after_key='id',
+                         start_after_value=5, secondary_start_after_key='username',
+                         secondary_start_after_value='user1')
+    except TypeError as E:
+        exception_caught = True
+        assert str(E) == 'dictionaries_list parameter passed was not a list.'
+
+    assert exception_caught
+
     # Invalid list items
     exception_caught = False
     try:
         actions.paginate(dictionaries_list=[1, 2, 3],
                          required_size=2, start_after_key='id',
                          start_after_value=5)
+    except TypeError as E:
+        exception_caught = True
+        assert str(E) == 'One or more values in dictionaries_list are not a dictionary.'
+
+    assert exception_caught
+
+    # Invalid list items with secondary key
+    exception_caught = False
+    try:
+        actions.paginate(dictionaries_list=[1, 2, 3],
+                         required_size=2, start_after_key='id',
+                         start_after_value=5, secondary_start_after_key='username',
+                         secondary_start_after_value='user1')
     except TypeError as E:
         exception_caught = True
         assert str(E) == 'One or more values in dictionaries_list are not a dictionary.'
@@ -279,7 +361,7 @@ def test_get_profile_kweeks():
         'number_of_likes': 0,
         'number_of_rekweeks': 0,
         'number_of_replies': 1,
-        'reply_to': None,
+        'reply_info': None,
         'rekweek_info': None,
         'liked_by_user': False,
         'rekweeked_by_user': False
@@ -301,7 +383,7 @@ def test_get_profile_kweeks():
         'number_of_likes': 0,
         'number_of_rekweeks': 1,
         'number_of_replies': 0,
-        'reply_to': None,
+        'reply_info': None,
         'rekweek_info': RekweekInfo({
             'rekweeker_name': 'test1',
             'rekweeker_username': 'test_user1'
@@ -326,7 +408,7 @@ def test_get_profile_kweeks():
         'number_of_likes': 0,
         'number_of_rekweeks': 0,
         'number_of_replies': 1,
-        'reply_to': None,
+        'reply_info': None,
         'rekweek_info': None,
         'liked_by_user': False,
         'rekweeked_by_user': False
@@ -348,14 +430,14 @@ def test_get_profile_kweeks():
         'number_of_likes': 1,
         'number_of_rekweeks': 1,
         'number_of_replies': 0,
-        'reply_to': None,
+        'reply_info': None,
         'rekweek_info': None,
         'liked_by_user': False,
         'rekweeked_by_user': False
     }))
 
     # Normal case
-    actual_kweeks = actions.get_profile_kweeks('test_user2', 'test_user1', None)
+    actual_kweeks = actions.get_profile_kweeks('test_user2', 'test_user1', None, None)
 
     for index, kweek in enumerate(actual_kweeks):
         assert expected_kweeks[index].to_json() == kweek.to_json()
@@ -363,7 +445,7 @@ def test_get_profile_kweeks():
     # Invalid ID
     exception_caught = False
     try:
-        actions.get_profile_kweeks('test_user2', 'test_user1', 'invalid_id')
+        actions.get_profile_kweeks('test_user2', 'test_user1', 'invalid_id', None)
     except ValueError:
         exception_caught = True
     assert exception_caught
@@ -371,6 +453,51 @@ def test_get_profile_kweeks():
 
 def test_get_home_kweeks():
     expected_kweeks = []
+
+    query = """
+                SELECT ID FROM KWEEK WHERE USERNAME = 'test_user3'
+                AND TEXT = 'Test user 3, third kweek'
+            """
+    kweek_id = db_manager.execute_query(query)[0]['id']
+    reply_info = actions.get_reply_to_info(kweek_id)
+    expected_kweeks.append(Kweek({
+        'id': kweek_id,
+        'created_at': datetime.strptime('2018-01-01 00:00:00', '%Y-%m-%d %H:%M:%S'),
+        'text': 'Test user 3, third kweek',
+        'media_url': None,
+        'user': actions.get_user('test_user3', 'test_user3'),
+        'mentions': actions.get_kweek_mentions(kweek_id),
+        'hashtags': actions.get_kweek_hashtags(kweek_id),
+        'number_of_likes': 0,
+        'number_of_rekweeks': 0,
+        'number_of_replies': 0,
+        'reply_info': reply_info,
+        'rekweek_info': None,
+        'liked_by_user': False,
+        'rekweeked_by_user': False
+    }))
+
+    query = """
+                SELECT ID FROM KWEEK WHERE USERNAME = 'test_user3'
+                AND TEXT = 'Test user 3, second kweek'
+            """
+    kweek_id = db_manager.execute_query(query)[0]['id']
+    expected_kweeks.append(Kweek({
+        'id': kweek_id,
+        'created_at': datetime.strptime('2017-01-01 00:00:00', '%Y-%m-%d %H:%M:%S'),
+        'text': 'Test user 3, second kweek',
+        'media_url': None,
+        'user': actions.get_user('test_user3', 'test_user3'),
+        'mentions': actions.get_kweek_mentions(kweek_id),
+        'hashtags': actions.get_kweek_hashtags(kweek_id),
+        'number_of_likes': 0,
+        'number_of_rekweeks': 0,
+        'number_of_replies': 0,
+        'reply_info': None,
+        'rekweek_info': None,
+        'liked_by_user': False,
+        'rekweeked_by_user': False
+    }))
 
     query = """
                SELECT ID FROM KWEEK WHERE USERNAME = 'test_user1'
@@ -388,16 +515,16 @@ def test_get_home_kweeks():
         'number_of_likes': 0,
         'number_of_rekweeks': 0,
         'number_of_replies': 1,
-        'reply_to': None,
+        'reply_info': None,
         'rekweek_info': None,
         'liked_by_user': False,
         'rekweeked_by_user': False
     }))
 
     query = """
-                    SELECT ID FROM KWEEK WHERE USERNAME = 'test_user3'
-                    AND TEXT = 'Test user 3, first kweek #trend'
-                """
+                SELECT ID FROM KWEEK WHERE USERNAME = 'test_user3'
+                AND TEXT = 'Test user 3, first kweek #trend'
+            """
     kweek_id = db_manager.execute_query(query)[0]['id']
     expected_kweeks.append(Kweek({
         'id': kweek_id,
@@ -410,7 +537,7 @@ def test_get_home_kweeks():
         'number_of_likes': 0,
         'number_of_rekweeks': 1,
         'number_of_replies': 0,
-        'reply_to': None,
+        'reply_info': None,
         'rekweek_info': RekweekInfo({
             'rekweeker_name': 'test1',
             'rekweeker_username': 'test_user1'
@@ -435,7 +562,29 @@ def test_get_home_kweeks():
         'number_of_likes': 0,
         'number_of_rekweeks': 0,
         'number_of_replies': 1,
-        'reply_to': None,
+        'reply_info': None,
+        'rekweek_info': None,
+        'liked_by_user': False,
+        'rekweeked_by_user': False
+    }))
+
+    query = """
+                SELECT ID FROM KWEEK WHERE USERNAME = 'test_user3'
+                AND TEXT = 'Test user 3, first kweek #trend'
+            """
+    kweek_id = db_manager.execute_query(query)[0]['id']
+    expected_kweeks.append(Kweek({
+        'id': kweek_id,
+        'created_at': datetime.strptime('2012-01-01 00:00:00', '%Y-%m-%d %H:%M:%S'),
+        'text': 'Test user 3, first kweek #trend',
+        'media_url': None,
+        'user': actions.get_user('test_user3', 'test_user3'),
+        'mentions': actions.get_kweek_mentions(kweek_id),
+        'hashtags': actions.get_kweek_hashtags(kweek_id),
+        'number_of_likes': 0,
+        'number_of_rekweeks': 1,
+        'number_of_replies': 0,
+        'reply_info': None,
         'rekweek_info': None,
         'liked_by_user': False,
         'rekweeked_by_user': False
@@ -457,14 +606,14 @@ def test_get_home_kweeks():
         'number_of_likes': 1,
         'number_of_rekweeks': 1,
         'number_of_replies': 0,
-        'reply_to': None,
+        'reply_info': None,
         'rekweek_info': None,
         'liked_by_user': True,
         'rekweeked_by_user': True
     }))
 
     # Normal case
-    actual_kweeks = actions.get_home_kweeks('test_user3', None)
+    actual_kweeks = actions.get_home_kweeks('test_user3', None, None)
 
     for index, kweek in enumerate(actual_kweeks):
         assert expected_kweeks[index].to_json() == kweek.to_json()
@@ -472,7 +621,7 @@ def test_get_home_kweeks():
     # Invalid ID
     exception_caught = False
     try:
-        actions.get_home_kweeks('test_user3', 'invalid_id')
+        actions.get_home_kweeks('test_user3', 'invalid_id', None)
     except ValueError:
         exception_caught = True
     assert exception_caught
@@ -497,7 +646,7 @@ def test_get_user_liked_kweeks():
         'number_of_likes': 1,
         'number_of_rekweeks': 0,
         'number_of_replies': 0,
-        'reply_to': None,
+        'reply_info': None,
         'rekweek_info': None,
         'liked_by_user': False,
         'rekweeked_by_user': False
@@ -519,7 +668,7 @@ def test_get_user_liked_kweeks():
         'number_of_likes': 1,
         'number_of_rekweeks': 1,
         'number_of_replies': 0,
-        'reply_to': None,
+        'reply_info': None,
         'rekweek_info': None,
         'liked_by_user': False,
         'rekweeked_by_user': False
@@ -559,7 +708,7 @@ def test_get_trend_kweeks():
         'number_of_likes': 0,
         'number_of_rekweeks': 1,
         'number_of_replies': 0,
-        'reply_to': None,
+        'reply_info': None,
         'rekweek_info': None,
         'liked_by_user': False,
         'rekweeked_by_user': True
@@ -581,7 +730,7 @@ def test_get_trend_kweeks():
         'number_of_likes': 1,
         'number_of_rekweeks': 0,
         'number_of_replies': 0,
-        'reply_to': None,
+        'reply_info': None,
         'rekweek_info': None,
         'liked_by_user': False,
         'rekweeked_by_user': False
@@ -614,10 +763,7 @@ def test_get_replies_and_mentions():
                 AND TEXT = 'Test user 3, third kweek'
             """
     kweek_id = db_manager.execute_query(query)[0]['id']
-    query = """
-                SELECT ID FROM KWEEK WHERE KWEEK.TEXT = 'Test user 1, third kweek'
-            """
-    reply_to_id = db_manager.execute_query(query)[0]['id']
+    reply_info = actions.get_reply_to_info(kweek_id)
     expected_kweeks.append(Kweek({
         'id': kweek_id,
         'created_at': datetime.strptime('2018-01-01 00:00:00', '%Y-%m-%d %H:%M:%S'),
@@ -629,7 +775,7 @@ def test_get_replies_and_mentions():
         'number_of_likes': 0,
         'number_of_rekweeks': 0,
         'number_of_replies': 0,
-        'reply_to': reply_to_id,
+        'reply_info': reply_info,
         'rekweek_info': None,
         'liked_by_user': False,
         'rekweeked_by_user': False
@@ -640,10 +786,7 @@ def test_get_replies_and_mentions():
                 AND TEXT = 'Test user 2, second kweek'
             """
     kweek_id = db_manager.execute_query(query)[0]['id']
-    query = """
-                SELECT ID FROM KWEEK WHERE KWEEK.TEXT = 'Test user 1, second kweek'
-            """
-    reply_to_id = db_manager.execute_query(query)[0]['id']
+    reply_info = actions.get_reply_to_info(kweek_id)
     expected_kweeks.append(Kweek({
         'id': kweek_id,
         'created_at': datetime.strptime('2014-01-01 00:00:00', '%Y-%m-%d %H:%M:%S'),
@@ -655,7 +798,7 @@ def test_get_replies_and_mentions():
         'number_of_likes': 0,
         'number_of_rekweeks': 0,
         'number_of_replies': 0,
-        'reply_to': reply_to_id,
+        'reply_info': reply_info,
         'rekweek_info': None,
         'liked_by_user': False,
         'rekweeked_by_user': False
@@ -677,7 +820,7 @@ def test_get_replies_and_mentions():
         'number_of_likes': 1,
         'number_of_rekweeks': 0,
         'number_of_replies': 0,
-        'reply_to': None,
+        'reply_info': None,
         'rekweek_info': None,
         'liked_by_user': False,
         'rekweeked_by_user': False
@@ -729,7 +872,7 @@ def test_search_kweeks():
         'number_of_likes': 0,
         'number_of_rekweeks': 0,
         'number_of_replies': 0,
-        'reply_to': None,
+        'reply_info': None,
         'rekweek_info': None,
         'liked_by_user': False,
         'rekweeked_by_user': False
@@ -740,10 +883,7 @@ def test_search_kweeks():
                 AND TEXT = 'Test user 2, second kweek'
             """
     kweek_id = db_manager.execute_query(query)[0]['id']
-    query = """
-                SELECT ID FROM KWEEK WHERE KWEEK.TEXT = 'Test user 1, second kweek'
-            """
-    reply_to_id = db_manager.execute_query(query)[0]['id']
+    reply_info = actions.get_reply_to_info(kweek_id)
     expected_kweeks.append(Kweek({
         'id': kweek_id,
         'created_at': datetime.strptime('2014-01-01 00:00:00', '%Y-%m-%d %H:%M:%S'),
@@ -755,7 +895,7 @@ def test_search_kweeks():
         'number_of_likes': 0,
         'number_of_rekweeks': 0,
         'number_of_replies': 0,
-        'reply_to': reply_to_id,
+        'reply_info': reply_info,
         'rekweek_info': None,
         'liked_by_user': False,
         'rekweeked_by_user': False
@@ -777,7 +917,7 @@ def test_search_kweeks():
         'number_of_likes': 0,
         'number_of_rekweeks': 0,
         'number_of_replies': 1,
-        'reply_to': None,
+        'reply_info': None,
         'rekweek_info': None,
         'liked_by_user': False,
         'rekweeked_by_user': False
@@ -835,3 +975,14 @@ def test_get_all_trends():
     except ValueError:
         exception_caught = True
     assert exception_caught
+
+
+@pytest.mark.parametrize("blocker, blocked, expected_output",
+                         [
+                             ('test_user1', 'test_user1', False),
+                             ('test_user1', 'test_user2', False),
+                             ('test_user2', 'test_user1', True)
+                         ])
+def test_check_blocked(blocker, blocked, expected_output):
+    is_blocked = actions.check_blocked(blocker, blocked)
+    assert is_blocked == expected_output
