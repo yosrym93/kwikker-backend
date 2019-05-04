@@ -307,6 +307,7 @@ def update_profile_images_on_username_update(old_username, new_username):  # pra
     file_name = profile_image_url[len(fixed_url_part):]
     default_file_name = 'profile.jpg'
     if file_name != default_file_name:
+        file_name = file_name[:-21]  # Remove the ? and the dummy value from the end of the url
         dummy, ext = os.path.splitext(file_name)
         new_file_name = new_username + 'profile' + ext
         query_factory.update_user_profile_picture(new_username, create_url('picture', new_file_name,
@@ -318,6 +319,7 @@ def update_profile_images_on_username_update(old_username, new_username):  # pra
     file_name = banner_image_url[len(fixed_url_part):]
     default_file_name = 'banner.jpg'
     if file_name != default_file_name:
+        file_name = file_name[:-21]  # Remove the ? and the dummy value from the end of the url
         dummy, ext = os.path.splitext(file_name)
         new_file_name = new_username + 'banner' + ext
         query_factory.update_user_banner_picture(new_username, create_url('banner', new_file_name,
