@@ -4,8 +4,6 @@ from app import socketio
 from models import Notification
 from timelines_and_trends import actions
 from direct_messages import actions as action
-from flask import json
-from timelines_and_trends import actions as tt_action
 
 
 def get_notifications(notified_username, last_notification_retrieved_id=None):
@@ -62,7 +60,7 @@ def create_notifications(involved_username, notified_username, type_notification
          - *None*: If the query was executed successfully.
          - *Exception* object: If the query produced an error.
      """
-    if involved_username == notified_username :
+    if involved_username == notified_username:
         return None
     if kweek_id is not None and is_kweek(kweek_id) is False:
         raise Exception('A kweek with this id does not exist')
@@ -73,17 +71,17 @@ def create_notifications(involved_username, notified_username, type_notification
     if is_notification(involved_username, notified_username, type_notification, kweek_id) is True:
         return "already exists"
     response = query_factory.create_notifications(involved_username, notified_username,
-                                                  type_notification,kweek_id, datetime.datetime.now(), False)
+                                                  type_notification, kweek_id, datetime.datetime.now(), False)
     if type_notification == "REKWEEK":
-        result =  involved_username+ " rekweeked your kweek."
+        result = involved_username + " rekweeked your kweek."
     elif type_notification == "LIKE":
-        result = involved_username +" liked your kweek."
+        result = involved_username + " liked your kweek."
     elif type_notification == "FOLLOW":
         result = involved_username + " followed you."
     elif type_notification == "REPLY":
-        result = involved_username +" replied to your kweek"
+        result = involved_username + " replied to your kweek"
     else:
-        result = involved_username +" mentioned you."
+        result = involved_username + " mentioned you."
     channel = notified_username
     socketio.emit(channel, result)
     return response

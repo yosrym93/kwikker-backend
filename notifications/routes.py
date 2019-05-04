@@ -13,10 +13,12 @@ notifications_api = api_namespaces.notifications_api
 @notifications_api.route('/')
 class Notifications(Resource):
     @notifications_api.response(code=200, description='Notifications returned successfully.',
-                            model=create_model('Notifications', model={
-                                'unseen_count': fields.Integer('The number of unseen notifications.'),
-                                'Notifications': fields.List(fields.Nested(Notification.api_model))
-                            }))
+                                model=create_model('Notifications',
+                                                   model={'unseen_count': fields.Integer(
+                                                       'The number of unseen notifications.'),
+                                                          'Notifications': fields.List(
+                                                              fields.Nested(Notification.api_model))
+                                                          }))
     @notifications_api.response(code=401, description='Unauthorized access.')
     @notifications_api.response(code=404, description="Notification id does not exist.")
     @notifications_api.response(code=500, description='An error occurred in the server.')
@@ -64,6 +66,6 @@ class Notifications(Resource):
     @authorize
     def get(self, authorized_username):
         """ Retrieves a number of unseen notifications. """
-        unseen_count = actions.get_notifications_unseen_count(authorized_username) + \
-                       ttactions.get_replies_and_mentions_unseen_count(authorized_username)
-        return unseen_count ,200
+        unseen_count = actions.get_notifications_unseen_count(authorized_username) + ttactions.\
+            get_replies_and_mentions_unseen_count(authorized_username)
+        return unseen_count, 200
