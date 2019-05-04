@@ -80,7 +80,7 @@ def get_home_kweeks(authorized_username):
             """
     data = (authorized_username, authorized_username, authorized_username,
             authorized_username, authorized_username, authorized_username,
-            authorized_username, authorized_username)
+            authorized_username)
     home_kweeks = db_manager.execute_query(query, data)
     return home_kweeks
 
