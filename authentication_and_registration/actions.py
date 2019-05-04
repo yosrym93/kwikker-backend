@@ -258,8 +258,8 @@ def get_user(codee):  # pragma:no cover
     Code verification function. This function validate the code.
 
     *Returns:*
-        -*Error Response,401*: if the token is not given in the header, expired or invalid.
-        -*Username*:if the token is valid it allows the access and return the username of the user.
+        -*Error Response,401*: if the code is expired or invalid. Or the user is not on the system.
+        -*Username*:if the code is valid it allows the access and return the username of the user.
     """
     user = None
     try:
@@ -286,6 +286,8 @@ def authorize(f):
 
     *Returns:*
         -*Error Response,401*: if the token is not given in the header, expired or invalid.
+                                Or the user is not on the system.
+        -*Error Response,403*: if the user is not confirmed.
         -*Username*:if the token is valid it allows the access and return the username of the user.
     """
     @wraps(f)  # pragma:no cover

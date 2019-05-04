@@ -131,17 +131,18 @@ def get_replies_and_mentions_kweeks(authorized_username):
                                         }
     """
     query = """
-            (SELECT * FROM KWEEK K WHERE 
-            (SELECT USERNAME FROM KWEEK WHERE ID = K.REPLY_TO) = %s)
-            
-            UNION
-            
-            (SELECT K.* FROM KWEEK K JOIN MENTION M ON K.ID = M.KWEEK_ID
-            WHERE M.USERNAME = %s)
-            
+            SELECT * FROM
+                ((SELECT * FROM KWEEK K WHERE 
+                (SELECT USERNAME FROM KWEEK WHERE ID = K.REPLY_TO) = %s)
+                
+                UNION
+                
+                (SELECT K.* FROM KWEEK K JOIN MENTION M ON K.ID = M.KWEEK_ID
+                WHERE M.USERNAME = %s)) AS KWEEKS
+            WHERE USERNAME != %s
             ORDER BY CREATED_AT DESC
             """
-    data = (authorized_username, authorized_username)
+    data = (authorized_username, authorized_username, authorized_username)
     replies_and_mentions_kweeks = db_manager.execute_query(query, data)
     return replies_and_mentions_kweeks
 
