@@ -1,8 +1,8 @@
 from locust import HttpLocust, TaskSet, task
 import numpy as np
 
-users = ["dawood","ahly"]
-passwords = ["DaWood@123","123456"]
+users = ["dawood","test_user1"]
+passwords = ["DaWood@123","pass"]
 num_users = 2
 hashtags = ["hashtag1", "hashtag2","hashtag3"]
 
@@ -25,8 +25,6 @@ class UserBehavior(TaskSet):
             if (response.status_code == 200):
                 json_response_dict = response.json() 
                 self.token_string = json_response_dict['token']
-            else:
-                response.failure("Cannot Login With User: " + str(idx))
 
 
     @task(1)
@@ -82,6 +80,27 @@ class UserBehavior(TaskSet):
         self.client.get("/kweeks/likers?id=" + kweek_number,
         headers={"TOKEN" : self.token_string})
 
+    @task(1)
+    def create_rekweek(self):
+        self.client.post("/kweeks/rekweek",
+        json = {"id": kweek_number},
+        headers={"TOKEN" : self.token_string})
+
+    @task(1)
+    def get_rekweekers(self):
+        self.client.get("/kweeks/rekweekers?id=" + kweek_number,
+        headers={"TOKEN" : self.token_string})
+
+    @task(1)
+    def get_kweeks_replies(self):
+        self.client.get("/kweeks/replies?reply_to=" + kweek_number,
+        headers={"TOKEN" : self.token_string})
+
+    @task(1)
+    def get_kweeks_user_liked(self):
+        self.client.get("/kweeks/user/liked?username=" + users[1],
+        headers={"TOKEN" : self.token_string})
+    
 class WebsiteUser(HttpLocust):
     task_set = UserBehavior
     min_wait = 5000
