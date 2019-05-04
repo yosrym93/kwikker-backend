@@ -106,7 +106,7 @@ def send_email(email, username, password, subject, url, html, confirm):  # pragm
         codee = create_token(username, password)
     link = root+url+codee.decode('utf-8')
     msg.html = html
-    msg.html += '<a href="'+link+'">Here</a>'
+    msg.html += '<a href="'+link+'"> Here </a>'
     thr = Thread(target=async_send_email, args=[msg])
     thr.start()
 
@@ -127,6 +127,24 @@ def verify(username, password):
         -*False*: if the user is not on the system.
     """
     return query_factory.is_user(username, password)
+
+
+def verify_hashed(username, password):
+    """
+    verify user. password is hashed.
+
+    investigate whether the user is on the system or not, by calling another function
+    in the query factory that access the database.
+
+    *Parameters:*
+        - *username(string)*: holds the value of the username.
+        - *password(string)*: holds the value of the password.
+
+    *Returns:*
+        -*True*: if the user is on the system.
+        -*False*: if the user is not on the system.
+    """
+    return query_factory.is_user_hashed(username, password)
 
 
 def confirm_user(username):
@@ -251,13 +269,13 @@ def get_user(codee):  # pragma:no cover
         abort(401, message='Code expired. Request another code')
 
     except jwt.InvalidTokenError:
-        abort(404, message='Invalid code.')
+        abort(401, message='Invalid code.')
 
     if user is None:
-        abort(404, message='Invalid code')
+        abort(401, message='Invalid code')
 
-    if not query_factory.username_exists(user['username']):
-        abort(404, message='User with the given code does not exist.')
+    if not verify_hashed(user['username'], user['password']):
+            abort(401, message='No authorized user found.')
 
     return user['username'], user['password']
 
@@ -290,15 +308,11 @@ def authorize(f):
         except jwt.InvalidTokenError:
             abort(401, message='Invalid token. Please log in again.')
 
-        # print('TOKEN: {}'.format(token))
-        # if not query_factory.username_exists(user['username']):
-            # abort(401, message='User not found.')
-
         if not verify(user['username'], user['password']):
             abort(401, message='No authorized user found.')
 
         if not is_confirmed(user['username']):
-            abort(401, message='The authorized user is not confirmed.')
+            abort(403, message='The authorized user is not confirmed.')
 
         return f(authorized_username=user['username'], *args, **kwargs)
 

@@ -16,7 +16,7 @@ class Login(Resource):
     }))
     @account_api.response(code=404,
                           description='A user with matching credentials does not exist.')
-    @account_api.response(code=404,
+    @account_api.response(code=403,
                           description='A user with matching credentials is not confirmed.')
     @account_api.expect(create_model('User Credentials', {
                             'username': fields.String(description='The username of the user logging in.'),
@@ -30,7 +30,7 @@ class Login(Resource):
         if not is_verified:
             abort(404, message='A user with matching credentials does not exist.')
         if not is_confirmed:
-            abort(404, message='A user with matching credentials is not confirmed')
+            abort(403, message='A user with matching credentials is not confirmed')
         else:
             token = actions.create_token(data['username'], data['password'])
             token = token.decode('utf-8')
@@ -87,12 +87,12 @@ class RegistrationConfirmation(Resource):
     @account_api.doc(security='KwikkerCode')
     def post(self):
         """ Confirm a user's registration and provide an access token. """
-        code = None
+        codee = None
         if 'CODE' in request.headers:
-            code = request.headers['CODE']
+            codee = request.headers['CODE']
         else:
             abort(403, message='Code is missing.')
-        username, password = actions.get_user(code)
+        username, password = actions.get_user(codee)
         actions.confirm_user(username)
         return "", 200
         pass

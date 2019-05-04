@@ -1,10 +1,13 @@
 from locust import HttpLocust, TaskSet, task
 import numpy as np
-users = ["test_user2", "test_user3"]
-passwords = ["Pp111111","Pp111111"]
+
+
+
+users = ["dawood","ahly"]
+passwords = ["DaWood@123","123456"]
 num_users = 2
-banner_path= "E:\youssef photos\PHOTOS\AAFR9688.JPG"
 profile_picture_path= "E:\youssef photos\PHOTOS\ATIZE5497.JPG"
+banner_path="E:\youssef photos\PHOTOS\ATIZE5497.JPG"
 
 class UserBehavior(TaskSet):
     bannerbin = {'file': open(banner_path, 'rb')}
@@ -27,25 +30,38 @@ class UserBehavior(TaskSet):
                 self.token_string = json_response_dict['token']
 
     @task(1)
-    def getprofile(self):
+    def get_profile(self):
         idx = np.random.randint(num_users)
         self.client.get("/user/profile",headers={"TOKEN": self.token_string},params={"username":users[idx]})
 
 
     @task(1)
-    def updatebioscreenname(self):
+    def update_bio_screenname(self):
         idx = np.random.randint(num_users)
         self.client.patch("/user/profile",json = {"bio": "bio" , "screen_name": users[idx]+"updated"},headers={"TOKEN": self.token_string})
 
     @task(1)
     def banner(self):
-        self.client.put("/user/profile_banner",headers={"TOKEN": self.token_string},files=self.bannerbin)
+        self.client.post("/user/profile_banner",headers={"TOKEN": self.token_string},files=self.bannerbin)
         self.client.delete("/user/profile_banner", headers={"TOKEN": self.token_string})
 
     @task(1)
-    def profilepicture(self):
-        self.client.put("/user/profile_picture",headers={"TOKEN": self.token_string},files=self.profilebin)
+    def profile_picture(self):
+        self.client.post("/user/profile_picture",headers={"TOKEN": self.token_string},files=self.profilebin)
         self.client.delete("/user/profile_picture", headers={"TOKEN": self.token_string})
+
+
+    @task(1)
+    def update_email(self):
+        self.client.put("/user/email",headers={"TOKEN": self.token_string}, json = {"email": self.email})
+        if(self.email == "newEmail@gmail.com"):
+            self.email= "newEmail@yahoo.com"
+        else:
+            self.email = "newEmail@gmail.com"
+
+    @task(1)
+    def get_email(self):
+        self.client.get("/user/email",headers={"TOKEN": self.token_string})
 
 
 class WebsiteUser(HttpLocust):

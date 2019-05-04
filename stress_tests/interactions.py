@@ -1,9 +1,10 @@
 from locust import HttpLocust, TaskSet, task
 import numpy as np
 
-users = ["test_user2","test_user3"]
-passwords = ["Pp111111","Pp111111"]
+users = ["dawood","ahly"]
+passwords = ["DaWood@123","123456"]
 num_users = 2
+
 
 
 class UserBehavior(TaskSet):
@@ -36,6 +37,30 @@ class UserBehavior(TaskSet):
         idx = np.random.randint(num_users)
         self.client.get("/interactions/following?username="+users[idx],headers={"TOKEN": self.token_string})
 
+    @task(1)
+    def post_block(self):
+        self.client.post("/interactions/blocks",json = {"username":"test_user1"},headers={"TOKEN": self.token_string})
+        self.client.delete("/interactions/blocks?username=test_user1", headers={"TOKEN": self.token_string})
+
+    @task(1)
+    def post_mute(self):
+        self.client.post("/interactions/mutes",json = {"username":"test_user1"},headers={"TOKEN": self.token_string})
+        self.client.delete("/interactions/mutes?username=test_user1", headers={"TOKEN": self.token_string})
+
+
+    @task(1)
+    def post_follow(self):
+        self.client.post("/interactions/follow",json = {"username":"test_user1"},headers={"TOKEN": self.token_string})
+        self.client.delete("/interactions/follow?username=test_user1", headers={"TOKEN": self.token_string})
+
+
+    @task(1)
+    def get_blocks(self):
+        self.client.get("/interactions/blocks",headers={"TOKEN": self.token_string})
+
+    @task(1)
+    def get_mutes(self):
+        self.client.get("/interactions/mutes",headers={"TOKEN": self.token_string})
 
 
 class WebsiteUser(HttpLocust):

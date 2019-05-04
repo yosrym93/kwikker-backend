@@ -517,13 +517,14 @@ def get_trend_kweeks(trend_id):
     return db_manager.execute_query(query, data)
 
 
-def get_search_kweeks(search_text):
+def get_search_kweeks(search_text, authorized_username):
     """
         Gets the kweeks that correspond to the search text, ordered by relevance.
         The kweeks returned are missing some data to construct kweek objects.
 
         *Parameters:*
             - *search_text (string)*: The text to be searched for in the kweeks.
+            - *authorized_username (string)*: The username of the authorized user.
 
         *Returns:*
             - *List of dictionaries*: {
@@ -543,11 +544,12 @@ def get_search_kweeks(search_text):
                 SELECT K.*
                 FROM KWEEK K JOIN KWEEK_SEARCH_TOKENS KS ON K.ID = KS.KWEEK_ID
                 WHERE TS_RANK(TOKENS, TO_TSQUERY('english_nostop', %s)) > 0.00001
+                AND K.USERNAME NOT IN (SELECT BLOCKER_USERNAME FROM BLOCK WHERE BLOCKED_USERNAME= %s)
                 ORDER BY 
                 TS_RANK(TOKENS, TO_TSQUERY('english_nostop', %s)) DESC,
-                CREATED_AT DESC 
+                CREATED_AT DESC
             """
-    data = (search_text, search_text)
+    data = (search_text, authorized_username, search_text)
     return db_manager.execute_query(query, data)
 
 
