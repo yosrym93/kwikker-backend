@@ -105,6 +105,16 @@ def test_create_message():
     assert new_size == (old_size + 1)
 
 
+def test_creat_message():
+    """
+         this function tests if list of messages is created properly by checking size of the list
+    """
+    old_size = count_message('degla', 'arsenal')
+    actions.create_message('degla', 'arsenal', 'test message', None)
+    new_size = count_message('degla', 'arsenal')
+    assert new_size == (old_size + 1)
+
+
 def test_create_message_from_user_error():
     """
         this function tests exception error of involved_user
@@ -162,3 +172,75 @@ def test_get_conversationers_user():
     """
     list_conversations = actions.get_recent_conversationers('ahly', 'no_message')
     assert list_conversations == []
+
+
+@pytest.mark.parametrize("test_username, expected_output",
+                         [
+                             ('zamalek', 1),
+                             ('ahly', 0)
+                         ])
+def test_get_unseen_converstationers(test_username, expected_output):
+    """
+        this function tests unseen_converstationers
+    """
+    assert actions.get_unseen_conversations(test_username) == expected_output
+
+
+def test_set_unseen_converstationers():
+    """
+        this function tests sets unseen_converstationers to seen
+    """
+    count_before = actions.get_unseen_conversations("zamalek")
+    actions.acknowledge("ahly", "zamalek")
+    count_after = actions.get_unseen_conversations("zamalek")
+    assert count_before > count_after
+
+
+def test_no_text_no_media():
+    """
+        this function tests if there is no text nor media in msg
+    """
+    try:
+        actions.create_message("ahly", "zamalek", None, None)
+    except Exception as E:
+        assert str(E) == 'message is empty or media_id is invalid and there is not text'
+
+
+def test_from_get_message():
+    """
+        this function tests if the from_user exists?
+    """
+    try:
+        actions.get_messages("qqqqq", "zamalek", None)
+    except Exception as E:
+        assert str(E) == 'Username who sent this message does not exist.'
+
+
+def test_to_get_message():
+    """
+        this function tests if the to_user exists?
+    """
+    try:
+        actions.get_messages("zamalek", "qqq", None)
+    except Exception as E:
+        assert str(E) == 'Username who want to receive this message does not exist.'
+
+
+def test_from_get_cov():
+    """
+        this function tests if the from_user exists?
+    """
+    try:
+        actions.get_conversations("qqqqq", None)
+    except Exception as E:
+        assert str(E) == 'Username who sent this message does not exist.'
+
+
+def test_get_recent_conversationers_from():
+    """
+        this function tests if the from_user exists?
+    """
+    try:
+        actions.get_recent_conversationers("qqqqq", None)
+    except Exception as E:
+        assert str(E) == 'Username who sent this message does not exist.'
