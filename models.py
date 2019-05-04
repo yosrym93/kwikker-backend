@@ -343,17 +343,20 @@ class DirectMessage:
 class Conversation:
     api_model = create_model('Conversation', {
         'user': fields.Nested(User.api_model, description='The user information a.k.a mini-user information.'),
-        'last_message': fields.Nested(DirectMessage.api_model, description='Last message information.')
+        'last_message': fields.Nested(DirectMessage.api_model, description='Last message information.'),
+        'is_seen': fields.Boolean(description='Is the conversation seen ')
     })
 
     def __init__(self, json):
         self.user = json['user'],
-        self.last_message = json['last_message']
+        self.last_message = json['last_message'],
+        self.is_seen = json['is_seen']
 
     def to_json(self):
         return {
             'user': self.user[0],
-            'last_message': self.last_message
+            'last_message': self.last_message,
+            'is_seen': self.is_seen
         }
 
 
