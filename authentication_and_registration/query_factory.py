@@ -262,6 +262,35 @@ def is_user(username, password):
     elif response:
         # Check that an un-hashed password matches one that has previously been hashed
         if not bcrypt.checkpw(password.encode('utf-8'), response[0]['password'].encode('utf-8')):
-            return False
+                return False
+        return True
+    return False
+
+
+def is_user_hashed(username, password):
+    """
+    check if the user is on the system.
+
+    *Parameters:*
+        -*username(string)*:holds the value of the username.
+        -*password(string)*:holds the value of the password.
+
+     *Returns:*
+     -*True:* if there is a user.
+     -*False:* if there is no user with these info.
+    """
+    # for testing print username and password
+    query: str = """
+                     select PASSWORD from USER_CREDENTIALS where USERNAME= %s
+                 """
+    data = (username,)
+    response = db_manager.execute_query(query, data)
+    if isinstance(response, Exception):
+        return False
+    elif response:
+        # Check that an un-hashed password matches one that has previously been hashed
+        if not bcrypt.checkpw(password.encode('utf-8'), response[0]['password'].encode('utf-8')):
+            if not (password == response[0]['password']):
+                return False
         return True
     return False

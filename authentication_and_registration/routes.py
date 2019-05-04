@@ -87,12 +87,12 @@ class RegistrationConfirmation(Resource):
     @account_api.doc(security='KwikkerCode')
     def post(self):
         """ Confirm a user's registration and provide an access token. """
-        code = None
+        codee = None
         if 'CODE' in request.headers:
-            code = request.headers['CODE']
+            codee = request.headers['CODE']
         else:
             abort(403, message='Code is missing.')
-        username, password = actions.get_user(code)
+        username, password = actions.get_user(codee)
         actions.confirm_user(username)
         return "", 200
         pass
@@ -232,8 +232,6 @@ class ResetPassword(Resource):
         else:
             abort(403, message='Code is missing.')
         username, password = actions.get_user(code)
-        if not actions.verify(username, password):
-            abort(404, message='Reset failed.')
         if data['password'] == '':
             abort(404, message='New password is empty')
         is_updated = actions.update_user_password(username, data['password'])

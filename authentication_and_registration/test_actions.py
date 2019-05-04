@@ -67,6 +67,19 @@ def test_verify(test_username, test_password, expected_output):
     assert answer is expected_output
 
 
+@pytest.mark.parametrize("test_username, test_password, expected_output",
+                         [
+                             ('milan', 'acm', True),
+                             ('mil', 'acm', False),
+                             ('milan', 'a', False),
+                             ('milan', '$2b$12$NZipoqN11Nr0ftXFKW170OUSn2ZNmDBAaE6tZ8XUlNCuAptpWLtYy', True)
+                         ]
+                         )
+def test_verify_hashed(test_username, test_password, expected_output):
+    answer = actions.verify_hashed(test_username, test_password)
+    assert answer is expected_output
+
+
 def test_update_user_password():
     answer = actions.update_user_password('milan', 'aass')
     assert answer is True
