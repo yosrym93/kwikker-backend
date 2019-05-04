@@ -1,7 +1,9 @@
 from locust import HttpLocust, TaskSet, task
 import numpy as np
-users = ["test_user2", "test_user3"]
-passwords = ["Pp111111","Pp111111"]
+
+
+users = ["dawood","ahly"]
+passwords = ["DaWood@123","123456"]
 num_users = 2
 
 class UserBehavior(TaskSet):
@@ -23,22 +25,27 @@ class UserBehavior(TaskSet):
                 self.token_string = json_response_dict['token']
 
     @task(1)
-    def getdm(self):
+    def get_dm(self):
         self.client.get("/direct_message/?username=test_user2",headers={"TOKEN": self.token_string})
 
 
     @task(1)
-    def getdmconversations(self):
+    def get_dm_conversations(self):
         self.client.get("/direct_message/conversations",headers={"TOKEN": self.token_string})
 
     @task(1)
-    def getdmrecentconversationers(self):
+    def get_dm_recent_conversationers(self):
         self.client.get("/direct_message/recent_conversationers",headers={"TOKEN": self.token_string})
 
     @task(1)
-    def postrecentconversationers(self):
+    def post_recent_conversationers(self):
         idx = np.random.randint(num_users)
         self.client.post("/direct_message/recent_conversationers",json = {"search_user" : users[idx]},headers = {"TOKEN": self.token_string})
+
+    @task(1)
+    def post_dm(self):
+        idx = np.random.randint(num_users)
+        self.client.post("/direct_message/",json = {"text": "new message","username": users[idx],"media_id": "nullable string"},headers = {"TOKEN": self.token_string})
 
 
 class WebsiteUser(HttpLocust):

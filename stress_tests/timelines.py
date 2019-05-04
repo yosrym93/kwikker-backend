@@ -1,8 +1,8 @@
 from locust import HttpLocust, TaskSet, task
 import numpy as np
 
-users = ["test_user2","test_user3"]
-passwords = ["Pp111111","Pp111111"]
+users = ["dawood","ahly"]
+passwords = ["DaWood@123","123456"]
 num_users = 2
 
 
@@ -28,15 +28,17 @@ class UserBehavior(TaskSet):
 
 
     @task(1)
-    def getkweekstimelineprofile(self):
+    def get_kweeks_timeline_profile(self):
         idx = np.random.randint(num_users)
         self.client.get("/kweeks/timelines/profile?username="+users[idx],headers={"TOKEN": self.token_string})
 
     @task(1)
-    def getkweekstimelinehome(self):
+    def get_kweeks_timeline_home(self):
         self.client.get("/kweeks/timelines/home",headers={"TOKEN": self.token_string})
 
-
+    @task(1)
+    def get_kweeks_timeline_mentions(self):
+        self.client.get("/kweeks/timelines/mentions",headers={"TOKEN": self.token_string})
 
 
 class WebsiteUser(HttpLocust):

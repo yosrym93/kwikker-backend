@@ -1,12 +1,12 @@
 from locust import HttpLocust, TaskSet, task
 import numpy as np
 
-users = ["test_user1", "test_user2", "ahly"]
-passwords = ["pass", "pass", "ahlypassword"]
+users = ["dawood","ahly"]
+passwords = ["DaWood@123","123456"]
+num_users = 2
 hashtags = ["hashtag1", "hashtag2", "hashtag3"]
 
 kweek_number = "3"
-num_users = 3
 
 class UserBehavior(TaskSet): 
     def on_start(self):
