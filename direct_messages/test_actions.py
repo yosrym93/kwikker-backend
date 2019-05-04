@@ -1,7 +1,7 @@
 from . import actions
 from database_manager import db_manager
 import pytest
-#db_manager.initialize_connection('kwikker', 'postgres', '')
+
 
 def get_id(from_username, to_username):
     query = """     SELECT ID, FROM_USERNAME, TO_USERNAME, CREATED_AT, TEXT, MEDIA_URL
@@ -25,7 +25,8 @@ def get_id(from_username, to_username):
 
 
 def count_message(from_username, to_username):
-    return len(actions.get_messages(from_username,to_username))
+    return len(actions.get_messages(from_username, to_username))
+
 
 @pytest.mark.parametrize("test_username, expected_output, last_conversations_retrieved_id",
                          [
@@ -98,9 +99,9 @@ def test_create_message():
     """
         this function tests if list of messages is created properly by checking size of the list
     """
-    old_size = count_message('ahly','zamalek')
-    actions.create_message('ahly', 'zamalek','test message',None)
-    new_size = count_message('ahly','zamalek')
+    old_size = count_message('ahly', 'zamalek')
+    actions.create_message('ahly', 'zamalek', 'test message', None)
+    new_size = count_message('ahly', 'zamalek')
     assert new_size == (old_size + 1)
 
 
@@ -109,7 +110,7 @@ def test_create_message_from_user_error():
         this function tests exception error of involved_user
     """
     try:
-        actions.create_message('qq', 'zamalek','test message',None)
+        actions.create_message('qq', 'zamalek', 'test message', None)
     except Exception as E:
         assert str(E) == 'Username who sent this message does not exist.'
 
@@ -119,7 +120,7 @@ def test_create_message_to_user_error():
         this function tests exception error of notified_user
     """
     try:
-        actions.create_message('zamalek', 'qq', 'test message',None)
+        actions.create_message('zamalek', 'qq', 'test message', None)
     except Exception as E:
         assert str(E) == 'Username who want to receive this message does not exist.'
 

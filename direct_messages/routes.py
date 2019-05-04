@@ -27,7 +27,7 @@ class DirectMessages(Resource):
     @messages_api.marshal_with(DirectMessage.api_model, as_list=True)
     @messages_api.doc(security='KwikkerKey')
     @authorize
-    def get(self,authorized_username):
+    def get(self, authorized_username):
         """ Retrieves a list of Direct Messages."""
         to_username = request.args.get('username')
         last_message_retrieved_id = request.args.get('last_message_retrieved_id')
@@ -75,8 +75,8 @@ class DirectMessages(Resource):
                 abort(404, message='Username who want to receive this message does not exist.')
             elif str(E) == 'Username who sent this message does not exist.':
                 abort(404, message='Username who sent this message does not exist.')
-            elif str(E) =='message is empty or media_id is invalid and there is not text':
-                abort(400,message='message is empty or media_id is invalid and there is not text')
+            elif str(E) == 'message is empty or media_id is invalid and there is not text':
+                abort(400, message='message is empty or media_id is invalid and there is not text')
         return {'message': 'message created successfully'}, 200
 
 

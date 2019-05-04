@@ -2,7 +2,7 @@ from . import query_factory
 import datetime
 from timelines_and_trends import actions
 from app import socketio
-from flask_restplus import  marshal
+from flask_restplus import marshal
 from models import DirectMessage, Conversation, User
 from media import actions as media_actions
 
@@ -31,15 +31,15 @@ def create_message(from_username, to_username, text, media_id=None):
     media_id = media_actions.create_url(media_id)
     if text is None and media_id is None:
         raise Exception('message is empty or media_id is invalid and there is not text')
-    media_url =media_id
+    media_url = media_id
     response = query_factory.create_message(from_username, to_username, datetime.datetime.now(), text,
                                             media_url)
-    message=  query_factory.get_messages(from_username,to_username)[0]
-    if(from_username<to_username):
-        channel=from_username+to_username
+    message = query_factory.get_messages(from_username, to_username)[0]
+    if from_username < to_username:
+        channel = from_username+to_username
     else:
-        channel=to_username+from_username
-    socketio.emit(channel,marshal(message, DirectMessage.api_model))
+        channel = to_username+from_username
+    socketio.emit(channel, marshal(message, DirectMessage.api_model))
     return response
 
 
@@ -125,7 +125,7 @@ def get_conversations(auth_username, last_conversations_retrieved_id=None):
         to_username = conversation['to_username']
         from_username = conversation['from_username']
         dictionary = {'id': conversation['id']}
-        temp = {'from_username':from_username}
+        temp = {'from_username': from_username}
         dictionary.update(temp)
         temp = {'to_username': to_username}
         dictionary.update(temp)
@@ -138,7 +138,7 @@ def get_conversations(auth_username, last_conversations_retrieved_id=None):
         dictionary.update(temp)
         direct_message = DirectMessage(dictionary)
         dic = {'last_message': direct_message}
-        if to_username == auth_username :
+        if to_username == auth_username:
             username = from_username
         else:
             username = to_username

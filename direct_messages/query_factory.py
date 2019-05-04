@@ -134,18 +134,17 @@ def get_conversations(auth_username):
                                             WHERE TO_USERNAME=%s
                                         )
                                     )
-	
-                    SELECT *,ROW_NUMBER()OVER (PARTITION BY T ORDER BY CREATED_AT DESC) as TEMP
-                    FROM INNER_GROUP
-	        )
+                                    SELECT *,ROW_NUMBER()OVER 
+                                    (PARTITION BY T ORDER BY CREATED_AT DESC) as TEMP
+                                    FROM INNER_GROUP)
 
                     SELECT SCREEN_NAME, PROFILE_IMAGE_URL, ID, FROM_USERNAME, TO_USERNAME ,CREATED_AT, TEXT, MEDIA_URL
                     FROM OUTER_GROUP
                     WHERE OUTER_GROUP.TEMP=1
                     ORDER BY CREATED_AT DESC 
                  """
-    data = (auth_username,auth_username,auth_username,auth_username,auth_username,
-            auth_username,auth_username,auth_username)
+    data = (auth_username, auth_username, auth_username, auth_username, auth_username,
+            auth_username, auth_username, auth_username)
     response = db_manager.execute_query(query, data)
     return response
 
