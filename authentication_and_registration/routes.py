@@ -67,7 +67,7 @@ class Registration(Resource):
         if not (user_exist or email_exist):
             create_profile(data['username'], data['screen_name'], data['birth_date'])
             html = '<p>Confirming your account will give you </p> <b>full access to Kwikker</b>'
-            subject = 'Confirm your Kwikker account, '+data['screen_name']
+            subject = 'Confirm your Kwikker account, '+data['username']
             # (email, username, password, subject, url, html, confirm)
             actions.send_email(data['email'], data['username'], data['password'], subject,
                                '/confirm/', html, True)
