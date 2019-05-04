@@ -17,6 +17,7 @@ class UserBehavior(TaskSet):
         #self.logout()
         pass
 
+    @task(1)
     def login(self):
         idx = np.random.randint(num_users)
         with self.client.post("/account/login", json = {"username": users[idx], "password": passwords[idx]}, catch_response=True) as response:
