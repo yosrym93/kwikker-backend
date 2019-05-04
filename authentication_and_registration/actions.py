@@ -107,9 +107,8 @@ def send_email(email, username, password, subject, url, html, confirm):  # pragm
     link = root+url+codee.decode('utf-8')
     msg.html = html
     msg.html += '<a href="'+link+'"> Here </a>'
-    print(codee.decode('utf-8'))
-    # thr = Thread(target=async_send_email, args=[msg])
-    # thr.start()
+    thr = Thread(target=async_send_email, args=[msg])
+    thr.start()
 
 
 def verify(username, password):
@@ -270,10 +269,10 @@ def get_user(codee):  # pragma:no cover
         abort(401, message='Code expired. Request another code')
 
     except jwt.InvalidTokenError:
-        abort(404, message='Invalid code.')
+        abort(401, message='Invalid code.')
 
     if user is None:
-        abort(404, message='Invalid code')
+        abort(401, message='Invalid code')
 
     if not verify_hashed(user['username'], user['password']):
             abort(401, message='No authorized user found.')
@@ -308,10 +307,6 @@ def authorize(f):
 
         except jwt.InvalidTokenError:
             abort(401, message='Invalid token. Please log in again.')
-
-        # print('TOKEN: {}'.format(token))
-        # if not query_factory.username_exists(user['username']):
-            # abort(401, message='User not found.')
 
         if not verify(user['username'], user['password']):
             abort(401, message='No authorized user found.')
