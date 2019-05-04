@@ -24,6 +24,7 @@ def create_message(from_username, to_username, text, media_id=None):
                - *None*: if the query was executed successfully.
                - *Exception object*: if there is something wrong, return right exception.
       """
+
     if actions.is_user(from_username) is False:
         raise Exception('Username who sent this message does not exist.')
     if actions.is_user(to_username) is False:
@@ -41,6 +42,35 @@ def create_message(from_username, to_username, text, media_id=None):
         channel = to_username+from_username
     socketio.emit(channel, marshal(message, DirectMessage.api_model))
     return response
+
+
+def acknowledge(from_username, to_username):
+    """
+             This function calls set_messages_seen function.
+
+             *Parameter:*
+
+                 - *from_username*: user who is send the message.
+                 - *to_username*: user who is received the message.
+    """
+    query_factory.set_conversation_seen(from_username, to_username)
+
+
+def get_unseen_conversations(auth_username):
+    """
+        gets the unseen conversations.
+
+        *Parameters:*
+            -*authorized_username (string)*: The usern  sends the message.
+        *Returns:*
+            -count: number of unseen conversations.
+    """
+    conversations = query_factory.get_unseen_conversations(auth_username)
+    #if conversations is None:
+        #return None
+    if len(conversations) == 0:
+        return 0
+    return conversations[0]['count']
 
 
 def get_messages(from_username, to_username, last_message_retrieved_id=None):
@@ -162,6 +192,11 @@ def get_conversations(auth_username, last_conversations_retrieved_id=None):
         user = User(dictionary)
         dic2 = {'user': user}
         dic2.update(dic)
+        if conversation['is_seen']is True:
+            dic3 = {'is_seen': True}
+        else:
+            dic3 = {'is_seen': False}
+        dic2.update(dic3)
         conversation_list.append(Conversation(dic2).to_json())
     return conversation_list
 

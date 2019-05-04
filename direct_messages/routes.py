@@ -173,3 +173,34 @@ class RecentConversationers(Resource):
             return conversationers, 200
         except TypeError:
             abort(500, message='An error occurred in the server.')
+
+
+@messages_api.route('/conversations/unseen_count')
+class ConversationersUnseen(Resource):
+    @messages_api.response(code=200, description='number of unseen conversations returned successfully.')
+    @messages_api.response(code=401, description='Unauthorized access.')
+    @messages_api.response(code=500, description='An error occurred in the server.')
+    @messages_api.doc(security='KwikkerKey')
+    @authorize
+    def get(self, authorized_username):
+        """ Retrieves a number of unseen conversations. """
+        unseen_count = actions.get_unseen_conversations(authorized_username)
+        if unseen_count is None:
+            abort(500, message='An error occurred in the server.')
+        return {
+            'unseen_count': unseen_count
+        }
+
+    @messages_api.response(code=200, description='success.')
+    @messages_api.response(code=401, description='Unauthorized access.')
+    @messages_api.response(code=404, description='User does not exist.')
+    @messages_api.expect(create_model('to_user', model={
+        'to_user': fields.String(description='to user')
+    }))
+    @messages_api.doc(security='KwikkerKey')
+    @authorize
+    def post(self, authorized_username):
+        data = request.get_json()
+        to_username = data["to_user"]
+        actions.acknowledge(authorized_username, to_username)
+        return {'message': 'success'}, 200

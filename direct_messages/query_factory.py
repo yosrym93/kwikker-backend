@@ -22,9 +22,9 @@ def create_message(from_username, to_username, created_at, text, media_url):
              - *Exception object*: If the query produced an error.
     """
     query: str = """ 
-                    INSERT INTO MESSAGE(ID, FROM_USERNAME, TO_USERNAME, CREATED_AT, TEXT, MEDIA_URL)
+                    INSERT INTO MESSAGE(ID, FROM_USERNAME, TO_USERNAME, CREATED_AT, TEXT, MEDIA_URL, IS_SEEN)
 
-                    VALUES(DEFAULT, %s, %s, %s, %s, %s)
+                    VALUES(DEFAULT, %s, %s, %s, %s, %s, FAlSE)
                 """
     data = (from_username, to_username, created_at, text, media_url)
     response = db_manager.execute_query_no_return(query, data)
@@ -97,7 +97,7 @@ def get_conversations(auth_username):
                     WITH OUTER_GROUP as(			
                                     WITH INNER_GROUP AS(
                                         SELECT SCREEN_NAME, PROFILE_IMAGE_URL, ID, FROM_USERNAME, TO_USERNAME , 
-                                        MESSAGE.CREATED_AT, TEXT, MEDIA_URL, 
+                                        MESSAGE.CREATED_AT, TEXT, MEDIA_URL,IS_SEEN,
                                         REPLACE(CONCAT(FROM_USERNAME,TO_USERNAME),%s,'')AS T  
                                         FROM MESSAGE INNER JOIN PROFILE ON USERNAME=TO_USERNAME
                                         WHERE FROM_USERNAME=%s
@@ -117,7 +117,7 @@ def get_conversations(auth_username):
                                         UNION
                 
                                         SELECT SCREEN_NAME, PROFILE_IMAGE_URL, ID, FROM_USERNAME, TO_USERNAME , 
-                                        MESSAGE.CREATED_AT, TEXT,  MEDIA_URL,
+                                        MESSAGE.CREATED_AT, TEXT,  MEDIA_URL,IS_SEEN,
                                         REPLACE(CONCAT(FROM_USERNAME,TO_USERNAME),%s,'')AS T
                                         FROM MESSAGE INNER JOIN PROFILE ON USERNAME=FROM_USERNAME
                                         WHERE TO_USERNAME=%s
@@ -138,7 +138,8 @@ def get_conversations(auth_username):
                                     (PARTITION BY T ORDER BY CREATED_AT DESC) as TEMP
                                     FROM INNER_GROUP)
 
-                    SELECT SCREEN_NAME, PROFILE_IMAGE_URL, ID, FROM_USERNAME, TO_USERNAME ,CREATED_AT, TEXT, MEDIA_URL
+                    SELECT SCREEN_NAME, PROFILE_IMAGE_URL, ID, FROM_USERNAME, TO_USERNAME ,CREATED_AT, TEXT, MEDIA_URL,
+                    IS_SEEN
                     FROM OUTER_GROUP
                     WHERE OUTER_GROUP.TEMP=1
                     ORDER BY CREATED_AT DESC 
@@ -264,5 +265,70 @@ def get_recent_conversationers(from_username):
                     ORDER BY CREATED_AT DESC ,USERNAME ASC
                  """
     data = (from_username,)
+    response = db_manager.execute_query(query, data)
+    return response
+
+
+def set_conversation_seen(from_username, to_username):
+    """
+        Sets the unseen messages.
+
+        *Parameters:*
+            -*authorized_username (string)*: The usern  sends the message.
+            -*to_username (string) *:The user who receives the message.
+    """
+    query: str = """
+                    UPDATE MESSAGE
+                    SET IS_SEEN = TRUE
+                    WHERE FROM_USERNAME = %s
+                    AND TO_USERNAME = %s
+                  """
+    data = (from_username, to_username)
+    response = db_manager.execute_query_no_return(query, data)
+    return response
+
+
+def get_unseen_conversations(auth_username):
+    """
+        gets the unseen conversations.
+
+        *Parameters:*
+            -*authorized_username (string)*: The username  sends the message.
+        *Returns:*
+            -dictionary of is_seen: dictionary of is_seen.
+    """
+
+    query: str = """
+    WITH OUTER_GROUP as(			
+                                    WITH INNER_GROUP AS(
+                                        SELECT SCREEN_NAME, PROFILE_IMAGE_URL, ID, FROM_USERNAME, TO_USERNAME , 
+                                        MESSAGE.CREATED_AT, TEXT,  MEDIA_URL,IS_SEEN,
+                                        REPLACE(CONCAT(FROM_USERNAME,TO_USERNAME),%s,'')AS T
+                                        FROM MESSAGE INNER JOIN PROFILE ON USERNAME=FROM_USERNAME
+                                        WHERE TO_USERNAME=%s
+                                        AND FROM_USERNAME IN
+                                        (
+                                            SELECT DISTINCT TO_USERNAME
+                                            FROM MESSAGE
+                                            WHERE FROM_USERNAME=%s
+
+                                            UNION
+
+                                            SELECT DISTINCT FROM_USERNAME
+                                            FROM MESSAGE
+                                            WHERE TO_USERNAME=%s
+                                        )
+                                    )
+
+                    SELECT *,ROW_NUMBER()OVER (PARTITION BY T ORDER BY CREATED_AT DESC) as TEMP
+                    FROM INNER_GROUP)
+
+                    SELECT count(*)
+                    FROM OUTER_GROUP
+                    WHERE OUTER_GROUP.TEMP=1
+                    and is_seen =false
+                    group by(is_seen)
+                    """
+    data = (auth_username, auth_username, auth_username, auth_username)
     response = db_manager.execute_query(query, data)
     return response
