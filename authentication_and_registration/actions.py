@@ -106,7 +106,8 @@ def send_email(email, username, password, subject, url, html, confirm):  # pragm
         codee = create_token(username, password)
     link = root+url+codee.decode('utf-8')
     msg.html = html
-    msg.html += '<a href="'+link+'">Here</a>'
+    msg.html += '<a href="'+link+'"> Here </a>'
+    print(codee.decode('utf-8'))
     thr = Thread(target=async_send_email, args=[msg])
     thr.start()
 
@@ -298,7 +299,7 @@ def authorize(f):
             abort(401, message='No authorized user found.')
 
         if not is_confirmed(user['username']):
-            abort(401, message='The authorized user is not confirmed.')
+            abort(403, message='The authorized user is not confirmed.')
 
         return f(authorized_username=user['username'], *args, **kwargs)
 

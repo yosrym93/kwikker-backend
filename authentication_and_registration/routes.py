@@ -16,7 +16,7 @@ class Login(Resource):
     }))
     @account_api.response(code=404,
                           description='A user with matching credentials does not exist.')
-    @account_api.response(code=404,
+    @account_api.response(code=403,
                           description='A user with matching credentials is not confirmed.')
     @account_api.expect(create_model('User Credentials', {
                             'username': fields.String(description='The username of the user logging in.'),
@@ -30,7 +30,7 @@ class Login(Resource):
         if not is_verified:
             abort(404, message='A user with matching credentials does not exist.')
         if not is_confirmed:
-            abort(404, message='A user with matching credentials is not confirmed')
+            abort(403, message='A user with matching credentials is not confirmed')
         else:
             token = actions.create_token(data['username'], data['password'])
             token = token.decode('utf-8')
