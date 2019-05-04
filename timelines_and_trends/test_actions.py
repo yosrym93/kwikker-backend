@@ -857,9 +857,9 @@ def test_search_kweeks():
     expected_kweeks = []
 
     query = """
-                        SELECT ID FROM KWEEK WHERE USERNAME = 'test_user3'
-                        AND TEXT = 'Test user 3, second kweek'
-                    """
+                SELECT ID FROM KWEEK WHERE USERNAME = 'test_user3'
+                AND TEXT = 'Test user 3, second kweek'
+            """
     kweek_id = db_manager.execute_query(query)[0]['id']
     expected_kweeks.append(Kweek({
         'id': kweek_id,
@@ -873,29 +873,6 @@ def test_search_kweeks():
         'number_of_rekweeks': 0,
         'number_of_replies': 0,
         'reply_info': None,
-        'rekweek_info': None,
-        'liked_by_user': False,
-        'rekweeked_by_user': False
-    }))
-
-    query = """
-                SELECT ID FROM KWEEK WHERE USERNAME = 'test_user2'
-                AND TEXT = 'Test user 2, second kweek'
-            """
-    kweek_id = db_manager.execute_query(query)[0]['id']
-    reply_info = actions.get_reply_to_info(kweek_id)
-    expected_kweeks.append(Kweek({
-        'id': kweek_id,
-        'created_at': datetime.strptime('2014-01-01 00:00:00', '%Y-%m-%d %H:%M:%S'),
-        'text': 'Test user 2, second kweek',
-        'media_url': None,
-        'user': actions.get_user('test_user1', 'test_user2'),
-        'mentions': actions.get_kweek_mentions(kweek_id),
-        'hashtags': actions.get_kweek_hashtags(kweek_id),
-        'number_of_likes': 0,
-        'number_of_rekweeks': 0,
-        'number_of_replies': 0,
-        'reply_info': reply_info,
         'rekweek_info': None,
         'liked_by_user': False,
         'rekweeked_by_user': False
