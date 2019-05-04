@@ -4,7 +4,7 @@ import numpy as np
 users = ["dawood","ahly"]
 passwords = ["DaWood@123","123456"]
 num_users = 2
-hashtags = ["hashtag1", "hashtag2", "hashtag3"]
+hashtags = ["hashtag1", "hashtag2","hashtag3"]
 
 kweek_number = "3"
 
@@ -31,52 +31,55 @@ class UserBehavior(TaskSet):
 
     @task(1)
     def get_kweeks(self):
-        self.client.get("/kweeks/?id=" + kweek_number, 
+        self.client.get("/kweeks/?id=" + kweek_number,
         headers={"TOKEN" : self.token_string})
 
-    @task(1)
-    def create_reply(self):
-        idx = np.random.randint(num_users)
-        mode = np.random.randint(3)
-        if (mode == 1):
-            self.client.post("/kweeks/", 
-            json = {"text": "WOW" + "@" + users[idx] + " how are you?", "reply_to": kweek_number}, 
-            headers={"TOKEN" : self.token_string})
-        elif (mode == 2):
-            self.client.post("/kweeks/", 
-            json = {"text": "WOW" + "#" + hashtags[idx] + "_end WE ROCK", "reply_to": kweek_number}, 
-            headers={"TOKEN" : self.token_string})
-        else:
-            self.client.post("/kweeks/", 
-            json = {"text": "Hi Reply", "reply_to": kweek_number}, 
-            headers={"TOKEN" : self.token_string})
 
     @task(1)
     def create_kweek(self):
         idx = np.random.randint(num_users)
         mode = np.random.randint(3)
         if (mode == 1):
-            self.client.post("/kweeks/", 
-            json = {"text": "WOW" + "@" + users[idx] + " how are you?", "reply_to": None},
+            self.client.post("/kweeks/",
+            json = {"text": "WOW" + "@" + users[idx] + " how are you?", "reply_to": None,"media_id": "nullable string"},
             headers={"TOKEN" : self.token_string})
         elif (mode == 2):
-            self.client.post("/kweeks/", 
-            json = {"text": "WOW" + "#" + hashtags[idx] + "_end WE ROCK", "reply_to": None}, 
+            self.client.post("/kweeks/",
+            json = {"text": "WOW" + "#" + hashtags[idx] + "_end WE ROCK", "reply_to": None,"media_id": "nullable string"},
             headers={"TOKEN" : self.token_string})
         else:
-            self.client.post("/kweeks/", 
-            json = {"text": "Hi Kweek", "reply_to": None}, 
+            self.client.post("/kweeks/",
+            json = {"text": "Hi Kweek", "reply_to": None,"media_id": "nullable string"},
             headers={"TOKEN" : self.token_string})
+
+
+    @task(1)
+    def create_reply(self):
+        idx = np.random.randint(num_users)
+        mode = np.random.randint(3)
+        if (mode == 1):
+            self.client.post("/kweeks/",
+            json = {"text": "WOW" + "@" + users[idx] + " how are you?", "reply_to": kweek_number,"media_id": "nullable string"},
+            headers={"TOKEN" : self.token_string})
+        elif (mode == 2):
+            self.client.post("/kweeks/",
+            json = {"text": "WOW" + "#" + hashtags[idx] + "_end WE ROCK", "reply_to": kweek_number,"media_id": "nullable string"},
+            headers={"TOKEN" : self.token_string})
+        else:
+            self.client.post("/kweeks/",
+            json = {"text": "Hi Reply", "reply_to": kweek_number,"media_id": "nullable string"},
+            headers={"TOKEN" : self.token_string})
+
 
     @task(1)
     def like_kweek(self):
         self.client.post("/kweeks/like",
-        json = {"id": kweek_number}, 
+        json = {"id": kweek_number},
         headers={"TOKEN" : self.token_string})
 
     @task(1)
     def get_kweeks_likers(self):
-        self.client.get("/kweeks/likers?id=" + kweek_number, 
+        self.client.get("/kweeks/likers?id=" + kweek_number,
         headers={"TOKEN" : self.token_string})
 
 class WebsiteUser(HttpLocust):
