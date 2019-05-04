@@ -232,6 +232,8 @@ class ResetPassword(Resource):
         else:
             abort(403, message='Code is missing.')
         username, password = actions.get_user(code)
+        if not actions.verify(username, password):
+            abort(404, message='Reset failed.')
         if data['password'] == '':
             abort(404, message='New password is empty')
         is_updated = actions.update_user_password(username, data['password'])
