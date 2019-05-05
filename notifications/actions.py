@@ -52,7 +52,7 @@ def create_notifications(involved_username, notified_username, type_notification
      *Parameter:*
          - *notified_username* :user who is notified from the notification
          - *involved_username*: user who is responsible for the notification.
-         - *type_notification*: type of the notification [FOLLOW-REKWEEK-LIKE].
+         - *type_notification*: type of the notification [FOLLOW-REKWEEK-LIKE-REPLY-MENTION].
          - *kweek_id*: the id of the kweek involved.
 
      *Returns:*

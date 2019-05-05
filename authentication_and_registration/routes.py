@@ -46,8 +46,7 @@ class Registration(Resource):
                             'username_already_exists': fields.Boolean,
                             'email_already_exists': fields.Boolean
                           }))
-    @account_api.response(code=404, description='Empty field(s).')
-    @account_api.response(code=404, description='Invalid email.')
+    @account_api.response(code=404, description='Empty field(s). or Invalid email.')
     @account_api.expect(create_model('User Registration Data', {
         'username': fields.String(description='The username of the new user.'),
         'password': fields.String(description='The password of the new user.'),
@@ -68,7 +67,7 @@ class Registration(Resource):
         if not (user_exist or email_exist):
             create_profile(data['username'], data['screen_name'], data['birth_date'])
             html = '<p>Confirming your account will give you </p> <b>full access to Kwikker</b>'
-            subject = 'Confirm your Kwikker account, '+data['screen_name']
+            subject = 'Confirm your Kwikker account, '+data['username']
             # (email, username, password, subject, url, html, confirm)
             actions.send_email(data['email'], data['username'], data['password'], subject,
                                '/confirm/', html, True)
@@ -84,6 +83,7 @@ class RegistrationConfirmation(Resource):
     @account_api.response(code=403, description='Code is missing.')
     @account_api.response(code=404,
                           description='An unconfirmed user with the given confirmation code does not exist.')
+    @account_api.response(code=401, description='unauthorized code. Invalid, expired or user not found')
     @account_api.doc(security='KwikkerCode')
     def post(self):
         """ Confirm a user's registration and provide an access token. """
@@ -106,7 +106,6 @@ class RegistrationResendEmail(Resource):
     @account_api.response(code=200, description='Email resent successfully.')
     @account_api.response(code=404, description='Invalid email.')
     @account_api.response(code=404, description='A user with the provided email does not exist.')
-    @account_api.response(code=404, description='The user does not exist or is already confirmed.')
     def post(self):
         """ Re-sends an email to confirm the user registration. """
         data = request.get_json()
@@ -130,8 +129,7 @@ class ForgetPassword(Resource):
         'email': fields.String('The email of the user requesting a password reset.')
     }), validate=True)
     @account_api.response(code=200, description='A new password was sent successfully.')
-    @account_api.response(code=404, description='A user with the provided email does not exist.')
-    @account_api.response(code=404, description='Invalid email.')
+    @account_api.response(code=404, description='A user with the provided email does not exist. or Invalid email.')
     def post(self):
         """ Sends email to the user which give him access to change the password. """
         data = request.get_json()
@@ -158,8 +156,7 @@ class UpdateUsername(Resource):
     @user_api.response(code=200, description='Updated Successfully.', model=create_model('token', model={
         'token': fields.String(description='Access token.')
     }))
-    @user_api.response(code=404, description='Username already exists')
-    @user_api.response(code=404, description='New username is empty')
+    @user_api.response(code=404, description='Invalid user, Username already exists or New username is empty')
     @user_api.doc(security='KwikkerKey')
     @authorize
     def put(self, authorized_username):
@@ -190,9 +187,7 @@ class UpdatePassword(Resource):
         'token': fields.String(description='Access token.')
     }))
     @user_api.response(code=401, description='Unauthorized access.')
-    @user_api.response(code=404, description='Update failed.')
-    @user_api.response(code=404, description='Invalid user')
-    @user_api.response(code=404, description='New password is empty')
+    @user_api.response(code=404, description='Update failed, Invalid user or New password is empty')
     @user_api.doc(security='KwikkerKey')
     @authorize
     def put(self, authorized_username):
@@ -219,9 +214,9 @@ class ResetPassword(Resource):
         'password': fields.String(description='The new password.'),
     }), validate=True)
     @account_api.response(code=200, description='Reset Successfully.')
-    @account_api.response(code=404, description='Reset failed.')
-    @account_api.response(code=404, description='Invalid user')
-    @account_api.response(code=404, description='New password is empty')
+    @account_api.response(code=403, description='code is missing.')
+    @account_api.response(code=404, description='New password is empty or reset failed')
+    @account_api.response(code=401, description='unauthorized code. Invalid, expired or user not found')
     @account_api.doc(security='KwikkerCode')
     def put(self):
         """ Updates the user's password. """
@@ -248,8 +243,6 @@ class UpdateEmail(Resource):
         'email': fields.String(description='The new email.'),
     }), validate=True)
     @user_api.response(code=200, description='Email updated.')
-    @user_api.response(code=404, description='Email already exists.')
-    @user_api.response(code=404, description='Invalid email.')
     @user_api.response(code=401, description='Unauthorized access.')
     @user_api.doc(security='KwikkerKey')
     @authorize

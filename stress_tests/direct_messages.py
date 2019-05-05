@@ -2,8 +2,8 @@ from locust import HttpLocust, TaskSet, task
 import numpy as np
 
 
-users = ["dawood","ahly"]
-passwords = ["DaWood@123","123456"]
+users = ["dawood","test_user1"]
+passwords = ["DaWood@123","pass"]
 num_users = 2
 
 class UserBehavior(TaskSet):
