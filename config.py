@@ -23,7 +23,7 @@ class BaseConfig:
     MAIL_USE_SSL = False
     MAIL_USERNAME = 'no-reply@kwikker.me'
     MAIL_PASSWORD = 'Kwikker1!'
-    FRONT_END_ROOT = 'http://kwikker.me'
+    FRONT_END_ROOT = 'http://www.kwikker.me'
 
 
 class DevelopmentConfig(BaseConfig):
