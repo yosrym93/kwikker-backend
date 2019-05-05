@@ -355,7 +355,7 @@ class Conversation:
     def to_json(self):
         return {
             'user': self.user[0],
-            'last_message': self.last_message,
+            'last_message': self.last_message[0],
             'is_seen': self.is_seen
         }
 
