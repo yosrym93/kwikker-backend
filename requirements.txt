@@ -15,7 +15,7 @@ colorama==0.4.1
 coverage==4.5.3
 dnspython==1.16.0
 docutils==0.14
-eventlet==0.24.1
+eventlet==0.31.0
 Flask==1.0.2
 Flask-Mail==0.9.1
 flask-restplus==0.12.1
